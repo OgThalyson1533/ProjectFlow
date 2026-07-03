@@ -10,7 +10,7 @@ window.PF = {
   supabase:         null,
   user:             null,
   demoMode:         false,
-  currentProject:   null,   // ✅ FIX: nunca usar 'website' como default — causa uuid error no Supabase
+  currentProject:   null,   // <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> FIX: nunca usar 'website' como default — causa uuid error no Supabase
   currentWorkspace: null,
   activeCardId:     null,
   _pendingCol:      null,

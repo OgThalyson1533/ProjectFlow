@@ -474,15 +474,22 @@ const DiagramEngine = {
   },
 
   /** Carrega diagrama do Supabase */
-  async load(projectId) {
+  async load(projectId, taskId = null) {
     if (PF.demoMode) return this._demoDiagram(projectId);
 
-    const { data: diagrams } = await PF.supabase
+    let query = PF.supabase
       .from('project_diagrams')
       .select('*, diagram_nodes(*), diagram_edges(*)')
       .eq('project_id', projectId)
-      .eq('is_current', true)
-      .limit(1);
+      .eq('is_current', true);
+      
+    if (taskId) {
+      query = query.eq('task_id', taskId);
+    } else {
+      query = query.is('task_id', null);
+    }
+
+    const { data: diagrams } = await query.limit(1);
 
     if (!diagrams?.length) return null;
     const d = diagrams[0];
@@ -496,16 +503,22 @@ const DiagramEngine = {
     if (!d) return;
 
     // Marca versão anterior como não-current
-    await PF.supabase.from('project_diagrams')
+    let updateQuery = PF.supabase.from('project_diagrams')
       .update({ is_current: false })
       .eq('project_id', d.project_id)
       .eq('is_current', true);
+      
+    if (d.task_id) updateQuery = updateQuery.eq('task_id', d.task_id);
+    else updateQuery = updateQuery.is('task_id', null);
+    
+    await updateQuery;
 
     // Cria nova versão
     const { data: newD } = await PF.supabase
       .from('project_diagrams')
       .insert({
         project_id: d.project_id,
+        task_id: d.task_id || null,
         name: d.name,
         version: (d.version || 1) + 1,
         diagram_type: d.diagram_type,
@@ -1092,7 +1105,7 @@ const ExecDocGenerator = {
     <h1>${project.name}</h1>
     <p class="meta">Relatório gerado em ${now} &nbsp;|&nbsp; Status: ${project.status}</p>
     ${project.client_name ? `<p class="meta">Cliente: <strong>${project.client_name}</strong></p>` : ''}
-    ${project.is_legacy ? `<p class="meta">⚠️ Projeto Legado — importado retroativamente</p>` : ''}
+    ${project.is_legacy ? `<p class="meta"><i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:middle;"></i> Projeto Legado — importado retroativamente</p>` : ''}
   </div>
 
   <h2>Progresso Geral</h2>

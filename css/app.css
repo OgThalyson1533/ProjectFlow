@@ -150,11 +150,11 @@ select.field-input{appearance:none;background-image:url("data:image/svg+xml,%3Cs
 .btn-cancel{padding:9px 16px;border-radius:var(--r-m);background:none;color:var(--tx-2);border:1.5px solid var(--bd);font-size:13.5px;font-weight:500;cursor:pointer;transition:all var(--t);font-family:var(--font);}
 .btn-cancel:hover{background:var(--bg-2);color:var(--tx-1);border-color:var(--bd-2);}
 
-/* Card edit tabs */
-.ce-tabs{display:flex;gap:0;border-bottom:1px solid var(--bd);margin-bottom:18px;overflow-x:auto;}
-.ce-tab{padding:10px 14px;background:none;border:none;cursor:pointer;font-size:13px;color:var(--tx-3);border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:all var(--t);white-space:nowrap;font-weight:500;letter-spacing:-.1px;}
-.ce-tab.active{color:var(--ac);border-bottom-color:var(--ac);font-weight:600;}
-.ce-tab:hover:not(.active){color:var(--tx-1);background:var(--bg-2);}
+/* Card edit tabs - Vertical CRM Style */
+.ce-sidebar { /* Custom styles are applied inline mostly, but we can add hover effects */ }
+.ce-tab { padding:10px 14px; background:none; border:none; cursor:pointer; font-size:13px; color:var(--tx-3); transition:all var(--t); white-space:nowrap; font-weight:500; letter-spacing:-.1px; display:flex; align-items:center; gap:8px; border-radius:6px; text-align:left; }
+.ce-tab.active { color:var(--ac); background:var(--ac-bg); font-weight:600; }
+.ce-tab:hover:not(.active) { color:var(--tx-1); background:var(--bg-2); }
 .ce-panel{display:none;}.ce-panel.active{display:block;}
 .ce-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .ce-bpmn-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:var(--r-f);font-size:11px;font-weight:700;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;background:var(--ac-bg);color:var(--ac);border:1px solid var(--ac-border);}
@@ -277,7 +277,7 @@ select.field-input{appearance:none;background-image:url("data:image/svg+xml,%3Cs
 .kanban-toolbar{padding:12px 20px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:1px solid var(--bd);background:var(--bg-1);flex-wrap:wrap;transition:background var(--t),border-color var(--t);}
 
 /* ── DIAGRAM VIEW — FIX scroll e light mode ─────────────────────── */
-/* ✅ FIX: garante que a view do diagrama não gere overflow/scroll    */
+/* <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> FIX: garante que a view do diagrama não gere overflow/scroll    */
 /* O problema: ao trocar de aba o conteúdo "descia" pois o container  */
 /* não tinha height:100% explícito neste contexto de flex             */
 #view-diagram{
@@ -294,7 +294,7 @@ select.field-input{appearance:none;background-image:url("data:image/svg+xml,%3Cs
   min-height:0;
   position:relative;
 }
-/* ✅ FIX light mode: o #dgv9-root injeta CSS interno mas precisa     */
+/* <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> FIX light mode: o #dgv9-root injeta CSS interno mas precisa     */
 /* herdar o background correto. Forçamos via var(--bg-0) aqui.        */
 #dgv9-root{
   flex:1;

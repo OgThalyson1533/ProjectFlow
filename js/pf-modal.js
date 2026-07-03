@@ -25,7 +25,7 @@ window.PFModal = {
     return new Promise(resolve => {
       const html = `
         <div class="pfm-hdr">
-          <span class="pfm-icon">${danger ? '⚠️' : 'ℹ️'}</span>
+          <span class="pfm-icon">${danger ? '<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:middle;"></i>' : 'ℹ️'}</span>
           <h3 class="pfm-title">${this._e(title)}</h3>
         </div>
         <p class="pfm-msg">${this._e(message)}</p>
@@ -76,7 +76,7 @@ window.PFModal = {
         <div class="pfm-opts">
           <button class="pfm-opt" data-pfm-val="rename"><span class="pfm-opt-icon">✏️</span><span>Renomear coluna</span></button>
           <button class="pfm-opt" data-pfm-val="wip"><span class="pfm-opt-icon">🎯</span><span>Alterar limite WIP</span></button>
-          <button class="pfm-opt pfm-opt--danger" data-pfm-val="delete"><span class="pfm-opt-icon">🗑️</span><span>Remover coluna</span></button>
+          <button class="pfm-opt pfm-opt--danger" data-pfm-val="delete"><span class="pfm-opt-icon"><i data-lucide="trash" style="width:14px;height:14px;vertical-align:middle;"></i></span><span>Remover coluna</span></button>
         </div>
         <div class="pfm-foot">
           <button class="pfm-btn pfm-ghost" data-pfm-action="cancel">Cancelar</button>

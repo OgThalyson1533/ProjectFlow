@@ -2,14 +2,14 @@
 //  ProjectFlow V10 — diagram-engine-v9.js  (V4 — FIXED)
 //  Arquitetura: SVG único e autossuficiente (sem #bv3-hit)
 //  O SVG recebe todos os eventos diretamente nos elementos
-//  ✅ Seleção e drag funcionando em todos os elementos
-//  ✅ Dot-grid CSS sempre visível
-//  ✅ Conexões via arrastar porta azul
-//  ✅ Floating toolbar bpmn.io
-//  ✅ Menu "Create element" com busca
-//  ✅ Paleta completa com "..." para mais elementos
-//  ✅ 57+ tipos BPMN 2.0
-//  ✅ Undo/Redo/Autosave
+//  <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Seleção e drag funcionando em todos os elementos
+//  <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Dot-grid CSS sempre visível
+//  <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Conexões via arrastar porta azul
+//  <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Floating toolbar bpmn.io
+//  <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Menu "Create element" com busca
+//  <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Paleta completa com "..." para mais elementos
+//  <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> 57+ tipos BPMN 2.0
+//  <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Undo/Redo/Autosave
 // ============================================================
 'use strict';
 
@@ -700,8 +700,8 @@ window.DiagramEngineV9 = (function () {
       const data={nodes:_nodes,edges:_edges,zoom:_zoom,pan:_pan,pid:_pid,taskId:_taskId,v:4,savedAt:new Date().toISOString()};
       try{localStorage.setItem('pf_dg_v10_'+_pid,JSON.stringify(data));}catch(e){}
       if(window.PF?.supabase&&!window.PF?.demoMode){
-        await PF.supabase.from('project_diagrams').update({is_current:false}).eq('project_id',_pid).eq('is_current',true);
-        const{data:ex}=await PF.supabase.from('project_diagrams').select('id').eq('project_id',_pid).eq('is_current',true).limit(1);
+        await ( _taskId ? PF.supabase.from('project_diagrams').update({is_current:false}).eq('project_id',_pid).eq('task_id',_taskId).eq('is_current',true) : PF.supabase.from('project_diagrams').update({is_current:false}).eq('project_id',_pid).is('task_id',null).eq('is_current',true) );
+        const{data:ex}=await ( _taskId ? PF.supabase.from('project_diagrams').select('id').eq('project_id',_pid).eq('task_id',_taskId).eq('is_current',true).limit(1) : PF.supabase.from('project_diagrams').select('id').eq('project_id',_pid).is('task_id',null).eq('is_current',true).limit(1) );
         const pl={content_json:data,updated_at:new Date().toISOString()};
         if(ex?.length)await PF.supabase.from('project_diagrams').update(pl).eq('id',ex[0].id);
         else await PF.supabase.from('project_diagrams').insert({project_id:_pid,task_id:_taskId||null,name:'Diagrama BPMN',is_current:true,content_json:data,generated_from:'manual',created_by:PF.user?.id||null});
@@ -715,7 +715,15 @@ window.DiagramEngineV9 = (function () {
   }
   async function _load(){
     let data=null;
-    if(window.PF?.supabase&&!window.PF?.demoMode&&_pid){try{const{data:rows}=await PF.supabase.from('project_diagrams').select('content_json').eq('project_id',_pid).eq('is_current',true).limit(1);if(rows?.[0]?.content_json)data=rows[0].content_json;}catch(e){}}
+    if(window.PF?.supabase&&!window.PF?.demoMode&&_pid){
+      try{
+        let q = PF.supabase.from('project_diagrams').select('content_json').eq('project_id',_pid).eq('is_current',true);
+        if (_taskId) q = q.eq('task_id', _taskId);
+        else q = q.is('task_id', null);
+        const{data:rows}=await q.limit(1);
+        if(rows?.[0]?.content_json)data=rows[0].content_json;
+      }catch(e){}
+    }
     if(!data){try{data=JSON.parse(localStorage.getItem('pf_dg_v10_'+_pid)||'null');}catch(e){}}
     if(!data)return;
     _nodes=data.nodes||[];_edges=data.edges||[];
@@ -1096,8 +1104,8 @@ Espalhe as coordenadas (x e y) inteligentemente para formar um layout organizado
   }
 
   // ── Init ────────────────────────────────────────────────
-  async function init(containerId, projectId) {
-    _pid=projectId;_taskId=null;
+  async function init(containerId, projectId, taskId = null) {
+    _pid=projectId;_taskId=taskId;
     if(!_pid){showToast('Selecione um Projeto',true);return;}
     const outer=document.getElementById(containerId);
     if(!outer){console.error('[BPMN] container:',containerId);return;}
@@ -1141,7 +1149,7 @@ Espalhe as coordenadas (x e y) inteligentemente para formar um layout organizado
     clearAll(){if(confirm('Limpar diagrama?')){_nodes=[];_edges=[];_sel=null;_selEdge=null;_push();_markDirty();_render();showToast('Limpo');}},
     addNode(t,x,y){_addNode(t,x||200,y||200);},
     setLinkedTask(v){_taskId=v||null;},
-    get canvas(){return _svgEl;},get pid(){return _pid;},
+    get canvas(){return _svgEl;},get pid(){return _pid;}, get taskId(){return _taskId;},
     get shapes(){return REG;},
     get _initialized(){return _initialized;},
     set _initialized(v){_initialized=v;},
@@ -1154,6 +1162,6 @@ Espalhe as coordenadas (x e y) inteligentemente para formar um layout organizado
 
 window.DiagramViewManager = {
   _pid:null,
-  async init(pid){this._pid=pid||PF?.currentProject;if(!this._pid){showToast('Selecione um projeto',true);return;}await DiagramEngineV9.init('dg-container',this._pid);},
+  async init(pid, taskId=null){this._pid=pid||PF?.currentProject;if(!this._pid){showToast('Selecione um projeto',true);return;}await DiagramEngineV9.init('dg-container',this._pid, taskId);},
   async generate(pid){this._pid=pid||PF?.currentProject;if(!this._pid)return;await DiagramEngineV9.init('dg-container',this._pid);DiagramEngineV9.generateFromProject(this._pid);},
 };

@@ -71,14 +71,14 @@ const WizardEngine = {
     const blocked = phases.filter(p => p.status === 'blocked');
     const pct     = Math.round((done / phases.length) * 100);
 
-    wip.forEach(p => steps.push({ icon:'🔄', text:`"${p.name}" está em andamento — atualize o progresso ou marque como concluído.`, action:'edit_phase', phaseId:p.id }));
+    wip.forEach(p => steps.push({ icon:'<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;"></i>', text:`"${p.name}" está em andamento — atualize o progresso ou marque como concluído.`, action:'edit_phase', phaseId:p.id }));
     if (blocked.length && done > 0) steps.push({ icon:'⏭', text:`Considere iniciar: "${blocked[0].name}".`, action:'edit_phase', phaseId:blocked[0].id });
     if (!project.objective) steps.push({ icon:'🎯', text:'Defina o objetivo principal do projeto.', action:'edit_project' });
     if (phases.some(p => !p.artifacts || !p.artifacts.length)) steps.push({ icon:'📎', text:'Registre artefatos nas fases sem entregas documentadas.', action:null });
     if (pct === 100) steps.push({ icon:'🏁', text:'Todas as fases concluídas! Gere o PDF final.', action:'export_pdf' });
-    else if (pct >= 75) steps.push({ icon:'🚀', text:`Projeto ${pct}% completo — na reta final!`, action:null });
+    else if (pct >= 75) steps.push({ icon:'<i data-lucide="rocket" style="width:14px;height:14px;vertical-align:middle;"></i>', text:`Projeto ${pct}% completo — na reta final!`, action:null });
     if (phases.length < 3) steps.push({ icon:'➕', text:'Adicione mais etapas para documentar toda a cadeia.', action:'add_phase' });
-    if (!steps.length) steps.push({ icon:'✅', text:'Projeto bem documentado! Continue atualizando conforme avança.', action:null });
+    if (!steps.length) steps.push({ icon:'<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i>', text:'Projeto bem documentado! Continue atualizando conforme avança.', action:null });
     return steps;
   },
 
@@ -157,7 +157,7 @@ function renderProjectCard(id, proj) {
     <div class="dl-card-body">
       <div class="dl-card-name">${proj.name}</div>
       <div class="dl-card-desc">${proj.description || 'Sem descrição'}</div>
-      <div class="dl-card-meta">${proj.owner?`<span>👤 ${proj.owner}</span>`:''} ${proj.client?`<span>🏢 ${proj.client}</span>`:''} ${proj.end_date?`<span>📅 ${proj.end_date}</span>`:''}</div>
+      <div class="dl-card-meta">${proj.owner?`<span>👤 ${proj.owner}</span>`:''} ${proj.client?`<span><i data-lucide="building" style="width:14px;height:14px;vertical-align:middle;"></i> ${proj.client}</span>`:''} ${proj.end_date?`<span>📅 ${proj.end_date}</span>`:''}</div>
     </div>
     <div class="dl-card-right">
       <div class="dl-card-pct" style="color:${c}">${pct}%</div>
@@ -505,7 +505,7 @@ function renderDataView(proj) {
   const sl = {done:'Concluído',wip:'Em Andamento',blocked:'Pendente'};
   return `<div class="data-view">
     <div class="dv-block">
-      <div class="dv-block-title">📊 Resumo Geral</div>
+      <div class="dv-block-title"><i data-lucide="bar-chart" style="width:14px;height:14px;vertical-align:middle;"></i> Resumo Geral</div>
       <div class="dv-table">
         ${[
           ['Projeto', proj.name], ['Objetivo', proj.objective||'—'],
@@ -523,7 +523,7 @@ function renderDataView(proj) {
       <div class="dv-chips">${allArt.map(a=>`<span class="dv-chip">${a}</span>`).join('')}</div>
     </div>` : ''}
     ${allDec.length ? `<div class="dv-block">
-      <div class="dv-block-title">💡 Decisões (${allDec.length})</div>
+      <div class="dv-block-title"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:middle;"></i> Decisões (${allDec.length})</div>
       ${allDec.map(d=>`<div class="dv-decision">${d}</div>`).join('')}
     </div>` : ''}
     <div class="dv-block">
@@ -770,7 +770,7 @@ function exportDocsPDF() {
     ${proj.objective?`<div style="font-size:12px;color:#777;margin-top:4px">🎯 ${proj.objective}</div>`:''}
     <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#666;margin:10px 0 12px">
       ${proj.owner?`<span>👤 ${proj.owner}</span>`:''}
-      ${proj.client?`<span>🏢 ${proj.client}</span>`:''}
+      ${proj.client?`<span><i data-lucide="building" style="width:14px;height:14px;vertical-align:middle;"></i> ${proj.client}</span>`:''}
       ${proj.budget?`<span>💰 ${proj.budget}</span>`:''}
       ${proj.start_date?`<span>📅 ${proj.start_date}</span>`:''}
       ${proj.end_date?`<span>🏁 ${proj.end_date}</span>`:''}

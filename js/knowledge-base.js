@@ -57,7 +57,7 @@ const KB_TYPES = {
   heading2:      { icon: 'H2', label: 'Título 2',        hasContent: true  },
   heading3:      { icon: 'H3', label: 'Título 3',        hasContent: true  },
   paragraph:     { icon: '¶',  label: 'Parágrafo',       hasContent: true  },
-  callout:       { icon: '💡', label: 'Destaque',        hasContent: true  },
+  callout:       { icon: '<i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:middle;"></i>', label: 'Destaque',        hasContent: true  },
   toggle:        { icon: '▶',  label: 'Toggle',          hasContent: true  },
   divider:       { icon: '—',  label: 'Divisória',       hasContent: false },
   embed_task:    { icon: '📋', label: 'Tarefa embutida', hasContent: false },
@@ -173,7 +173,7 @@ const KnowledgeBase = {
       case 'callout':
         return `<div class="kb-block kb-block--callout" data-id="${block.id}" style="${block.color ? '--callout-color:'+block.color : ''}">
           ${controls}
-          <div class="kb-callout-icon" contenteditable="true" data-pid="${pid}" data-bid="${block.id}" data-field="icon" onblur="KnowledgeBase._saveField(this)">${block.icon || '💡'}</div>
+          <div class="kb-callout-icon" contenteditable="true" data-pid="${pid}" data-bid="${block.id}" data-field="icon" onblur="KnowledgeBase._saveField(this)">${block.icon || '<i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:middle;"></i>'}</div>
           <div class="kb-callout-body" contenteditable="true" data-pid="${pid}" data-bid="${block.id}" onblur="KnowledgeBase._saveContent(this)">${_safeEsc(block.content) || '<span class="kb-placeholder">Conteúdo do destaque...</span>'}</div>
         </div>`;
 
@@ -232,7 +232,7 @@ const KnowledgeBase = {
             <tbody>
               ${dbCards.map(c => {
                 const tm = (window.mockTeam||[]).find(m=>m.id===(c.assignee||c.assigned_to));
-                const pri = { low:'↓ Baixa', medium:'⬝ Média', high:'↑ Alta', critical:'🔴 Crítica' };
+                const pri = { low:'↓ Baixa', medium:'⬝ Média', high:'↑ Alta', critical:'<i data-lucide="circle" fill="currentColor" style="width:14px;height:14px;vertical-align:middle;color:var(--s-err);"></i> Crítica' };
                 return `<tr class="kb-db-row" onclick="openCardEdit('${c.id}')">
                   <td class="kb-db-title">${_safeEsc(c.title)}</td>
                   <td><span class="kb-db-col" data-col="${c.col||'todo'}">${colName[c.col||'todo']}</span></td>
@@ -395,7 +395,7 @@ const KnowledgeBase = {
       newBlocks.push(_newBlock('divider'));
       newBlocks.push(_newBlock('heading2', { content: 'Riscos Identificados' }));
       snap.chain_a.riscos.forEach(r => {
-        newBlocks.push(_newBlock('callout', { icon: r.nivel === 'alto' ? '🔴' : r.nivel === 'medio' ? '⚠️' : '🟢', content: r.titulo + (r.mitigacao ? '\nMitigação: ' + r.mitigacao : '') }));
+        newBlocks.push(_newBlock('callout', { icon: r.nivel === 'alto' ? '<i data-lucide="circle" fill="currentColor" style="width:14px;height:14px;vertical-align:middle;color:var(--s-err);"></i>' : r.nivel === 'medio' ? '<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:middle;"></i>' : '<i data-lucide="circle" fill="currentColor" style="width:14px;height:14px;vertical-align:middle;color:var(--s-ok);"></i>', content: r.titulo + (r.mitigacao ? '\nMitigação: ' + r.mitigacao : '') }));
       });
     }
     // Arquitetura

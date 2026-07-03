@@ -209,7 +209,7 @@ function renderOverview(projectId, proj, doc, cards, color) {
   const planej   = cards.filter(c => c.col === 'plan');
   if (revisar.length)  suggestions.push({ icon:'🔍', text:`${revisar.length} tarefa(s) aguardando revisão`, cardId: revisar[0]?.id });
   if (executar.length) suggestions.push({ icon:'⚙', text:`${executar.length} tarefa(s) em execução`, cardId: executar[0]?.id });
-  if (planej.length)   suggestions.push({ icon:'📌', text:`${planej.length} tarefa(s) priorizadas para iniciar`, cardId: planej[0]?.id });
+  if (planej.length)   suggestions.push({ icon:'<i data-lucide="pin" style="width:14px;height:14px;vertical-align:middle;"></i>', text:`${planej.length} tarefa(s) priorizadas para iniciar`, cardId: planej[0]?.id });
   if (!doc.description) suggestions.push({ icon:'📝', text:'Adicione uma descrição ao projeto', action:'edit' });
   if (!doc.owner)       suggestions.push({ icon:'👤', text:'Defina o responsável pelo projeto', action:'edit' });
 
@@ -346,7 +346,7 @@ function renderChain(projectId, proj, doc, cards, color) {
               <div class="avatar" style="background:${member.color};width:18px;height:18px;font-size:8px">${member.initials}</div>
               ${member.name.split(' ')[0]}
             </div>` : ''}
-            ${note.decision ? `<div class="chain-card-annotation chain-ca--decision">💡 ${note.decision.slice(0,60)}${note.decision.length>60?'…':''}</div>` : ''}
+            ${note.decision ? `<div class="chain-card-annotation chain-ca--decision"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:middle;"></i> ${note.decision.slice(0,60)}${note.decision.length>60?'…':''}</div>` : ''}
             ${note.artifact ? `<div class="chain-card-annotation chain-ca--artifact">📎 ${note.artifact.slice(0,60)}${note.artifact.length>60?'…':''}</div>` : ''}
             ${note.risk     ? `<div class="chain-card-annotation chain-ca--risk">⚠ ${note.risk.slice(0,60)}${note.risk.length>60?'…':''}</div>` : ''}
             <div class="chain-card-hint">clique para anotar</div>
@@ -465,7 +465,7 @@ function renderCards(projectId, cards, color) {
               </div>
               ${hasNote ? `
               <div class="cards-doc-annotations">
-                ${note.decision    ? `<div class="cda cda--decision"><span>💡 Decisão:</span> ${note.decision}</div>` : ''}
+                ${note.decision    ? `<div class="cda cda--decision"><span><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:middle;"></i> Decisão:</span> ${note.decision}</div>` : ''}
                 ${note.artifact    ? `<div class="cda cda--artifact"><span>📎 Artefato:</span> ${note.artifact}</div>` : ''}
                 ${note.risk        ? `<div class="cda cda--risk"><span>⚠ Risco:</span> ${note.risk}</div>` : ''}
                 ${note.next_action ? `<div class="cda cda--next"><span>→ Próxima ação:</span> ${note.next_action}</div>` : ''}
@@ -617,7 +617,7 @@ function openCardNoteModal(projectId, cardId) {
       ${card.desc ? `<div class="pvm-card-desc">${card.desc}</div>` : ''}
       <div class="pvm-field">
         <label class="pvm-label">
-          <span style="color:#4a7cf6">💡</span> Decisão tomada
+          <span style="color:#4a7cf6"><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:middle;"></i></span> Decisão tomada
         </label>
         <textarea class="pvm-input pvm-textarea" id="pvn-decision" placeholder="Ex: Decidimos usar React em vez de Vue por compatibilidade com o time...">${note.decision||''}</textarea>
       </div>
@@ -737,7 +737,7 @@ function exportProjectPDF(projectId) {
             ${c.budget?`<span>💰 ${c.budget}</span>`:''}
             ${c.hours?`<span>⏱ ${c.hours}</span>`:''}
           </div>
-          ${n.decision    ? `<div style="border-left:3px solid #4a7cf6;padding:4px 8px;background:#f0f4ff;font-size:11px;border-radius:0 4px 4px 0;margin-bottom:4px"><strong>💡 Decisão:</strong> ${n.decision}</div>` : ''}
+          ${n.decision    ? `<div style="border-left:3px solid #4a7cf6;padding:4px 8px;background:#f0f4ff;font-size:11px;border-radius:0 4px 4px 0;margin-bottom:4px"><strong><i data-lucide="lightbulb" style="width:14px;height:14px;vertical-align:middle;"></i> Decisão:</strong> ${n.decision}</div>` : ''}
           ${n.artifact    ? `<div style="border-left:3px solid #1a9e5f;padding:4px 8px;background:#f0fff8;font-size:11px;border-radius:0 4px 4px 0;margin-bottom:4px"><strong>📎 Artefato:</strong> ${n.artifact}</div>` : ''}
           ${n.risk        ? `<div style="border-left:3px solid #c48a0a;padding:4px 8px;background:#fffbeb;font-size:11px;border-radius:0 4px 4px 0;margin-bottom:4px"><strong>⚠ Risco:</strong> ${n.risk}</div>` : ''}
           ${n.next_action ? `<div style="font-size:11px;color:${color};margin-top:4px">→ Próxima ação: ${n.next_action}</div>` : ''}
@@ -766,7 +766,7 @@ function exportProjectPDF(projectId) {
     ${doc.objective   ? `<div style="font-size:12px;color:#777">🎯 ${doc.objective}</div>` : ''}
     <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#666;margin:10px 0 12px">
       ${doc.owner     ? `<span>👤 ${doc.owner}</span>`      : ''}
-      ${doc.client    ? `<span>🏢 ${doc.client}</span>`     : ''}
+      ${doc.client    ? `<span><i data-lucide="building" style="width:14px;height:14px;vertical-align:middle;"></i> ${doc.client}</span>`     : ''}
       ${doc.budget    ? `<span>💰 ${doc.budget}</span>`     : ''}
       ${doc.start_date? `<span>📅 ${doc.start_date}</span>` : ''}
       ${doc.end_date  ? `<span>🏁 ${doc.end_date}</span>`   : ''}

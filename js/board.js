@@ -1,4 +1,4 @@
-﻿// ProjectFlow v6 — board.js — Elevated Kanban
+// ProjectFlow v6 — board.js — Elevated Kanban
 'use strict';
 
 const SyncManager={_ops:new Map(),async execute(id,opt,persist,rollback,msg){const v=Date.now();const prev=this._ops.get(id);if(prev&&prev.v>v)return;this._ops.set(id,{v});opt();renderBoard();try{const{error}=await persist();const cur=this._ops.get(id);if(!cur||cur.v!==v)return;if(error){rollback();renderBoard();showToast('Erro: '+error.message,true);return;}if(msg)showToast(msg);}catch(e){rollback();renderBoard();showToast('Erro de rede',true);}finally{this._ops.delete(id);}}}; 
@@ -582,6 +582,7 @@ function openCardEdit(cardId){
   _v('ce-completed-at',c.completed_at ? new Date(c.completed_at).toISOString().slice(0,16) : '');
   _v('ce-doc-decision',c.doc_decision||'');_v('ce-doc-artifact',c.doc_artifact||'');
   _v('ce-doc-risk',c.doc_risk||'');_v('ce-doc-notes',c.doc_notes||'');
+  _v('ce-links',c.doc_links||'');
   const pr=document.getElementById('ce-priority');if(pr)pr.value=c.priority||'medium';
   const ce=document.getElementById('ce-column');
   if(ce)ce.innerHTML=cols.filter(x=>!x.is_locked).map(x=>`<option value="${x.id}"${_cardInCol(c,x)?' selected':''}>${_e(x.name)}</option>`).join('');
@@ -661,6 +662,7 @@ async function saveCardEdit(){
     doc_artifact:document.getElementById('ce-doc-artifact')?.value.trim()||null,
     doc_risk:document.getElementById('ce-doc-risk')?.value.trim()||null,
     doc_notes:document.getElementById('ce-doc-notes')?.value.trim()||null,
+    doc_links:document.getElementById('ce-links')?.value.trim()||null,
     assigned_to:document.getElementById('ce-assignee')?.value||null,
     request_date:document.getElementById('ce-req-date')?.value||null,
     requester:document.getElementById('ce-requester')?.value.trim()||null,
@@ -924,6 +926,23 @@ function renderDashboard(){
 function openCardModal(id){openCardEdit(id);}
 window.renderBoard=renderBoard;window.openNewCard=openNewCard;window.createCard=createCard;
 window.openCardModal=openCardModal;window.openCardEdit=openCardEdit;window.saveCardEdit=saveCardEdit;
+window.openTaskDiagram=function(){
+  const cardId = PF.activeCardId;
+  if(!cardId) return;
+  closeModal('card-edit-overlay');
+  
+  // Set PF state to diagram specifically for this task
+  PF.currentDiagramType = 'task';
+  PF.currentDiagramTargetId = cardId;
+  
+  // Try to load via DiagramEngine or switch view directly
+  // The switchView('diagram') will handle initializing DiagramEngine
+  if(typeof switchView === 'function') {
+    switchView('diagram');
+    if(typeof initDiagramView === 'function') initDiagramView(cardId);
+  }
+};
+
 window.deleteCard=deleteCard;window.advanceBpmn=advanceBpmn;window.setCardBpmn=setCardBpmn;
 window.switchCETab=switchCETab;window.moveCardToCol=moveCardToCol;window.loadProjectBoard=loadProjectBoard;
 window.addBoardColumn=addBoardColumn;window.openColOptions=openColOptions;window.openNewCardInCol=openNewCardInCol;

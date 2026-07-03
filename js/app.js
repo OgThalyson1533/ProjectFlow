@@ -49,6 +49,9 @@
 //  2. VIEWS
 // ════════════════════════════════════════════════════════════
 window.switchView=function(name,btn){
+  if (name === 'diagram' && btn && btn.id === 'nav-diagram') {
+    PF.currentDiagramTargetId = null;
+  }
   document.querySelectorAll('div[id^="view-"]').forEach(v=>{v.classList.remove('active');v.style.display='none';});
   document.querySelectorAll('.tb-tab').forEach(t=>t.classList.remove('active'));
   const el=document.getElementById('view-'+name);
@@ -766,13 +769,20 @@ window.addTeamMember=function(){
 //      Trocas de aba apenas mostram/escondem o container e
 //      forçam resize após o browser confirmar o layout.
 // ════════════════════════════════════════════════════════════
-window.initDiagramView=async function(){
+window.initDiagramView=async function(taskId = null){
   const pid=PF.currentProject||(window.mockProjects?.[0]?.id)||null;
   if(!pid){showToast('Selecione um projeto no Kanban antes de abrir os Diagramas',true);return;}
 
   const badge=document.getElementById('diagram-project-badge');
   const proj=(window.mockProjects||[]).find(p=>p.id===pid);
-  if(badge)badge.textContent=proj?proj.name+' — Editor Fabric.js':'Editor de Diagramas';
+  let titleText = proj?proj.name+' — Editor Fabric.js':'Editor de Diagramas';
+  if (taskId) {
+    const card = PFBoard?.cards?.find(c => c.id === taskId) || (window.mockCards||[]).find(c => c.id === taskId);
+    if (card) {
+      titleText = proj ? proj.name + ' > ' + card.title + ' (Tarefa)' : card.title + ' (Tarefa)';
+    }
+  }
+  if(badge)badge.textContent=titleText;
 
   const es=document.getElementById('dg-empty-state');
 
@@ -793,7 +803,7 @@ window.initDiagramView=async function(){
   }
 
   // ── Se o engine já existe para este projeto: apenas resize, sem recriar ──
-  if(window.DiagramEngineV9?._initialized && window.DiagramEngineV9.pid===pid){
+  if(window.DiagramEngineV9?._initialized && window.DiagramEngineV9.pid===pid && window.DiagramEngineV9.taskId===taskId){
     if(es)es.style.display='none';
     attachResizeObserver();
     return;
@@ -809,7 +819,7 @@ window.initDiagramView=async function(){
 
   if(es)es.style.display='none';
   if(window.DiagramEngineV9){
-    await DiagramEngineV9.init('dg-container',pid);
+    await DiagramEngineV9.init('dg-container',pid, taskId);
     DiagramEngineV9._initialized=true;
   }
 
