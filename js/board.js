@@ -166,29 +166,29 @@ function renderBoard(){
               const assigneeName = assigneeUser ? (assigneeUser.name || assigneeUser.email) : 'Não atribuído';
               const priorityText = card.priority ? priorityIcon[card.priority] : 'Média';
               
-              return \`
-                <tr class="table-row-clickable" onclick="openCard('\${card.id}')" style="border-bottom:1px solid var(--bo-1);cursor:pointer;transition:background 0.2s;">
+              return `
+                <tr class="table-row-clickable" onclick="openCard('${card.id}')" style="border-bottom:1px solid var(--bo-1);cursor:pointer;transition:background 0.2s;">
                   <td style="padding:12px 16px;color:var(--tx-1);font-weight:500;">
                     <div style="display:flex;align-items:center;gap:8px;">
-                      \${card.doc_notes ? \`<div style="width:8px;height:8px;border-radius:50%;background:var(--c-exec-dot);" title="Documento Executivo"></div>\` : ''}
-                      \${_e(card.title)}
+                      ${card.doc_notes ? `<div style="width:8px;height:8px;border-radius:50%;background:var(--c-exec-dot);" title="Documento Executivo"></div>` : ''}
+                      ${_e(card.title)}
                     </div>
                   </td>
                   <td style="padding:12px 16px;">
-                    <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:\${col?.color||'var(--tx-3)'}20;color:\${col?.color||'var(--tx-3)'};border:1px solid \${col?.color||'var(--tx-3)'}40;">
-                      \${col ? _e(col.name) : '—'}
+                    <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:${col?.color||'var(--tx-3)'}20;color:${col?.color||'var(--tx-3)'};border:1px solid ${col?.color||'var(--tx-3)'}40;">
+                      ${col ? _e(col.name) : '—'}
                     </span>
                   </td>
-                  <td style="padding:12px 16px;color:var(--tx-2);">\${_e(assigneeName)}</td>
-                  <td style="padding:12px 16px;color:var(--tx-2);">\${priorityText}</td>
-                  <td style="padding:12px 16px;color:var(--tx-3);">\${card.due_date ? new Date(card.due_date).toLocaleDateString('pt-BR') : '—'}</td>
+                  <td style="padding:12px 16px;color:var(--tx-2);">${_e(assigneeName)}</td>
+                  <td style="padding:12px 16px;color:var(--tx-2);">${priorityText}</td>
+                  <td style="padding:12px 16px;color:var(--tx-3);">${card.due_date ? new Date(card.due_date).toLocaleDateString('pt-BR') : '—'}</td>
                   <td style="padding:12px 16px;color:var(--tx-3);">
-                    \${(card.tags||[]).slice(0,2).map(t => \`<span style="background:var(--bg-2);padding:2px 6px;border-radius:4px;font-size:11px;margin-right:4px;">\${_e(t)}</span>\`).join('')}
-                    \${card.is_recurring ? \`<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;margin-left:4px;" title="Recorrente"></i>\` : ''}
+                    ${(card.tags||[]).slice(0,2).map(t => `<span style="background:var(--bg-2);padding:2px 6px;border-radius:4px;font-size:11px;margin-right:4px;">${_e(t)}</span>`).join('')}
+                    ${card.is_recurring ? `<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;margin-left:4px;" title="Recorrente"></i>` : ''}
                   </td>
                 </tr>
-              \`;
-            }).join('') || \`<tr><td colspan="6" style="padding:32px;text-align:center;color:var(--tx-3);">Nenhuma tarefa encontrada.</td></tr>\`}
+              `;
+            }).join('') || `<tr><td colspan="6" style="padding:32px;text-align:center;color:var(--tx-3);">Nenhuma tarefa encontrada.</td></tr>`}
           </tbody>
         </table>
       </div>
