@@ -49,19 +49,29 @@ function renderBoard(){
     kfAssigneeEl.innerHTML = '<option value="">Todos</option>' + team.map(m => `<option value="${m.id}">${_e(m.name||m.email)}</option>`).join('');
   }
   const fAssignee=kfAssigneeEl?.value;
-  const fReqDate=document.getElementById('kf-req-date')?.value;
-  const fDueDate=document.getElementById('kf-due-date')?.value;
-  const fCompDate=document.getElementById('kf-comp-date')?.value;
+  const fReqStart=document.getElementById('kf-req-start')?.value;
+  const fReqEnd=document.getElementById('kf-req-end')?.value;
+  const fDueStart=document.getElementById('kf-due-start')?.value;
+  const fDueEnd=document.getElementById('kf-due-end')?.value;
+  const fCompStart=document.getElementById('kf-comp-start')?.value;
+  const fCompEnd=document.getElementById('kf-comp-end')?.value;
   
-  if(fAssignee || fReqDate || fDueDate || fCompDate) {
+  if(fAssignee || fReqStart || fReqEnd || fDueStart || fDueEnd || fCompStart || fCompEnd) {
     cards = cards.filter(c => {
       if(fAssignee && (c.assigned_to !== fAssignee && c.assignee?.id !== fAssignee && c.assignee !== fAssignee)) return false;
-      if(fReqDate && c.request_date !== fReqDate) return false;
-      if(fDueDate && (c.due_date || c.date) !== fDueDate) return false;
-      if(fCompDate) {
-        if(!c.completed_at) return false;
-        if(c.completed_at.slice(0,10) !== fCompDate) return false;
-      }
+      
+      const reqD = c.request_date || '';
+      if(fReqStart && reqD < fReqStart) return false;
+      if(fReqEnd && reqD > fReqEnd) return false;
+      
+      const dueD = c.due_date || c.date || '';
+      if(fDueStart && dueD < fDueStart) return false;
+      if(fDueEnd && dueD > fDueEnd) return false;
+      
+      const compD = c.completed_at ? c.completed_at.split('T')[0] : '';
+      if(fCompStart && compD < fCompStart) return false;
+      if(fCompEnd && compD > fCompEnd) return false;
+      
       return true;
     });
   }

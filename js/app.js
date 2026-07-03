@@ -644,18 +644,44 @@ window.openRecurringManager=()=>RecurrenceEngine.openManager();
         Filtros<span id="kb-filter-count" style="display:none;background:var(--ac);color:#fff;border-radius:20px;font-size:10px;padding:1px 6px;margin-left:2px">0</span></button>
       <button class="kb-filter-btn" onclick="openRecurringManager()">🔄 Recorrentes</button>
       <button class="kb-filter-btn" onclick="openMemberManager()">👤 Equipe</button>
-      <div id="kb-filter-dropdown">
-        <div style="width:100%;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx-3);margin-bottom:4px">Filtrar tarefas</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">
-          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Responsável</label>
-            <select id="kf-assignee" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"><option value="">Todos</option></select></div>
-          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Solicitação</label>
-            <input type="date" id="kf-req-date" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"></div>
-          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Previsão</label>
-            <input type="date" id="kf-due-date" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"></div>
-          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Concluído em</label>
-            <input type="date" id="kf-comp-date" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"></div>
-          <button class="kb-filter-btn" onclick="clearKanbanFilters()" style="padding:5px 10px">✕ Limpar</button>
+      <div id="kb-filter-dropdown" style="min-width:320px">
+        <div style="width:100%;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx-3);margin-bottom:12px">Filtros Avançados</div>
+        <div style="display:flex;flex-direction:column;gap:14px;width:100%">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Responsável</label>
+            <select id="kf-assignee" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()"><option value="">Todos</option></select>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Solicitação (De)</label>
+              <input type="date" id="kf-req-start" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()">
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Solicitação (Até)</label>
+              <input type="date" id="kf-req-end" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()">
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Previsão (De)</label>
+              <input type="date" id="kf-due-start" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()">
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Previsão (Até)</label>
+              <input type="date" id="kf-due-end" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()">
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Concluído (De)</label>
+              <input type="date" id="kf-comp-start" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()">
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Concluído (Até)</label>
+              <input type="date" id="kf-comp-end" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()">
+            </div>
+          </div>
+          <button class="btn-cancel" onclick="clearKanbanFilters()" style="margin-top:8px">Limpar Filtros</button>
         </div></div>`;
     const toolbar=document.getElementById('view-kanban')?.querySelector('.kanban-toolbar');
     if(toolbar&&toolbar.nextSibling)toolbar.parentNode.insertBefore(wrap,toolbar.nextSibling);
@@ -667,8 +693,8 @@ window.openRecurringManager=()=>RecurrenceEngine.openManager();
     _updateFilterCount();
     if(typeof renderBoard === 'function') renderBoard();
   };
-  window.clearKanbanFilters=function(){['kf-assignee','kf-req-date','kf-due-date','kf-comp-date'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});_updateFilterCount();if(typeof renderBoard === 'function') renderBoard();};
-  function _updateFilterCount(){const asgn=document.getElementById('kf-assignee')?.value||'';const req=document.getElementById('kf-req-date')?.value||'';const due=document.getElementById('kf-due-date')?.value||'';const comp=document.getElementById('kf-comp-date')?.value||'';const count=[asgn,req,due,comp].filter(Boolean).length;const cnt=document.getElementById('kb-filter-count');const btn=document.getElementById('kb-filter-toggle');if(cnt){cnt.style.display=count?'':'none';cnt.textContent=count;}if(btn)btn.classList.toggle('active',count>0);}
+  window.clearKanbanFilters=function(){['kf-assignee','kf-req-start','kf-req-end','kf-due-start','kf-due-end','kf-comp-start','kf-comp-end'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});_updateFilterCount();if(typeof renderBoard === 'function') renderBoard();};
+  function _updateFilterCount(){const v=(id)=>document.getElementById(id)?.value||'';const count=[v('kf-assignee'),v('kf-req-start'),v('kf-req-end'),v('kf-due-start'),v('kf-due-end'),v('kf-comp-start'),v('kf-comp-end')].filter(Boolean).length;const cnt=document.getElementById('kb-filter-count');const btn=document.getElementById('kb-filter-toggle');if(cnt){cnt.style.display=count?'':'none';cnt.textContent=count;}if(btn)btn.classList.toggle('active',count>0);}
   const _sw=window.switchView;
   window.switchView=function(name,btn){_sw&&_sw(name,btn);if(name==='kanban')setTimeout(build,400);};
   document.addEventListener('DOMContentLoaded',()=>setTimeout(build,1800));

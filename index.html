@@ -338,8 +338,13 @@
 <!-- ════ MODAL: NOVA TAREFA ════ -->
 <div class="overlay" id="new-card-overlay" onclick="handleOverlayClick(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-hdr"><div class="modal-title">Nova Tarefa</div>
-      <button class="modal-close" onclick="closeModal('new-card-overlay')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+    <div class="modal-hdr" onclick="minimizeModal('new-card-overlay', event)">
+      <div class="modal-title-block"><div class="modal-title">Nova Tarefa</div></div>
+      <div class="modal-window-controls">
+        <button class="modal-control-btn minimize" onclick="minimizeModal('new-card-overlay', event)" title="Minimizar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10"/></svg></button>
+        <button class="modal-control-btn close" onclick="closeModal('new-card-overlay')" title="Fechar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button>
+      </div>
+    </div>
     <div class="modal-body">
       <div class="field-row" style="margin-bottom:12px"><label class="field-label">Título *</label><input class="field-input" id="new-title" type="text" placeholder="Descreva a tarefa..." maxlength="200"></div>
       <div class="field-row" style="margin-bottom:12px"><label class="field-label">Descrição</label><textarea class="field-input" id="new-desc" rows="2" placeholder="Contexto adicional..."></textarea></div>
@@ -361,14 +366,15 @@
 <!-- ════ MODAL: EDIÇÃO DE CARD ════ -->
 <div class="overlay" id="card-edit-overlay" onclick="handleOverlayClick(event)">
   <div class="modal modal--xl" onclick="event.stopPropagation()">
-    <div class="modal-hdr">
-      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px">
+    <div class="modal-hdr" onclick="minimizeModal('card-edit-overlay', event)">
+      <div class="modal-title-block" style="display:flex;align-items:center;gap:10px">
         <span style="font-size:11px;font-family:var(--mono);color:var(--tx-3)" id="ce-id">#------</span>
         <span class="ce-bpmn-badge" id="ce-bpmn-badge" data-bpmn="esbocar">Esboçar</span>
       </div>
-      <div style="display:flex;gap:4px;align-items:center">
+      <div class="modal-window-controls">
         <button style="background:none;border:none;cursor:pointer;padding:5px 7px;border-radius:6px;color:var(--tx-3)" onmouseover="this.style.color='var(--red)';this.style.background='var(--red-bg)'" onmouseout="this.style.color='var(--tx-3)';this.style.background='none'" onclick="deleteCard()" title="Excluir">🗑</button>
-        <button class="modal-close" onclick="closeModal('card-edit-overlay')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button>
+        <button class="modal-control-btn minimize" onclick="minimizeModal('card-edit-overlay', event)" title="Minimizar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10"/></svg></button>
+        <button class="modal-control-btn close" onclick="closeModal('card-edit-overlay')" title="Fechar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button>
       </div>
     </div>
     <div class="modal-body" style="padding:0 20px 20px">
@@ -453,8 +459,13 @@
 <!-- ════ MODAL: EDITAR PROJETO ════ -->
 <div class="overlay" id="edit-project-overlay" onclick="handleOverlayClick(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-hdr"><div class="modal-title">Editar Projeto</div>
-      <button class="modal-close" onclick="closeModal('edit-project-overlay')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+    <div class="modal-hdr" onclick="minimizeModal('edit-project-overlay', event)">
+      <div class="modal-title-block"><div class="modal-title">Editar Projeto</div></div>
+      <div class="modal-window-controls">
+        <button class="modal-control-btn minimize" onclick="minimizeModal('edit-project-overlay', event)" title="Minimizar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10"/></svg></button>
+        <button class="modal-control-btn close" onclick="closeModal('edit-project-overlay')" title="Fechar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button>
+      </div>
+    </div>
     <div class="modal-body">
       <input type="hidden" id="ep-id">
       <div class="field-row" style="margin-bottom:12px"><label class="field-label">Nome *</label><input class="field-input" id="ep-name" type="text" maxlength="100"></div>
@@ -474,8 +485,13 @@
 <!-- ════ MODAL: NOVO PROJETO ════ -->
 <div class="overlay" id="new-project-overlay" onclick="handleOverlayClick(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-hdr"><div class="modal-title">Novo Projeto</div>
-      <button class="modal-close" onclick="closeModal('new-project-overlay')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+    <div class="modal-hdr" onclick="minimizeModal('new-project-overlay', event)">
+      <div class="modal-title-block"><div class="modal-title">Novo Projeto</div></div>
+      <div class="modal-window-controls">
+        <button class="modal-control-btn minimize" onclick="minimizeModal('new-project-overlay', event)" title="Minimizar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10"/></svg></button>
+        <button class="modal-control-btn close" onclick="closeModal('new-project-overlay')" title="Fechar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button>
+      </div>
+    </div>
     <div class="modal-body">
       <div class="field-row" style="margin-bottom:12px"><label class="field-label">Nome *</label><input class="field-input" id="np-name" type="text" placeholder="Ex: App Mobile v2" maxlength="100"></div>
       <div class="ce-grid2" style="margin-bottom:12px">
@@ -491,8 +507,13 @@
 <!-- ════ MODAL: WORKSPACE ════ -->
 <div class="overlay" id="workspace-modal" onclick="handleOverlayClick(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-hdr"><div class="modal-title">Novo Workspace</div>
-      <button class="modal-close" onclick="closeModal('workspace-modal')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+    <div class="modal-hdr" onclick="minimizeModal('workspace-modal', event)">
+      <div class="modal-title-block"><div class="modal-title">Novo Workspace</div></div>
+      <div class="modal-window-controls">
+        <button class="modal-control-btn minimize" onclick="minimizeModal('workspace-modal', event)" title="Minimizar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10"/></svg></button>
+        <button class="modal-control-btn close" onclick="closeModal('workspace-modal')" title="Fechar"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button>
+      </div>
+    </div>
     <div class="modal-body">
       <div class="field-row" style="margin-bottom:12px"><label class="field-label">Nome</label><input type="text" id="ws-name-input" class="field-input" placeholder="Ex: Agência XYZ" maxlength="60"></div>
       <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('workspace-modal')">Cancelar</button><button class="btn-save" onclick="createWorkspace()">Criar</button></div>

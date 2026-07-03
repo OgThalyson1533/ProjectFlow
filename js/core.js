@@ -113,11 +113,24 @@ window.openModal = function(id) {
 };
 
 window.closeModal = function(id) {
-  document.getElementById(id)?.classList.remove('open');
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.remove('open');
+    el.classList.remove('minimized');
+  }
+};
+
+window.minimizeModal = function(id, e) {
+  if(e) e.stopPropagation();
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.toggle('minimized');
+  }
 };
 
 window.handleOverlayClick = function(e) {
-  if (e.target === e.currentTarget) closeModal(e.currentTarget.id);
+  // if (e.target === e.currentTarget) closeModal(e.currentTarget.id);
+  // Bloqueado para não fechar acidentalmente ao clicar fora.
 };
 
 window._safeEsc = function(s) {
