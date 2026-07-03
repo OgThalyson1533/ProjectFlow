@@ -222,6 +222,26 @@
           <button class="pill accent" onclick="switchView('diagram',document.getElementById('nav-diagram'));initDiagramView()">⬡ Diagrama</button>
         </div>
       </div>
+      <!-- FILTROS KANBAN -->
+      <div id="kanban-filters-bar" style="display:flex;gap:10px;padding:10px 20px;background:var(--bg-1);border-bottom:1px solid var(--bd);align-items:flex-end;flex-wrap:wrap;font-size:12px">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="color:var(--tx-2);font-weight:600">Responsável</label>
+          <select id="kf-assignee" class="field-input" style="padding:4px 8px;font-size:12px;height:28px" onchange="renderBoard()"><option value="">Todos</option></select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="color:var(--tx-2);font-weight:600">Solicitação</label>
+          <input type="date" id="kf-req-date" class="field-input" style="padding:4px 8px;font-size:12px;height:28px" onchange="renderBoard()">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="color:var(--tx-2);font-weight:600">Previsão</label>
+          <input type="date" id="kf-due-date" class="field-input" style="padding:4px 8px;font-size:12px;height:28px" onchange="renderBoard()">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="color:var(--tx-2);font-weight:600">Concluído em</label>
+          <input type="date" id="kf-comp-date" class="field-input" style="padding:4px 8px;font-size:12px;height:28px" onchange="renderBoard()">
+        </div>
+        <button class="btn-cancel" style="padding:4px 10px;font-size:12px;height:28px" onclick="document.getElementById('kf-assignee').value='';document.getElementById('kf-req-date').value='';document.getElementById('kf-due-date').value='';document.getElementById('kf-comp-date').value='';renderBoard()">Limpar Filtros</button>
+      </div>
       <div id="col-headers-dynamic" style="overflow:hidden"></div>
       <div id="kanban-board"></div>
     </div>
@@ -348,7 +368,7 @@
         <div class="field-row"><label class="field-label">Orçamento (R$)</label><input class="field-input" id="new-budget" type="number" min="0" placeholder="1000"></div>
       </div>
       <div class="field-grid-2" style="margin-bottom:12px">
-        <div class="field-row"><label class="field-label">Data de entrega</label><input class="field-input" id="new-date" type="date"></div>
+        <div class="field-row"><label class="field-label">Previsão de conclusão <span style="color:var(--tx-3);font-weight:normal">(SLA)</span></label><input class="field-input" id="new-date" type="date"></div>
         <div class="field-row"><label class="field-label">Prioridade</label>
           <select class="field-input" id="new-priority"><option value="low">↓ Baixa</option><option value="medium" selected>⬝ Média</option><option value="high">↑ Alta</option><option value="critical">🔴 Crítica</option></select></div>
       </div>
@@ -393,8 +413,12 @@
           <div class="field-row"><label class="field-label">Orçamento (R$)</label><input class="field-input" id="ce-budget" type="number" min="0"></div>
         </div>
         <div class="ce-grid2" style="margin-bottom:12px">
-          <div class="field-row"><label class="field-label">Data de entrega</label><input class="field-input" id="ce-due-date" type="date"></div>
+          <div class="field-row"><label class="field-label">Previsão de conclusão <span style="color:var(--tx-3);font-weight:normal">(SLA)</span></label><input class="field-input" id="ce-due-date" type="date"></div>
           <div class="field-row"><label class="field-label">Responsável</label><select class="field-input" id="ce-assignee"></select></div>
+        </div>
+        <div class="ce-grid2" style="margin-bottom:12px">
+          <div class="field-row"><label class="field-label">Data de fato concluída</label><input class="field-input" id="ce-completed-at" type="datetime-local"></div>
+          <div class="field-row"></div>
         </div>
         <div id="ce-details-v9-slot"></div>
       </div>

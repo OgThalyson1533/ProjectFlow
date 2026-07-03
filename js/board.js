@@ -40,7 +40,31 @@ const COL_W=264;
 function renderBoard(){
   const board=document.getElementById('kanban-board');if(!board)return;
   const cols=PFBoard.columns.length?PFBoard.columns:initDefaultColumns();
-  const cards=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
+  let cards=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
+
+  // Aplica Filtros
+  const kfAssigneeEl = document.getElementById('kf-assignee');
+  if(kfAssigneeEl && kfAssigneeEl.options.length <= 1) {
+    const team = window.mockTeam || window.workspaceUsers || [];
+    kfAssigneeEl.innerHTML = '<option value="">Todos</option>' + team.map(m => `<option value="${m.id}">${_e(m.name||m.email)}</option>`).join('');
+  }
+  const fAssignee=kfAssigneeEl?.value;
+  const fReqDate=document.getElementById('kf-req-date')?.value;
+  const fDueDate=document.getElementById('kf-due-date')?.value;
+  const fCompDate=document.getElementById('kf-comp-date')?.value;
+  
+  if(fAssignee || fReqDate || fDueDate || fCompDate) {
+    cards = cards.filter(c => {
+      if(fAssignee && (c.assigned_to !== fAssignee && c.assignee?.id !== fAssignee && c.assignee !== fAssignee)) return false;
+      if(fReqDate && c.request_date !== fReqDate) return false;
+      if(fDueDate && (c.due_date || c.date) !== fDueDate) return false;
+      if(fCompDate) {
+        if(!c.completed_at) return false;
+        if(c.completed_at.slice(0,10) !== fCompDate) return false;
+      }
+      return true;
+    });
+  }
 
   const hdr=document.getElementById('col-headers-dynamic');
   if(hdr){
@@ -265,7 +289,6 @@ async function openColOptions(e,colId){
   }
 }
 
-// ── NOVA TAREFA ───────────────────────────────────────────────
 function openNewCardInCol(colId){PF._pendingCol=colId;openNewCard();}
 function openNewCard(){
   const cols=PFBoard.columns.length?PFBoard.columns:initDefaultColumns();
@@ -275,14 +298,35 @@ function openNewCard(){
   setTimeout(()=>document.getElementById('new-title')?.focus(),80);
 }
 
+async function checkDateConflict(dateStr, ignoreId=null) {
+  if(!dateStr) return true;
+  const cards=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
+  const count=cards.filter(c => {
+    if(ignoreId && c.id===ignoreId) return false;
+    if(c.bpmn==='concluido' || c.bpmn_status==='concluido' || c.completed_at) return false;
+    const d=c.due_date||c.date;
+    return d===dateStr;
+  }).length;
+  if(count > 0) {
+    const msg = `Você já tem ${count} tarefa(s) agendada(s) para esta data (${dateStr.split('-').reverse().join('/')}).\n\nPara evitar gargalos no SLA, considere reagendar para o dia seguinte.\nDeseja manter esta data?`;
+    return await PFModal.confirm({title:'Conflito de Data (SLA)', message:msg, confirmText:'Manter mesmo assim', danger:true});
+  }
+  return true;
+}
+
 async function createCard(){
   const title=document.getElementById('new-title')?.value.trim();
   const colId=document.getElementById('new-col-sel')?.value||'col-todo';
+  if(!title||title.length<3){showToast('Título deve ter ≥3 caracteres',true);return;}
+  const date=document.getElementById('new-date')?.value||null;
+  if(date) {
+    const ok = await checkDateConflict(date);
+    if(!ok) return;
+  }
   const hours=document.getElementById('new-hours')?.value.trim();
   const budget=document.getElementById('new-budget')?.value.trim();
-  const date=document.getElementById('new-date')?.value;
-  const priority=document.getElementById('new-priority')?.value||'medium';
   const desc=document.getElementById('new-desc')?.value.trim();
+  const priority=document.getElementById('new-priority')?.value||'medium';
   const errors=validateCard({title,budget,estimated_hours:hours});
   if(errors.length){showToast(errors[0],true);return;}
   const col=(PFBoard.columns.length?PFBoard.columns:initDefaultColumns()).find(c=>c.id===colId)||{bpmn_mapping:['esbocar']};
@@ -347,6 +391,7 @@ function openCardEdit(cardId){
   _v('ce-title',c.title||'');_v('ce-desc',c.description||c.desc||'');
   _v('ce-acceptance',c.acceptance_criteria||'');_v('ce-hours',c.estimated_hours||'');
   _v('ce-budget',c.budget||'');_v('ce-due-date',c.due_date||'');
+  _v('ce-completed-at',c.completed_at ? new Date(c.completed_at).toISOString().slice(0,16) : '');
   _v('ce-doc-decision',c.doc_decision||'');_v('ce-doc-artifact',c.doc_artifact||'');
   _v('ce-doc-risk',c.doc_risk||'');_v('ce-doc-notes',c.doc_notes||'');
   const pr=document.getElementById('ce-priority');if(pr)pr.value=c.priority||'medium';
@@ -405,13 +450,21 @@ async function saveCardEdit(){
   const colEl=document.getElementById('ce-column');
   const title=document.getElementById('ce-title')?.value.trim();
   if(!title||title.length<3){showToast('Título deve ter ≥3 caracteres',true);return;}
+  const newDue = document.getElementById('ce-due-date')?.value||null;
+  if(newDue && newDue !== card.due_date) {
+    const ok = await checkDateConflict(newDue, cardId);
+    if(!ok) return;
+  }
+  const completedRaw = document.getElementById('ce-completed-at')?.value;
+  const completed_at = completedRaw ? new Date(completedRaw).toISOString() : null;
   const updates={title,
     description:document.getElementById('ce-desc')?.value.trim()||null,
     acceptance_criteria:document.getElementById('ce-acceptance')?.value.trim()||null,
     priority:document.getElementById('ce-priority')?.value||'medium',
     estimated_hours:parseFloat(document.getElementById('ce-hours')?.value)||null,
     budget:parseFloat(document.getElementById('ce-budget')?.value)||null,
-    due_date:document.getElementById('ce-due-date')?.value||null,
+    due_date:newDue,
+    completed_at:completed_at,
     bpmn_status:badge?.dataset.bpmn||card.bpmn_status||'esbocar',
     column_id:colEl?.value||card.column_id,
     doc_decision:document.getElementById('ce-doc-decision')?.value.trim()||null,
