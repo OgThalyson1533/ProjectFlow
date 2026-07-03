@@ -72,6 +72,9 @@ const DynamicBoard = {
   _boards: {},     // boardId → { id, name, columns: [...] }
   _columns: {},    // columnId → column object
   _cards: {},      // cardId → task
+  _currentViewType: 'kanban',
+  _currentBoardId: null,
+  _currentContainerId: null,
 
   /** Carrega board completo de um projeto */
   async loadProject(projectId) {
@@ -170,6 +173,8 @@ const DynamicBoard = {
 
   /** Renderiza board completo no container */
   renderBoard(containerId, boardId) {
+    this._currentContainerId = containerId;
+    this._currentBoardId = boardId;
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -178,21 +183,118 @@ const DynamicBoard = {
 
     const cards = Object.values(this._cards);
 
-    container.innerHTML = `
-      <div class="board-v4" id="board-${boardId}">
-        <div class="board-header">
-          <h2 class="board-title">${board.name}</h2>
-          <button class="btn-add-col" onclick="DynamicBoard._promptAddColumn('${boardId}')">
-            + Coluna
-          </button>
+    if (this._currentViewType === 'table') {
+      this._renderTableView(container, board, cards);
+    } else {
+      container.innerHTML = `
+        <div class="board-v4" id="board-${boardId}">
+          <div class="board-header">
+            <h2 class="board-title">${board.name}</h2>
+            <button class="btn-add-col" onclick="DynamicBoard._promptAddColumn('${boardId}')">
+              + Coluna
+            </button>
+          </div>
+          <div class="board-columns" data-board="${boardId}">
+            ${board.kanban_columns.map(col => this._renderColumn(col, cards)).join('')}
+          </div>
         </div>
-        <div class="board-columns" data-board="${boardId}">
-          ${board.kanban_columns.map(col => this._renderColumn(col, cards)).join('')}
+      `;
+      this._attachDragHandlers(container, boardId);
+    }
+    if (window.lucide) window.lucide.createIcons();
+  },
+
+  _renderTableView(container, board, cards) {
+    const priorityIcon = { low:'Baixa', medium:'Média', high:'Alta', critical:'Crítica' };
+    
+    // Filtra apenas as cards que pertencem a este board
+    const boardCards = cards.filter(c => board.kanban_columns.some(col => col.id === c.column_id));
+    
+    container.innerHTML = `
+      <div class="board-v4 table-view-container" id="board-${board.id}" style="padding:0 24px;">
+        <div class="board-header" style="margin-bottom:24px;">
+          <h2 class="board-title">${board.name}</h2>
+        </div>
+        <div style="background:var(--bg-1);border-radius:12px;border:1px solid var(--bo-1);overflow:hidden;">
+          <table style="width:100%;border-collapse:collapse;text-align:left;font-size:13px;">
+            <thead style="background:var(--bg-2);border-bottom:1px solid var(--bo-2);color:var(--tx-3);">
+              <tr>
+                <th style="padding:12px 16px;font-weight:600;width:40%;">Título</th>
+                <th style="padding:12px 16px;font-weight:600;width:20%;">Coluna</th>
+                <th style="padding:12px 16px;font-weight:600;width:15%;">Prioridade</th>
+                <th style="padding:12px 16px;font-weight:600;width:15%;">Previsão</th>
+                <th style="padding:12px 16px;font-weight:600;width:10%;">Recorrente</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${boardCards.map(card => {
+                const col = this._columns[card.column_id];
+                return `
+                  <tr class="table-row-clickable" onclick="DynamicBoard._openCard('${card.id}')" style="border-bottom:1px solid var(--bo-1);cursor:pointer;transition:background 0.2s;">
+                    <td style="padding:12px 16px;color:var(--tx-1);font-weight:500;">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        ${card.doc_notes ? `<div style="width:8px;height:8px;border-radius:50%;background:var(--c-exec-dot);"></div>` : ''}
+                        ${card.title}
+                      </div>
+                    </td>
+                    <td style="padding:12px 16px;">
+                      <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:${col?.color}20;color:${col?.color};border:1px solid ${col?.color}40;">
+                        ${col ? col.name : '—'}
+                      </span>
+                    </td>
+                    <td style="padding:12px 16px;color:var(--tx-2);">${priorityIcon[card.priority] || 'Média'}</td>
+                    <td style="padding:12px 16px;color:var(--tx-3);">${card.due_date ? new Date(card.due_date).toLocaleDateString() : '—'}</td>
+                    <td style="padding:12px 16px;color:var(--tx-3);">
+                      ${card.is_recurring ? `<i data-lucide="repeat" style="width:14px;height:14px;"></i>` : '—'}
+                    </td>
+                  </tr>
+                `;
+              }).join('') || `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--tx-3);">Nenhuma tarefa neste quadro.</td></tr>`}
+            </tbody>
+          </table>
         </div>
       </div>
     `;
+    
+    // Adiciona o estilo de hover se ainda não existir
+    if (!document.getElementById('table-row-style')) {
+      const style = document.createElement('style');
+      style.id = 'table-row-style';
+      style.textContent = `
+        .table-row-clickable:hover { background: var(--bg-2) !important; }
+      `;
+      document.head.appendChild(style);
+    }
+  },
+
+  switchView(viewType) {
+    this._currentViewType = viewType;
+    
+    // Atualiza botões
+    const btnKanban = document.getElementById('toggle-view-kanban');
+    const btnTable = document.getElementById('toggle-view-table');
+    
+    if (btnKanban && btnTable) {
+      if (viewType === 'kanban') {
+        btnKanban.style.background = 'var(--bg-1)';
+        btnKanban.style.color = 'var(--tx-1)';
+        btnTable.style.background = 'transparent';
+        btnTable.style.color = 'var(--tx-3)';
+      } else {
+        btnTable.style.background = 'var(--bg-1)';
+        btnTable.style.color = 'var(--tx-1)';
+        btnKanban.style.background = 'transparent';
+        btnKanban.style.color = 'var(--tx-3)';
+      }
+    }
+    
+    if (this._currentContainerId && this._currentBoardId) {
+      this.renderBoard(this._currentContainerId, this._currentBoardId);
+    }
+  },
 
     this._attachDragHandlers(container, boardId);
+    if (window.lucide) window.lucide.createIcons();
   },
 
   _renderColumn(col, cards) {
@@ -215,7 +317,7 @@ const DynamicBoard = {
   },
 
   _renderCard(card) {
-    const priorityIcon = { low:'↓', medium:'→', high:'↑', critical:'🔴' };
+    const priorityIcon = { low:'Baixa', medium:'Média', high:'Alta', critical:'Crítica' };
     return `
       <div class="board-card" draggable="true" data-card-id="${card.id}"
            onclick="DynamicBoard._openCard('${card.id}')">
@@ -224,7 +326,7 @@ const DynamicBoard = {
         <div class="card-meta">
           <span class="card-priority">${priorityIcon[card.priority] || '→'}</span>
           ${card.due_date ? `<span class="card-due">${card.due_date}</span>` : ''}
-          ${card.is_recurring ? `<span class="card-recurring" title="Recorrente">↻</span>` : ''}
+          ${card.is_recurring ? `<span class="card-recurring" title="Recorrente"><i data-lucide="repeat" style="width:12px;height:12px"></i></span>` : ''}
           ${card.tags?.length ? `<span class="card-tags">${card.tags.slice(0,2).join(' ')}</span>` : ''}
         </div>
       </div>
@@ -501,8 +603,8 @@ const DiagramEngine = {
 
     container.innerHTML = `
       <div class="diagram-toolbar">
-        <button onclick="DiagramEngine._addNode('${diagramId}')">+ Nó</button>
-        <button onclick="DiagramEngine.save('${diagramId}')">💾 Salvar</button>
+        <button onclick="DiagramEngine._addNode('${diagramId}')" style="display:flex;align-items:center;gap:4px"><i data-lucide="plus" style="width:12px;height:12px"></i> Nó</button>
+        <button onclick="DiagramEngine.save('${diagramId}')" style="display:flex;align-items:center;gap:4px"><i data-lucide="save" style="width:12px;height:12px"></i> Salvar</button>
         <span class="diagram-version">v${d.version}</span>
       </div>
       <div class="diagram-canvas" id="diagram-canvas-${diagramId}">
@@ -511,6 +613,7 @@ const DiagramEngine = {
     `;
 
     this._attachSVGInteraction(diagramId);
+    if (window.lucide) window.lucide.createIcons();
   },
 
   _renderNode(node) {

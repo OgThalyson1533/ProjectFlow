@@ -37,16 +37,41 @@ function _bpmnBadgeNode(s){
 const COL_W=264;
 
 // ── RENDER BOARD ──────────────────────────────────────────────
+window.switchKanbanView = function(view) {
+  window.currentKanbanView = view;
+  const btnKanban = document.getElementById('toggle-view-kanban');
+  const btnTable = document.getElementById('toggle-view-table');
+  if (btnKanban && btnTable) {
+    if (view === 'kanban') {
+      btnKanban.style.background = 'var(--bg-1)';
+      btnKanban.style.color = 'var(--tx-1)';
+      btnTable.style.background = 'transparent';
+      btnTable.style.color = 'var(--tx-3)';
+    } else {
+      btnTable.style.background = 'var(--bg-1)';
+      btnTable.style.color = 'var(--tx-1)';
+      btnKanban.style.background = 'transparent';
+      btnKanban.style.color = 'var(--tx-3)';
+    }
+  }
+  renderBoard();
+};
+
 function renderBoard(){
   const board=document.getElementById('kanban-board');if(!board)return;
   const cols=PFBoard.columns.length?PFBoard.columns:initDefaultColumns();
   let cards=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
+  
+  if (!window.currentKanbanView) window.currentKanbanView = 'kanban';
 
   // Aplica Filtros
   const kfAssigneeEl = document.getElementById('kf-assignee');
+  const kfRequesterEl = document.getElementById('kf-requester');
   if(kfAssigneeEl && kfAssigneeEl.options.length <= 1) {
     const team = window.mockTeam || window.workspaceUsers || [];
-    kfAssigneeEl.innerHTML = '<option value="">Todos</option>' + team.map(m => `<option value="${m.id}">${_e(m.name||m.email)}</option>`).join('');
+    const options = '<option value="">Todos</option>' + team.map(m => `<option value="${m.id}">${_e(m.name||m.email)}</option>`).join('');
+    kfAssigneeEl.innerHTML = options;
+    if (kfRequesterEl) kfRequesterEl.innerHTML = options;
   }
   const fAssignee=kfAssigneeEl?.value;
   const fReqStart=document.getElementById('kf-req-start')?.value;
@@ -59,6 +84,8 @@ function renderBoard(){
   if(fAssignee || fReqStart || fReqEnd || fDueStart || fDueEnd || fCompStart || fCompEnd) {
     cards = cards.filter(c => {
       if(fAssignee && (c.assigned_to !== fAssignee && c.assignee?.id !== fAssignee && c.assignee !== fAssignee)) return false;
+      const fRequester=document.getElementById('kf-requester')?.value;
+      if(fRequester && (c.requester !== fRequester && c.requester_id !== fRequester)) return false;
       
       const reqD = c.request_date || '';
       if(fReqStart && reqD < fReqStart) return false;
@@ -78,7 +105,11 @@ function renderBoard(){
 
   const hdr=document.getElementById('col-headers-dynamic');
   if(hdr){
-    hdr.style.cssText=`display:flex;gap:8px;padding:10px 20px 0;flex-shrink:0;overflow-x:hidden;background:var(--bg-1);border-bottom:1px solid var(--bd);`;
+    if (window.currentKanbanView === 'table') {
+      hdr.style.display = 'none';
+    } else {
+      hdr.style.cssText=`display:flex;gap:8px;padding:10px 20px 0;flex-shrink:0;overflow-x:hidden;background:var(--bg-1);border-bottom:1px solid var(--bd);`;
+    }
     hdr.innerHTML='';
     for(const col of cols) {
       const cnt=cards.filter(c=>_cardInCol(c,col)).length;
@@ -107,6 +138,64 @@ function renderBoard(){
   // Board body
   board.style.cssText='flex:1;display:flex;overflow-x:auto;overflow-y:hidden;padding:8px 20px 16px;gap:8px;';
   board.innerHTML=''; // Fast clear
+  
+  if (window.currentKanbanView === 'table') {
+    const priorityIcon = { low:'Baixa', medium:'Média', high:'Alta', critical:'Crítica' };
+    board.style.display = 'block';
+    board.style.padding = '20px';
+    board.style.overflowY = 'auto';
+    board.innerHTML = `
+      <div style="background:var(--bg-1);border-radius:12px;border:1px solid var(--bo-1);overflow:hidden;">
+        <table style="width:100%;border-collapse:collapse;text-align:left;font-size:13px;">
+          <thead style="background:var(--bg-2);border-bottom:1px solid var(--bo-2);color:var(--tx-3);">
+            <tr>
+              <th style="padding:12px 16px;font-weight:600;width:35%;">Título</th>
+              <th style="padding:12px 16px;font-weight:600;width:15%;">Coluna</th>
+              <th style="padding:12px 16px;font-weight:600;width:15%;">Responsável</th>
+              <th style="padding:12px 16px;font-weight:600;width:15%;">Prioridade</th>
+              <th style="padding:12px 16px;font-weight:600;width:10%;">Previsão</th>
+              <th style="padding:12px 16px;font-weight:600;width:10%;">Tags</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${cards.map(card => {
+              const col = cols.find(c => _cardInCol(card, c));
+              const assigneeId = card.assigned_to || card.assignee?.id || card.assignee;
+              const team = window.mockTeam || window.workspaceUsers || [];
+              const assigneeUser = team.find(u => u.id === assigneeId);
+              const assigneeName = assigneeUser ? (assigneeUser.name || assigneeUser.email) : 'Não atribuído';
+              const priorityText = card.priority ? priorityIcon[card.priority] : 'Média';
+              
+              return \`
+                <tr class="table-row-clickable" onclick="openCard('\${card.id}')" style="border-bottom:1px solid var(--bo-1);cursor:pointer;transition:background 0.2s;">
+                  <td style="padding:12px 16px;color:var(--tx-1);font-weight:500;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      \${card.doc_notes ? \`<div style="width:8px;height:8px;border-radius:50%;background:var(--c-exec-dot);" title="Documento Executivo"></div>\` : ''}
+                      \${_e(card.title)}
+                    </div>
+                  </td>
+                  <td style="padding:12px 16px;">
+                    <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:\${col?.color||'var(--tx-3)'}20;color:\${col?.color||'var(--tx-3)'};border:1px solid \${col?.color||'var(--tx-3)'}40;">
+                      \${col ? _e(col.name) : '—'}
+                    </span>
+                  </td>
+                  <td style="padding:12px 16px;color:var(--tx-2);">\${_e(assigneeName)}</td>
+                  <td style="padding:12px 16px;color:var(--tx-2);">\${priorityText}</td>
+                  <td style="padding:12px 16px;color:var(--tx-3);">\${card.due_date ? new Date(card.due_date).toLocaleDateString('pt-BR') : '—'}</td>
+                  <td style="padding:12px 16px;color:var(--tx-3);">
+                    \${(card.tags||[]).slice(0,2).map(t => \`<span style="background:var(--bg-2);padding:2px 6px;border-radius:4px;font-size:11px;margin-right:4px;">\${_e(t)}</span>\`).join('')}
+                    \${card.is_recurring ? \`<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;margin-left:4px;" title="Recorrente"></i>\` : ''}
+                  </td>
+                </tr>
+              \`;
+            }).join('') || \`<tr><td colspan="6" style="padding:32px;text-align:center;color:var(--tx-3);">Nenhuma tarefa encontrada.</td></tr>\`}
+          </tbody>
+        </table>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
   
   for(const col of cols) {
     const colCards=cards.filter(c=>_cardInCol(c,col)).sort((a,b)=>(a.position||0)-(b.position||0));
@@ -304,6 +393,14 @@ function openNewCard(){
   const cols=PFBoard.columns.length?PFBoard.columns:initDefaultColumns();
   const sel=document.getElementById('new-col-sel');
   if(sel)sel.innerHTML=cols.filter(c=>!c.is_locked).map(c=>`<option value="${c.id}"${c.id===PF._pendingCol?' selected':''}>${_e(c.name)}</option>`).join('');
+  
+  const team=window.mockTeam||window.workspaceUsers||[];
+  const opts='<option value="">— Não atribuído</option>'+team.map(m=>`<option value="${m.id}">${_e(m.name||m.email)}</option>`).join('')+'<option value="add_new" style="font-style:italic;color:var(--ac)">+ Adicionar Novo</option>';
+  const aSel=document.getElementById('new-assignee');
+  if(aSel)aSel.innerHTML=opts;
+  const rSel=document.getElementById('new-requester');
+  if(rSel)rSel.innerHTML=opts;
+
   openModal('new-card-overlay');
   setTimeout(()=>document.getElementById('new-title')?.focus(),80);
 }
@@ -408,7 +505,9 @@ function openCardEdit(cardId){
   const ce=document.getElementById('ce-column');
   if(ce)ce.innerHTML=cols.filter(x=>!x.is_locked).map(x=>`<option value="${x.id}"${_cardInCol(c,x)?' selected':''}>${_e(x.name)}</option>`).join('');
   const ae=document.getElementById('ce-assignee');
-  if(ae)ae.innerHTML='<option value="">— Não atribuído</option>'+team.map(m=>`<option value="${m.id}"${(c.assignee||c.assigned_to)===m.id?' selected':''}>${_e(m.name)}</option>`).join('');
+  if(ae)ae.innerHTML='<option value="">— Não atribuído</option>'+team.map(m=>`<option value="${m.id}"${(c.assignee||c.assigned_to)===m.id?' selected':''}>${_e(m.name||m.email)}</option>`).join('')+'<option value="add_new" style="font-style:italic;color:var(--ac)">+ Adicionar Novo</option>';
+  const req=document.getElementById('ce-requester');
+  if(req)req.innerHTML='<option value="">— Não atribuído</option>'+team.map(m=>`<option value="${m.id}"${(c.requester||c.requester_id)===m.id?' selected':''}>${_e(m.name||m.email)}</option>`).join('')+'<option value="add_new" style="font-style:italic;color:var(--ac)">+ Adicionar Novo</option>';
 
   const bf=document.getElementById('ce-bpmn-flow');
   if(bf)bf.innerHTML=BPMN_STEPS.map((s,i)=>{

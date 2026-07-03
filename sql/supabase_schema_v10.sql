@@ -613,16 +613,13 @@ DROP POLICY IF EXISTS "storage_anexos_select" ON storage.objects;
 DROP POLICY IF EXISTS "storage_anexos_delete" ON storage.objects;
 
 CREATE POLICY "storage_anexos_insert" ON storage.objects
-  FOR INSERT TO authenticated WITH CHECK (TRUE);
-  WITH CHECK (bucket_id = 'anexos_tarefas');
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'anexos_tarefas');
 
 CREATE POLICY "storage_anexos_select" ON storage.objects
-  FOR SELECT TO authenticated USING (TRUE);
-  USING (bucket_id = 'anexos_tarefas');
+  FOR SELECT TO authenticated USING (bucket_id = 'anexos_tarefas');
 
 CREATE POLICY "storage_anexos_delete" ON storage.objects
-  FOR DELETE TO authenticated USING (TRUE);
-  USING (bucket_id = 'anexos_tarefas' AND owner = auth.uid());
+  FOR DELETE TO authenticated USING (bucket_id = 'anexos_tarefas' AND owner = auth.uid());
 
 -- ══════════════════════════════════════════════════════════════
 --  BLOCO 7 — TRIGGERS
@@ -862,13 +859,7 @@ CREATE POLICY "p_ws_del" ON public.workspaces FOR DELETE TO authenticated USING 
 -- workspace_members
 CREATE POLICY "p_wm_sel" ON public.workspace_members FOR SELECT TO authenticated USING (TRUE);
 CREATE POLICY "p_wm_ins" ON public.workspace_members FOR INSERT TO authenticated WITH CHECK (TRUE);
-    user_id = auth.uid()
-    OR EXISTS (SELECT 1 FROM public.workspaces WHERE id = workspace_id AND owner_id = auth.uid())
-  );
 CREATE POLICY "p_wm_del" ON public.workspace_members FOR DELETE TO authenticated USING (TRUE);
-    user_id = auth.uid()
-    OR EXISTS (SELECT 1 FROM public.workspaces WHERE id = workspace_id AND owner_id = auth.uid())
-  );
 
 -- projects
 CREATE POLICY "p_proj_sel" ON public.projects FOR SELECT TO authenticated USING (TRUE);
@@ -890,19 +881,10 @@ CREATE POLICY "p_board_ins" ON public.kanban_boards FOR INSERT TO authenticated 
 CREATE POLICY "p_board_upd" ON public.kanban_boards FOR UPDATE TO authenticated USING (TRUE);
 
 -- kanban columns
-CREATE POLICY "p_col_sel" ON public.kanban_columns FOR SELECT TO authenticated USING (TRUE);
-    SELECT 1 FROM public.kanban_boards b
-    WHERE b.id = board_id AND public.is_project_member(b.project_id)
-  ));
+CREATE POLICY "p_col_sel" ON public.kanban_columns FOR SELECT TO authenticated USING (TRUE);
 CREATE POLICY "p_col_ins" ON public.kanban_columns FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_col_upd" ON public.kanban_columns FOR UPDATE TO authenticated USING (TRUE);
-    SELECT 1 FROM public.kanban_boards b
-    WHERE b.id = board_id AND public.can_write_project(b.project_id)
-  ));
-CREATE POLICY "p_col_del" ON public.kanban_columns FOR DELETE TO authenticated USING (TRUE);
-    SELECT 1 FROM public.kanban_boards b
-    WHERE b.id = board_id AND public.can_write_project(b.project_id)
-  ));
+CREATE POLICY "p_col_upd" ON public.kanban_columns FOR UPDATE TO authenticated USING (TRUE);
+CREATE POLICY "p_col_del" ON public.kanban_columns FOR DELETE TO authenticated USING (TRUE);
 
 -- tasks
 CREATE POLICY "p_task_sel" ON public.tasks FOR SELECT TO authenticated USING (TRUE);
@@ -911,33 +893,21 @@ CREATE POLICY "p_task_upd" ON public.tasks FOR UPDATE TO authenticated USING (TR
 CREATE POLICY "p_task_del" ON public.tasks FOR DELETE TO authenticated USING (TRUE);
 
 -- subtasks
-CREATE POLICY "p_sub_all" ON public.subtasks FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-    SELECT 1 FROM public.tasks t
-    WHERE t.id = task_id AND public.is_project_member(t.project_id)
-  ));
+CREATE POLICY "p_sub_all" ON public.subtasks FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
 
 -- attachments
-CREATE POLICY "p_att_sel" ON public.task_attachments FOR SELECT TO authenticated USING (TRUE);
-    SELECT 1 FROM public.tasks t
-    WHERE t.id = task_id AND public.is_project_member(t.project_id)
-  ));
+CREATE POLICY "p_att_sel" ON public.task_attachments FOR SELECT TO authenticated USING (TRUE);
 CREATE POLICY "p_att_ins" ON public.task_attachments FOR INSERT TO authenticated WITH CHECK (TRUE);
 CREATE POLICY "p_att_del" ON public.task_attachments FOR DELETE TO authenticated USING (TRUE);
 
 -- comments
-CREATE POLICY "p_cmt_sel" ON public.comments FOR SELECT TO authenticated USING (TRUE);
-    SELECT 1 FROM public.tasks t
-    WHERE t.id = task_id AND public.is_project_member(t.project_id)
-  ));
+CREATE POLICY "p_cmt_sel" ON public.comments FOR SELECT TO authenticated USING (TRUE);
 CREATE POLICY "p_cmt_ins" ON public.comments FOR INSERT TO authenticated WITH CHECK (TRUE);
 CREATE POLICY "p_cmt_upd" ON public.comments FOR UPDATE TO authenticated USING (TRUE);
 CREATE POLICY "p_cmt_del" ON public.comments FOR DELETE TO authenticated USING (TRUE);
 
 -- task_history
-CREATE POLICY "p_hist_sel" ON public.task_history FOR SELECT TO authenticated USING (TRUE);
-    SELECT 1 FROM public.tasks t
-    WHERE t.id = task_id AND public.is_project_member(t.project_id)
-  ));
+CREATE POLICY "p_hist_sel" ON public.task_history FOR SELECT TO authenticated USING (TRUE);
 CREATE POLICY "p_hist_ins" ON public.task_history FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 -- pipeline
@@ -945,14 +915,7 @@ CREATE POLICY "p_stage_all" ON public.pipeline_stages FOR ALL TO authenticated U
 
 -- leads
 CREATE POLICY "p_lead_all" ON public.leads FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-    owner_id = auth.uid()
-    OR (project_id IS NOT NULL AND public.is_project_member(project_id))
-  );
 CREATE POLICY "p_lint_all" ON public.lead_interactions FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-    SELECT 1 FROM public.leads l WHERE l.id = lead_id
-    AND (l.owner_id = auth.uid()
-      OR (l.project_id IS NOT NULL AND public.is_project_member(l.project_id)))
-  ));
 
 -- diagrams
 CREATE POLICY "p_diag_sel" ON public.project_diagrams FOR SELECT TO authenticated USING (TRUE);

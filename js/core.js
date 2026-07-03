@@ -116,15 +116,6 @@ window.closeModal = function(id) {
   const el = document.getElementById(id);
   if (el) {
     el.classList.remove('open');
-    el.classList.remove('minimized');
-  }
-};
-
-window.minimizeModal = function(id, e) {
-  if(e) e.stopPropagation();
-  const el = document.getElementById(id);
-  if (el) {
-    el.classList.toggle('minimized');
   }
 };
 
@@ -162,3 +153,24 @@ window.validateCard = function(data) {
   }
   return errors;
 };
+
+window.initFlatpickr = function() {
+  if(window.flatpickr) {
+    window.flatpickr("input[type=date]", {
+      dateFormat: "Y-m-d",
+      locale: "pt"
+    });
+  }
+};
+
+// ── Inicialização Global de UI (Flatpickr & Lucide) ──────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Inicializa Lucide Icons
+  if(window.lucide) {
+    window.lucide.createIcons();
+  }
+  
+  // Inicializa Flatpickr em todos os inputs de data
+  window.initFlatpickr();
+});
+

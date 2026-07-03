@@ -598,8 +598,12 @@ window.RecurrenceEngine=(function(){
   function openManager(){
     const items=load();const w=document.createElement('div');w.className='overlay';w.style.cssText='display:flex!important;z-index:1100';
     w.innerHTML=`<div class="modal" onclick="event.stopPropagation()" style="max-width:460px">
-      <div class="modal-hdr"><div class="modal-title">🔄 Tarefas Recorrentes</div>
-        <button class="modal-close" onclick="this.closest('.overlay').remove()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+      <div class="modal-hdr">
+        <div class="modal-title-block"><div class="modal-title" style="display:flex;align-items:center;gap:6px"><i data-lucide="repeat" style="width:18px;height:18px"></i> Tarefas Recorrentes</div></div>
+        <div class="modal-window-controls">
+          <button class="modal-control-btn close" onclick="this.closest('.overlay').remove()"><i data-lucide="x" style="width:16px;height:16px"></i></button>
+        </div>
+      </div>
       <div class="modal-body" style="padding:18px">
         <div style="padding:12px;background:var(--bg-2);border-radius:var(--r-m);border:1px solid var(--bd);margin-bottom:14px">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx-3);margin-bottom:10px">+ Nova recorrência</div>
@@ -608,11 +612,12 @@ window.RecurrenceEngine=(function(){
             <div><label class="field-label">Frequência</label><select class="field-input" id="rec-sched"><option value="daily">Todo dia</option><option value="weekly:mon">Toda segunda</option><option value="weekly:tue">Toda terça</option><option value="weekly:wed">Toda quarta</option><option value="weekly:thu">Toda quinta</option><option value="weekly:fri">Toda sexta</option><option value="weekly:mon,thu">Seg e Qui</option><option value="weekly:tue,fri">Ter e Sex</option></select></div>
             <div><label class="field-label">Prioridade</label><select class="field-input" id="rec-pri"><option value="low">↓ Baixa</option><option value="medium" selected>⬝ Média</option><option value="high">↑ Alta</option></select></div>
           </div>
-          <button class="btn-primary" style="width:100%" onclick="const t=document.getElementById('rec-title').value.trim();if(!t){showToast('Informe o título',true);return;}RecurrenceEngine.add({title:t,schedule:document.getElementById('rec-sched').value,priority:document.getElementById('rec-pri').value});this.closest('.overlay').remove();RecurrenceEngine.openManager();">✅ Salvar</button>
+          <button class="btn-primary" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px" onclick="const t=document.getElementById('rec-title').value.trim();if(!t){showToast('Informe o título',true);return;}RecurrenceEngine.add({title:t,schedule:document.getElementById('rec-sched').value,priority:document.getElementById('rec-pri').value});this.closest('.overlay').remove();RecurrenceEngine.openManager();"><i data-lucide="check" style="width:16px;height:16px"></i> Salvar</button>
         </div>
-        ${items.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg-2);border-radius:var(--r-m);border:1px solid var(--bd);margin-bottom:6px"><div style="flex:1"><div style="font-size:13px;font-weight:600">${String(r.title).replace(/</g,'&lt;')}</div><div style="font-size:11px;color:var(--tx-3)">${r.schedule} · ${r.priority}</div></div><button onclick="RecurrenceEngine.remove('${r.id}');this.closest('.overlay').remove();RecurrenceEngine.openManager()" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px">🗑</button></div>`).join('')||'<p style="font-size:13px;color:var(--tx-3)">Nenhuma recorrência.</p>'}
+        ${items.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg-2);border-radius:var(--r-m);border:1px solid var(--bd);margin-bottom:6px"><div style="flex:1"><div style="font-size:13px;font-weight:600">${String(r.title).replace(/</g,'&lt;')}</div><div style="font-size:11px;color:var(--tx-3)">${r.schedule} · ${r.priority}</div></div><button onclick="RecurrenceEngine.remove('${r.id}');this.closest('.overlay').remove();RecurrenceEngine.openManager()" style="background:none;border:none;cursor:pointer;color:var(--tx-3);font-size:14px;display:flex;align-items:center;justify-content:center;padding:4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--tx-3)'"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button></div>`).join('')||'<p style="font-size:13px;color:var(--tx-3)">Nenhuma recorrência.</p>'}
       </div></div>`;
     document.body.appendChild(w);
+    if(window.lucide) window.lucide.createIcons();
   }
   document.addEventListener('DOMContentLoaded',()=>setTimeout(run,2500));
   return{add,run,remove,openManager};
@@ -647,9 +652,15 @@ window.openRecurringManager=()=>RecurrenceEngine.openManager();
       <div id="kb-filter-dropdown" style="min-width:320px">
         <div style="width:100%;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx-3);margin-bottom:12px">Filtros Avançados</div>
         <div style="display:flex;flex-direction:column;gap:14px;width:100%">
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Responsável</label>
-            <select id="kf-assignee" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()"><option value="">Todos</option></select>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Responsável</label>
+              <select id="kf-assignee" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()"><option value="">Todos</option></select>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <label style="font-size:11px;font-weight:700;color:var(--tx-2)">Solicitante</label>
+              <select id="kf-requester" class="field-input" style="padding:8px 12px;font-size:13px" onchange="applyKanbanFilters()"><option value="">Todos</option></select>
+            </div>
           </div>
           <div style="display:flex;gap:12px;align-items:center">
             <div style="flex:1;display:flex;flex-direction:column;gap:6px">
@@ -687,14 +698,15 @@ window.openRecurringManager=()=>RecurrenceEngine.openManager();
     if(toolbar&&toolbar.nextSibling)toolbar.parentNode.insertBefore(wrap,toolbar.nextSibling);
     else board.parentElement.insertBefore(wrap,board);
     document.addEventListener('click',e=>{const wr=document.getElementById('kb-filter-wrap');if(wr&&!wr.contains(e.target)){document.getElementById('kb-filter-dropdown')?.classList.remove('open');document.getElementById('kb-filter-toggle')?.classList.remove('active');}});
+    if (window.initFlatpickr) window.initFlatpickr();
   }
   window.toggleKanbanFilters=function(){const dd=document.getElementById('kb-filter-dropdown');const btn=document.getElementById('kb-filter-toggle');if(dd){dd.classList.toggle('open');btn?.classList.toggle('active');}};
   window.applyKanbanFilters=function(){
     _updateFilterCount();
     if(typeof renderBoard === 'function') renderBoard();
   };
-  window.clearKanbanFilters=function(){['kf-assignee','kf-req-start','kf-req-end','kf-due-start','kf-due-end','kf-comp-start','kf-comp-end'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});_updateFilterCount();if(typeof renderBoard === 'function') renderBoard();};
-  function _updateFilterCount(){const v=(id)=>document.getElementById(id)?.value||'';const count=[v('kf-assignee'),v('kf-req-start'),v('kf-req-end'),v('kf-due-start'),v('kf-due-end'),v('kf-comp-start'),v('kf-comp-end')].filter(Boolean).length;const cnt=document.getElementById('kb-filter-count');const btn=document.getElementById('kb-filter-toggle');if(cnt){cnt.style.display=count?'':'none';cnt.textContent=count;}if(btn)btn.classList.toggle('active',count>0);}
+  window.clearKanbanFilters=function(){['kf-assignee','kf-requester','kf-req-start','kf-req-end','kf-due-start','kf-due-end','kf-comp-start','kf-comp-end'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});_updateFilterCount();if(typeof renderBoard === 'function') renderBoard();};
+  function _updateFilterCount(){const v=(id)=>document.getElementById(id)?.value||'';const count=[v('kf-assignee'),v('kf-requester'),v('kf-req-start'),v('kf-req-end'),v('kf-due-start'),v('kf-due-end'),v('kf-comp-start'),v('kf-comp-end')].filter(Boolean).length;const cnt=document.getElementById('kb-filter-count');const btn=document.getElementById('kb-filter-toggle');if(cnt){cnt.style.display=count?'':'none';cnt.textContent=count;}if(btn)btn.classList.toggle('active',count>0);}
   const _sw=window.switchView;
   window.switchView=function(name,btn){_sw&&_sw(name,btn);if(name==='kanban')setTimeout(build,400);};
   document.addEventListener('DOMContentLoaded',()=>setTimeout(build,1800));
@@ -703,11 +715,24 @@ window.openRecurringManager=()=>RecurrenceEngine.openManager();
 // ════════════════════════════════════════════════════════════
 //  14. MEMBER MANAGER (v9 feature)
 // ════════════════════════════════════════════════════════════
+window.handleAssigneeSelect = function(sel) {
+  if (sel.value === 'add_new') {
+    sel.value = '';
+    if (typeof openMemberManager === 'function') {
+      openMemberManager();
+    }
+  }
+};
+
 window.openMemberManager=function(){
   const team=window.mockTeam||[];const w=document.createElement('div');w.className='overlay';w.style.cssText='display:flex!important;z-index:1100';
   w.innerHTML=`<div class="modal" onclick="event.stopPropagation()" style="max-width:460px">
-    <div class="modal-hdr"><div class="modal-title">👤 Gerenciar Equipe</div>
-      <button class="modal-close" onclick="this.closest('.overlay').remove()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+    <div class="modal-hdr">
+      <div class="modal-title-block"><div class="modal-title" style="display:flex;align-items:center;gap:6px"><i data-lucide="users" style="width:18px;height:18px"></i> Gerenciar Equipe</div></div>
+      <div class="modal-window-controls">
+        <button class="modal-control-btn close" onclick="this.closest('.overlay').remove()"><i data-lucide="x" style="width:16px;height:16px"></i></button>
+      </div>
+    </div>
     <div class="modal-body" style="padding:18px">
       <div style="padding:12px;background:var(--bg-2);border-radius:var(--r-m);border:1px solid var(--bd);margin-bottom:14px">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx-3);margin-bottom:10px">+ Novo Membro</div>
@@ -727,6 +752,7 @@ window.openMemberManager=function(){
       </div>`).join('')||'<p style="font-size:13px;color:var(--tx-3)">Nenhum membro cadastrado.</p>'}
     </div></div>`;
   document.body.appendChild(w);
+  if(window.lucide) window.lucide.createIcons();
 };
 window.addTeamMember=function(){
   const name=document.getElementById('mem-name')?.value.trim();if(!name){showToast('Nome obrigatório',true);return;}
