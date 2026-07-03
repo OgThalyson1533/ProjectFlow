@@ -771,6 +771,122 @@ window.DiagramEngineV9 = (function () {
   // ── Stat ────────────────────────────────────────────────
   function _updateStat(){const el=document.getElementById('bv4stat');if(el)el.textContent=`${_nodes.length} elementos · ${_edges.length} conexões`;}
 
+  // ── Import Diagram ───────────────────────────────────────
+  async function _importDiagramFromCode() {
+    const code = document.getElementById('bv4imp-code')?.value?.trim();
+    if(!code) { showToast('Código vazio', true); return; }
+    document.getElementById('bv4imp-modal').style.display='none';
+    
+    // Draw.io XML
+    if(code.startsWith('<mxfile') || code.startsWith('<mxGraphModel')) {
+      _parseDrawio(code);
+      return;
+    }
+    // Mermaid / text
+    _parseWithAI(code);
+  }
+
+  function _parseDrawio(xml) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xml, "text/xml");
+      const cells = doc.querySelectorAll("mxCell");
+      _nodes = []; _edges = []; _sel = null; _selEdge = null;
+      
+      const idMap = {};
+      
+      cells.forEach(c => {
+        const id = c.getAttribute("id");
+        if(id==="0" || id==="1") return;
+        const isEdge = c.getAttribute("edge") === "1";
+        const isVertex = c.getAttribute("vertex") === "1";
+        
+        if (isVertex) {
+          const geo = c.querySelector("mxGeometry");
+          if(!geo) return;
+          const x = parseFloat(geo.getAttribute("x")||"0");
+          const y = parseFloat(geo.getAttribute("y")||"0");
+          const w = parseFloat(geo.getAttribute("width")||"120");
+          const h = parseFloat(geo.getAttribute("height")||"80");
+          let value = c.getAttribute("value") || "";
+          value = value.replace(/<br\s*\/?>/gi, " ");
+          value = value.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g," ").trim();
+          
+          let type = "task";
+          const style = c.getAttribute("style") || "";
+          if(style.includes("rhombus")) type = "gw_excl";
+          else if(style.includes("cylinder")) type = "data_str";
+          else if(style.includes("ellipse") || style.includes("shape=ellipse")) type = "es_none";
+          else if(style.includes("swimlane")) type = "pool";
+          
+          const nid = 'n_'+id.replace(/[^a-zA-Z0-9]/g,'_');
+          idMap[id] = nid;
+          _nodes.push({ id: nid, type, x, y, w, h, label: value, fill: isDark() ? '#2c2c2c' : '#ffffff' });
+        } else if (isEdge) {
+          const src = c.getAttribute("source");
+          const tgt = c.getAttribute("target");
+          let value = c.getAttribute("value") || "";
+          value = value.replace(/<[^>]+>/g, " ").trim();
+          if(src && tgt) {
+            _edges.push({ id: 'e_'+id.replace(/[^a-zA-Z0-9]/g,'_'), src: 'n_'+src.replace(/[^a-zA-Z0-9]/g,'_'), tgt: 'n_'+tgt.replace(/[^a-zA-Z0-9]/g,'_'), label: value });
+          }
+        }
+      });
+      _push(); _markDirty(); _render(); setTimeout(fitView, 50);
+      showToast('Diagrama XML importado com sucesso!');
+    } catch(e) {
+      showToast('Erro ao ler XML: '+e.message, true);
+    }
+  }
+
+  async function _parseWithAI(code) {
+    if(!window.PF_CONFIG?.supabaseUrl) { showToast('Proxy IA ausente na configuração', true); return; }
+    showToast('Interpretando código com Inteligência Artificial...');
+    
+    try {
+      const supabase = window._supabase || window.supabase;
+      const session  = supabase ? (await supabase.auth.getSession())?.data?.session : null;
+      const authHeader = session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {};
+      const PROXY_URL = `${window.PF_CONFIG.supabaseUrl}/functions/v1/claude-proxy`;
+      
+      const systemPrompt = `Você é um conversor de diagramas. Eu enviarei um código (Mermaid/Markdown) e você DEVE convertê-lo ESTRITAMENTE para JSON válido (sem NENHUM texto antes ou depois, comece com { e termine com }).
+Formato:
+{
+  "nodes": [ {"id":"n1", "type":"task", "x":100, "y":100, "w":120, "h":80, "label":"Nome", "fill":"#ffffff"} ],
+  "edges": [ {"id":"e1", "src":"n1", "tgt":"n2", "label":""} ]
+}
+Tipos de nodes suportados: task, data_str, gw_excl, pool, es_none, ee_none.
+Espalhe as coordenadas (x e y) inteligentemente para formar um layout organizado, incrementando o y ou x para evitar sobreposição.`;
+
+      const res = await fetch(PROXY_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': window.PF_CONFIG.supabaseKey, ...authHeader },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: code }]
+        }),
+      });
+
+      if (!res.ok) throw new Error('Falha no proxy da IA');
+      const data = await res.json();
+      let text = data?.content?.[0]?.text || data?.content?.map?.(b => b.text || '').join('') || '';
+      
+      // Limpa possível formatação markdown
+      text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(text);
+      
+      if(parsed.nodes) _nodes = parsed.nodes;
+      if(parsed.edges) _edges = parsed.edges;
+      _sel = null; _selEdge = null;
+      _push(); _markDirty(); _render(); setTimeout(fitView, 50);
+      showToast('Diagrama gerado por IA!');
+    } catch(e) {
+      showToast('Falha IA: ' + e.message, true);
+    }
+  }
+
   // ── HTML ────────────────────────────────────────────────
   function _buildHTML(pid) {
     const proj=(window.mockProjects||[]).find(p=>p.id===pid);
@@ -835,6 +951,7 @@ window.DiagramEngineV9 = (function () {
       <option value="">— tarefa —</option>${taskOpts}
     </select>
     <div class="b4sep"></div>
+    ${btn(s16('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'),'bv4imp','Importar Código (XML/Mermaid)')}
     ${btn(s16('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'),'bv4exp','Exportar SVG')}
     <div class="b4sep"></div>
     <span class="b4dot saved" id="bv4dot"></span>
@@ -880,6 +997,24 @@ window.DiagramEngineV9 = (function () {
 </div>
 
 <div id="bv4tt"></div>
+
+<div id="bv4imp-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-1,#fff);width:600px;border-radius:12px;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.3);overflow:hidden;border:1px solid var(--bd,#e4e4e7);">
+    <div style="padding:15px 20px;border-bottom:1px solid var(--bd,#e4e4e7);display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="margin:0;font-size:15px;color:var(--tx-1,#111);">Importar Diagrama (XML / Mermaid)</h3>
+      <button onclick="document.getElementById('bv4imp-modal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:#888;">&times;</button>
+    </div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+      <p style="margin:0;font-size:13px;color:var(--tx-3,#555);">Cole o código XML (gerado pelo Draw.io) ou o código Mermaid para ser convertido nativamente para o quadro.</p>
+      <textarea id="bv4imp-code" style="width:100%;height:250px;padding:12px;border:1px solid var(--bd,#e4e4e7);border-radius:8px;font-family:monospace;font-size:12px;background:var(--bg-2,#f9f9f9);color:var(--tx-1,#111);outline:none;resize:vertical;" placeholder="Ex: <mxfile... ou erDiagram..."></textarea>
+    </div>
+    <div style="padding:15px 20px;border-top:1px solid var(--bd,#e4e4e7);display:flex;justify-content:flex-end;gap:10px;background:var(--bg-2,#f9f9f9);">
+      <button class="b4btn" style="border:1px solid var(--bd,#e4e4e7);" onclick="document.getElementById('bv4imp-modal').style.display='none'">Cancelar</button>
+      <button class="b4btn b4save" id="bv4imp-btn-submit" style="padding:0 14px;">Gerar Diagrama</button>
+    </div>
+  </div>
+</div>
+
 </div>`;
   }
 
@@ -891,6 +1026,8 @@ window.DiagramEngineV9 = (function () {
     on('bv4zi',()=>{_zoom=Math.min(12,_zoom*1.18);_render();_zlbl();});
     on('bv4zo',()=>{_zoom=Math.max(0.06,_zoom*0.85);_render();_zlbl();});
     on('bv4exp',exportSVG);on('bv4save',()=>save());on('bv4gen',()=>generateFromProject());
+    on('bv4imp',()=>document.getElementById('bv4imp-modal').style.display='flex');
+    on('bv4imp-btn-submit',_importDiagramFromCode);
     on('bv4lay',autoLayout);on('pp-close',_closeProps);
     document.getElementById('bv4tasksel')?.addEventListener('change',e=>{ _taskId=e.target.value||null; showToast(_taskId?'Tarefa vinculada':'Vínculo removido'); });
   }
