@@ -500,8 +500,8 @@ DECLARE
   rec          RECORD;
   nova_task_id UUID;
   prox         TIMESTAMPTZ;
-  v_board_id   UUID;
-  v_column_id  UUID;
+  var_board_id   UUID;
+  var_column_id  UUID;
 BEGIN
   FOR rec IN
     SELECT cr.*
@@ -513,9 +513,9 @@ BEGIN
     BEGIN
       -- Resolve board_id
       IF rec.board_id IS NOT NULL THEN
-        v_board_id := rec.board_id;
+        var_board_id := rec.board_id;
       ELSE
-        SELECT id INTO v_board_id
+        SELECT id INTO var_board_id
         FROM   public.kanban_boards
         WHERE  project_id = rec.project_id AND is_default = TRUE
         LIMIT  1;
@@ -523,11 +523,11 @@ BEGIN
 
       -- Resolve column_id (posição 1 = Planejado)
       IF rec.column_id IS NOT NULL THEN
-        v_column_id := rec.column_id;
+        var_column_id := rec.column_id;
       ELSE
-        SELECT id INTO v_column_id
+        SELECT id INTO var_column_id
         FROM   public.kanban_columns
-        WHERE  board_id = v_board_id AND position = 1
+        WHERE  board_id = var_board_id AND position = 1
         LIMIT  1;
       END IF;
 
@@ -536,7 +536,7 @@ BEGIN
         title, description, bpmn_status, priority, estimated_hours,
         tags, is_recurring, recurrence_rule, position
       ) VALUES (
-        rec.project_id, v_board_id, v_column_id,
+        rec.project_id, var_board_id, var_column_id,
         rec.assigned_to, rec.created_by,
         rec.title || ' — ' || TO_CHAR(NOW() AT TIME ZONE 'America/Sao_Paulo','DD/MM/YYYY'),
         rec.description,
@@ -548,7 +548,7 @@ BEGIN
           'gerado_em',  NOW()::TEXT
         ),
         COALESCE(
-          (SELECT MAX(position)+1 FROM public.tasks WHERE column_id = v_column_id),
+          (SELECT MAX(position)+1 FROM public.tasks WHERE column_id = var_column_id),
           0
         )
       ) RETURNING id INTO nova_task_id;
@@ -665,7 +665,7 @@ CREATE TRIGGER on_auth_user_created
 -- ✅ CORRIGIDO: INSERT usa content_json (não fabric_json)
 CREATE OR REPLACE FUNCTION public.handle_new_project()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE v_board_id UUID;
+DECLARE var_board_id UUID;
 BEGIN
   IF NEW.owner_id IS NOT NULL THEN
     INSERT INTO public.project_members (project_id, user_id, role)
@@ -675,17 +675,17 @@ BEGIN
 
   INSERT INTO public.kanban_boards (project_id, name, is_default)
   VALUES (NEW.id, 'Board Principal', TRUE)
-  RETURNING id INTO v_board_id;
+  RETURNING id INTO var_board_id;
 
   INSERT INTO public.kanban_columns
     (board_id, name, position, wip_limit, color, bpmn_mapping, is_done_col, is_locked)
   VALUES
-    (v_board_id,'Planejado',   1,4,   '#9A9A94','{esbocar,viabilizar}',             FALSE,FALSE),
-    (v_board_id,'Prioridade',  2,2,   '#6C5CE7','{atribuir}',                        FALSE,FALSE),
-    (v_board_id,'Em Execução', 3,3,   '#C48A0A','{executar}',                        FALSE,FALSE),
-    (v_board_id,'Em Revisão',  4,3,   '#3B6CDB','{avaliar,corrigir,validar_cliente}',FALSE,FALSE),
-    (v_board_id,'Concluído',   5,NULL,'#1A9E5F','{concluido}',                       TRUE, FALSE),
-    (v_board_id,'Recorrentes', 6,NULL,'#E07050','{}',                                FALSE,TRUE)
+    (var_board_id,'Planejado',   1,4,   '#9A9A94','{esbocar,viabilizar}',             FALSE,FALSE),
+    (var_board_id,'Prioridade',  2,2,   '#6C5CE7','{atribuir}',                        FALSE,FALSE),
+    (var_board_id,'Em Execução', 3,3,   '#C48A0A','{executar}',                        FALSE,FALSE),
+    (var_board_id,'Em Revisão',  4,3,   '#3B6CDB','{avaliar,corrigir,validar_cliente}',FALSE,FALSE),
+    (var_board_id,'Concluído',   5,NULL,'#1A9E5F','{concluido}',                       TRUE, FALSE),
+    (var_board_id,'Recorrentes', 6,NULL,'#E07050','{}',                                FALSE,TRUE)
   ON CONFLICT (board_id, position) DO NOTHING;
 
   -- ✅ CORRIGIDO: usa content_json (nome canônico)
@@ -1134,3 +1134,4 @@ BEGIN
     RAISE WARNING '  ⚠️  Instalação incompleta — verifique os itens acima';
   END IF;
 END $$;
+
