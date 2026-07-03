@@ -513,7 +513,7 @@ async function createCard(){
   }
   const hours=document.getElementById('new-hours')?.value.trim();
   const budget=document.getElementById('new-budget')?.value.trim();
-  const desc=document.getElementById('new-desc')?.value.trim();
+  const desc=window.tinymce?.get('new-desc') ? window.tinymce.get('new-desc').getContent().trim() : document.getElementById('new-desc')?.value.trim();
   const priority=document.getElementById('new-priority')?.value||'medium';
   const errors=validateCard({title,budget,estimated_hours:hours});
   if(errors.length){showToast(errors[0],true);return;}
@@ -555,7 +555,7 @@ async function createCard(){
   }
 }
 
-function resetNewCardForm(){['new-title','new-hours','new-budget','new-date','new-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const p=document.getElementById('new-priority');if(p)p.value='medium';}
+function resetNewCardForm(){['new-title','new-hours','new-budget','new-date','new-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const p=document.getElementById('new-priority');if(p)p.value='medium';if(window.tinymce?.get('new-desc'))window.tinymce.get('new-desc').setContent('');}
 
 // ── CARD EDIT ─────────────────────────────────────────────────
 function openCardEdit(cardId){
@@ -577,6 +577,7 @@ function openCardEdit(cardId){
     badge.style.background=(BPMN_C[bpmn]||'var(--ac)')+'12';}
 
   _v('ce-title',c.title||'');_v('ce-desc',c.description||c.desc||'');
+  if(window.tinymce?.get('ce-desc')) window.tinymce.get('ce-desc').setContent(c.description||c.desc||'');
   _v('ce-acceptance',c.acceptance_criteria||'');_v('ce-hours',c.estimated_hours||'');
   _v('ce-budget',c.budget||'');_v('ce-due-date',c.due_date||'');
   _v('ce-completed-at',c.completed_at ? new Date(c.completed_at).toISOString().slice(0,16) : '');
@@ -649,7 +650,7 @@ async function saveCardEdit(){
   const completedRaw = document.getElementById('ce-completed-at')?.value;
   const completed_at = completedRaw ? new Date(completedRaw).toISOString() : null;
   const updates={title,
-    description:document.getElementById('ce-desc')?.value.trim()||null,
+    description:(window.tinymce?.get('ce-desc') ? window.tinymce.get('ce-desc').getContent().trim() : document.getElementById('ce-desc')?.value.trim())||null,
     acceptance_criteria:document.getElementById('ce-acceptance')?.value.trim()||null,
     priority:document.getElementById('ce-priority')?.value||'medium',
     estimated_hours:parseFloat(document.getElementById('ce-hours')?.value)||null,
