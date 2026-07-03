@@ -411,7 +411,7 @@ select.field-input{appearance:none;background-image:url("data:image/svg+xml,%3Cs
   overflow: hidden;
 }
 
-.sidebar-nav {
+.card-modal-sidebar {
   width: 220px;
   background: var(--bg-1); /* bg-panel */
   border-right: 1px solid var(--bd);
@@ -437,7 +437,7 @@ select.field-input{appearance:none;background-image:url("data:image/svg+xml,%3Cs
   box-shadow: inset 3px 0 0 var(--ac);
 }
 
-.content-area {
+.card-modal-content {
   flex: 1;
   padding: 24px 32px;
   overflow-y: auto;

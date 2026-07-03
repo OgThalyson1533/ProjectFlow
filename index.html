@@ -365,11 +365,11 @@
     </header>
 
     <div class="card-body">
-      <nav class="sidebar-nav">
-        <button class="nav-item active" data-target="nc-tab-info" onclick="switchNCTab('nc-tab-info', this)"><i data-lucide="info" style="width:16px;height:16px"></i> Informações</button>
+      <nav class="card-modal-sidebar">
+        <button class="nav-item active"><i data-lucide="info" style="width:16px;height:16px"></i> Informações</button>
       </nav>
 
-      <main class="content-area">
+      <main class="card-modal-content">
         <div id="nc-tab-info" class="tab-pane active">
           <div class="form-group">
             <label>Título da Tarefa *</label>
@@ -451,7 +451,7 @@
     </header>
 
     <div class="card-body">
-      <nav class="sidebar-nav">
+      <nav class="card-modal-sidebar">
         <button class="nav-item active" id="ce-tab-details" onclick="switchCETab('details')"><i data-lucide="info" style="width:16px;height:16px"></i> Informações</button>
         <button class="nav-item" id="ce-tab-bpmn" onclick="switchCETab('bpmn')"><i data-lucide="git-merge" style="width:16px;height:16px"></i> Fase BPMN</button>
         <button class="nav-item" id="ce-tab-doc" onclick="switchCETab('doc')"><i data-lucide="file-text" style="width:16px;height:16px"></i> Documentação</button>
@@ -461,7 +461,7 @@
         <button class="nav-item" id="ce-tab-history" onclick="switchCETab('history')"><i data-lucide="clock" style="width:16px;height:16px"></i> Histórico</button>
       </nav>
 
-      <main class="content-area">
+      <main class="card-modal-content">
         <!-- DETALHES -->
         <div id="ce-panel-details" class="tab-pane active">
           <div class="form-group">

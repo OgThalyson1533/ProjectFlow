@@ -598,8 +598,8 @@ function openCardEdit(cardId){
     return(i>0?'<div class="pf-bpmn-line"></div>':'')+`<div class="pf-bpmn-step ${cls}" data-step="${s}" onclick="setCardBpmn('${s}')"><div class="pf-bpmn-dot"></div><div class="pf-bpmn-lbl">${_e(BPMN_LABEL[s]||s)}</div></div>`;
   }).join('');
 
-  document.querySelectorAll('.ce-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.ce-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#card-edit-overlay .nav-item').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#card-edit-overlay .tab-pane').forEach(p=>p.classList.remove('active'));
   document.getElementById('ce-tab-details')?.classList.add('active');
   document.getElementById('ce-panel-details')?.classList.add('active');
   _loadCardHistory(cardId);
@@ -609,8 +609,8 @@ function openCardEdit(cardId){
 }
 
 function switchCETab(t){
-  document.querySelectorAll('.ce-tab').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.ce-panel').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('#card-edit-overlay .nav-item').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('#card-edit-overlay .tab-pane').forEach(x=>x.classList.remove('active'));
   document.getElementById('ce-tab-'+t)?.classList.add('active');
   document.getElementById('ce-panel-'+t)?.classList.add('active');
 }
