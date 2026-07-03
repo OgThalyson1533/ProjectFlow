@@ -1,4 +1,4 @@
-// ProjectFlow v6 — board.js — Elevated Kanban
+﻿// ProjectFlow v6 — board.js — Elevated Kanban
 'use strict';
 
 const SyncManager={_ops:new Map(),async execute(id,opt,persist,rollback,msg){const v=Date.now();const prev=this._ops.get(id);if(prev&&prev.v>v)return;this._ops.set(id,{v});opt();renderBoard();try{const{error}=await persist();const cur=this._ops.get(id);if(!cur||cur.v!==v)return;if(error){rollback();renderBoard();showToast('Erro: '+error.message,true);return;}if(msg)showToast(msg);}catch(e){rollback();renderBoard();showToast('Erro de rede',true);}finally{this._ops.delete(id);}}}; 
@@ -43,11 +43,15 @@ window.switchKanbanView = function(view) {
   const btnTable = document.getElementById('toggle-view-table');
   if (btnKanban && btnTable) {
     if (view === 'kanban') {
-      btnKanban.classList.add('active');
-      btnTable.classList.remove('active');
+      btnKanban.style.background = 'var(--bg-1)';
+      btnKanban.style.color = 'var(--tx-1)';
+      btnTable.style.background = 'transparent';
+      btnTable.style.color = 'var(--tx-3)';
     } else {
-      btnTable.classList.add('active');
-      btnKanban.classList.remove('active');
+      btnTable.style.background = 'var(--bg-1)';
+      btnTable.style.color = 'var(--tx-1)';
+      btnKanban.style.background = 'transparent';
+      btnKanban.style.color = 'var(--tx-3)';
     }
   }
   renderBoard();
@@ -102,13 +106,47 @@ function renderBoard(){
   const hdr=document.getElementById('col-headers-dynamic');
   if(hdr){
     if (window.currentKanbanView === 'table') {
+      hdr.style.display = 'none';
+    } else {
+      hdr.style.cssText=`display:flex;gap:8px;padding:10px 20px 0;flex-shrink:0;overflow-x:hidden;background:var(--bg-1);border-bottom:1px solid var(--bd);`;
+    }
+    hdr.innerHTML='';
+    for(const col of cols) {
+      const cnt=cards.filter(c=>_cardInCol(c,col)).length;
+      const over=col.wip_limit&&cnt>col.wip_limit;
+      const color=col.color||'var(--col-todo)';
+      
+      const khLeft = h('div.kh-left', {},
+        h('span.kh-dot', { style: { background: color } }),
+        h('span.kh-name', {}, col.name)
+      );
+      
+      const khRight = h('div.kh-right', {},
+        h(`span.kh-cnt${over?'.kh-cnt--over':''}`, {}, col.wip_limit ? `${cnt}/${col.wip_limit}` : String(cnt))
+      );
+      
+      if(col.is_locked) {
+        khRight.appendChild(h('span.kh-lock', {}, '🔒'));
+      } else {
+        khRight.appendChild(h('button.kh-opts', { title: 'Opções', onclick: e => openColOptions(e, col.id) }, '⋯'));
+      }
+      
+      hdr.appendChild(h('div.kh', { style: { minWidth: COL_W+'px', maxWidth: COL_W+'px', borderBottom: `2px solid ${color}` } }, khLeft, khRight));
+    }
+  }
+
+  // Board body
+  board.style.cssText='flex:1;display:flex;overflow-x:auto;overflow-y:hidden;padding:8px 20px 16px;gap:8px;';
+  board.innerHTML=''; // Fast clear
+  
+  if (window.currentKanbanView === 'table') {
     const priorityIcon = { low:'Baixa', medium:'Média', high:'Alta', critical:'Crítica' };
     const team = window.mockTeam || window.workspaceUsers || [];
     
     // Add inlineUpdateCard function if not exists
     if (!window.inlineUpdateCard) {
       window.inlineUpdateCard = async function(cardId, field, value) {
-        const cards = PFBoard.cards.length ? PFBoard.cards : (window.mockCards || []);
+        const cards = window.PFBoard.cards.length ? window.PFBoard.cards : (window.mockCards || []);
         const card = cards.find(c => c.id === cardId);
         if (!card) return;
         const updates = { [field]: value };
@@ -119,10 +157,10 @@ function renderBoard(){
             if(!window.PF.supabase || window.PF.demoMode) return { error: null };
             return window.PF.supabase.from('tasks').update({...updates, updated_at: new Date().toISOString()}).eq('id', cardId);
           },
-          () => { Object.assign(card, prev); renderBoard(); },
+          () => { Object.assign(card, prev); window.renderBoard(); },
           null
         );
-        renderBoard();
+        window.renderBoard();
       };
       
       window.inlineAddCard = async function() {
@@ -130,7 +168,7 @@ function renderBoard(){
         const title = titleEl.value.trim();
         if (!title) return;
         const projectId = window.DocsUI?.activeProjectId || window.PF?.activeProjectId || 'uuid-1';
-        const cols = PFBoard.cols.length ? PFBoard.cols : (window.mockCols || []);
+        const cols = window.PFBoard.columns.length ? window.PFBoard.columns : (window.mockCols || []);
         if(!cols.length) return;
         const defaultCol = cols[0].id;
         
@@ -144,11 +182,11 @@ function renderBoard(){
         }).select();
         
         if (!error && data && data[0]) {
-          const cards = PFBoard.cards.length ? PFBoard.cards : (window.mockCards || []);
+          const cards = window.PFBoard.cards.length ? window.PFBoard.cards : (window.mockCards || []);
           cards.push(data[0]);
-          renderBoard();
+          window.renderBoard();
         } else {
-          showToast('Erro ao criar tarefa: ' + (error?.message || 'Erro desconhecido'), true);
+          window.showToast('Erro ao criar tarefa: ' + (error?.message || 'Erro desconhecido'), true);
         }
       };
     }
@@ -217,7 +255,7 @@ function renderBoard(){
                   </td>
                 </tr>
               `;
-            }).join('')}
+            }).join('') || `<tr><td colspan="6" style="padding:32px;text-align:center;color:var(--tx-3);">Nenhuma tarefa encontrada.</td></tr>`}
             
             <!-- Quick Add Row -->
             <tr style="background:var(--bg-0);">
@@ -238,6 +276,7 @@ function renderBoard(){
     if (window.lucide) window.lucide.createIcons();
     return;
   }
+
   
   for(const col of cols) {
     const colCards=cards.filter(c=>_cardInCol(c,col)).sort((a,b)=>(a.position||0)-(b.position||0));
@@ -251,7 +290,7 @@ function renderBoard(){
           h('svg', { viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', 'stroke-width': '2.2', 'stroke-linecap': 'round' }, h('path', { d: 'M6 1v10M1 6h10' })),
           ' Adicionar tarefa'
         )
-      : h('div.kc-recur-hint', {}, '<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;"></i> Tarefas recorrentes');
+      : h('div.kc-recur-hint', {}, '🔄 Tarefas recorrentes');
       
     const div = h(`div.kc${over?'.kc--over':''}`, { 'data-col-id': String(col.id), style: { minWidth: COL_W+'px', maxWidth: COL_W+'px' } }, kcCards, buttonOrHint);
     
@@ -281,7 +320,7 @@ function _buildCard(c){
   const attCount=(window.AttachmentManager?.getForCard(c.id)||[]).length;
   const hasDoc=c.doc_decision||c.doc_artifact||c.doc_risk;
   const tags=(c.tags||[]).filter(t=>t&&t!=='').slice(0,2);
-  const tagLabels={a:'Cli A',b:'Cli B',c:'Cli C',meet:'Reunião',block:'<i data-lucide="circle" fill="currentColor" style="width:14px;height:14px;vertical-align:middle;color:var(--s-err);"></i> Bloqueado'};
+  const tagLabels={a:'Cli A',b:'Cli B',c:'Cli C',meet:'Reunião',block:'🔴 Bloqueado'};
 
   const children = [];
   if(bpmn==='concluido') children.push(h('div.kcard-status.kcard-status--done', {}, '✓ Concluído'));
@@ -657,7 +696,7 @@ async function _loadCardHistory(cardId){
   if(!data?.length){el.innerHTML='<p class="pf-hist-empty">Nenhum histórico registrado</p>';return;}
   const lb={title:'Título',bpmn_status:'Status BPMN',column_id:'Coluna',assigned_to:'Responsável',priority:'Prioridade'};
   el.innerHTML=data.map(h=>`<div class="pf-hist-item">
-    <div class="pf-hist-icon">${h.change_type==='status_change'?'<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;"></i>':h.change_type==='move'?'↔️':'✏️'}</div>
+    <div class="pf-hist-icon">${h.change_type==='status_change'?'🔄':h.change_type==='move'?'↔️':'✏️'}</div>
     <div class="pf-hist-body">
       <p class="pf-hist-text"><strong>${lb[h.field_name]||h.field_name}:</strong> <span class="pf-hist-old">${_e(h.old_value||'—')}</span> → <span class="pf-hist-new">${_e(h.new_value||'—')}</span></p>
       <p class="pf-hist-time">${new Date(h.changed_at).toLocaleString('pt-BR')}</p>
@@ -722,11 +761,11 @@ function renderDashboard(){
       <div class="dash-stats">
         ${[
           ['Total',total,'var(--tx-1)','📋'],
-          ['Concluídas',done,'var(--green)','<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i>'],
+          ['Concluídas',done,'var(--green)','✅'],
           ['Em Execução',inExec,'var(--yellow)','⚡'],
           ['Em Revisão',inRev,'var(--blue)','🔍'],
           ['Bloqueadas',blocked,'var(--red)','⛔'],
-          ['Atrasadas',overdue,'var(--red)','<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:middle;"></i>'],
+          ['Atrasadas',overdue,'var(--red)','⚠️'],
         ].map(([l,v,c,i])=>`<div class="dash-stat">
           <div class="dash-stat-icon">${i}</div>
           <div class="dash-stat-n" style="color:${c}">${v}</div>
@@ -890,5 +929,3 @@ window.switchCETab=switchCETab;window.moveCardToCol=moveCardToCol;window.loadPro
 window.addBoardColumn=addBoardColumn;window.openColOptions=openColOptions;window.openNewCardInCol=openNewCardInCol;
 window.updateColCounts=updateColCounts;window.resetNewCardForm=resetNewCardForm;window.renderDashboard=renderDashboard;
 window.SyncManager=SyncManager;window.PFBoard=PFBoard;
-
-}
