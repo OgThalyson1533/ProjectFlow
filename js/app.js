@@ -343,7 +343,22 @@ window.AttachmentManager={
     }).join('');
   },
 };
-window.refreshCardAttachments=function(cid){const el=document.getElementById('ce-attachments-list');if(el)el.innerHTML=AttachmentManager.renderList(cid||PF.activeCardId||'');};
+window.refreshCardAttachments=async function(cid){
+  const cardId=cid||PF.activeCardId||'';
+  if(!cardId)return;
+  const el=document.getElementById('ce-attachments-list');
+  if(PF.supabase&&!PF.demoMode&&window.listarAnexos){
+    try{
+      const dbAtts=await window.listarAnexos(cardId);
+      AttachmentManager._store[cardId]=dbAtts.map(a=>({
+        id:a.id,cardId:cardId,name:a.file_name,size:a.file_size,
+        type:AttachmentManager.getExt(a.file_name),mimeType:a.mime_type,
+        uploadedAt:a.created_at,publicUrl:a.public_url,storage_path:a.storage_path
+      }));
+    }catch(e){console.warn('Erro ao carregar anexos:',e.message);}
+  }
+  if(el)el.innerHTML=AttachmentManager.renderList(cardId);
+};
 window.handleAttachmentDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('att-hover');AttachmentManager.upload(PF.activeCardId,Array.from(e.dataTransfer.files)).then(()=>refreshCardAttachments());};
 window.handleAttachmentInput=function(inp){AttachmentManager.upload(PF.activeCardId,Array.from(inp.files)).then(()=>refreshCardAttachments());inp.value='';};
 
@@ -632,32 +647,28 @@ window.openRecurringManager=()=>RecurrenceEngine.openManager();
       <div id="kb-filter-dropdown">
         <div style="width:100%;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx-3);margin-bottom:4px">Filtrar tarefas</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">
-          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Área</label>
-            <select id="kbf-area" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"><option value="">Todas</option>${['TI','Marketing','Comercial','Operações','RH','Financeiro','Produto','Design'].map(a=>`<option>${a}</option>`).join('')}</select></div>
           <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Responsável</label>
-            <select id="kbf-assign" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"><option value="">Todos</option></select></div>
-          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Criticidade</label>
-            <select id="kbf-pri" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"><option value="">Todas</option><option value="critical">🔴 Crítica</option><option value="high">↑ Alta</option><option value="medium">⬝ Média</option><option value="low">↓ Baixa</option></select></div>
+            <select id="kf-assignee" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"><option value="">Todos</option></select></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Solicitação</label>
+            <input type="date" id="kf-req-date" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Previsão</label>
+            <input type="date" id="kf-due-date" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:var(--tx-3);margin-bottom:3px">Concluído em</label>
+            <input type="date" id="kf-comp-date" class="field-input" style="font-size:12px;padding:4px 8px" onchange="applyKanbanFilters()"></div>
           <button class="kb-filter-btn" onclick="clearKanbanFilters()" style="padding:5px 10px">✕ Limpar</button>
         </div></div>`;
     const toolbar=document.getElementById('view-kanban')?.querySelector('.kanban-toolbar');
     if(toolbar&&toolbar.nextSibling)toolbar.parentNode.insertBefore(wrap,toolbar.nextSibling);
     else board.parentElement.insertBefore(wrap,board);
-    _popAssign();
     document.addEventListener('click',e=>{const wr=document.getElementById('kb-filter-wrap');if(wr&&!wr.contains(e.target)){document.getElementById('kb-filter-dropdown')?.classList.remove('open');document.getElementById('kb-filter-toggle')?.classList.remove('active');}});
   }
-  function _popAssign(){const sel=document.getElementById('kbf-assign');if(!sel)return;const cur=[...sel.options].map(o=>o.value).filter(Boolean);(window.mockTeam||[]).forEach(m=>{if(!cur.includes(m.id)){const o=new Option(m.name,m.id);sel.add(o);}});}
   window.toggleKanbanFilters=function(){const dd=document.getElementById('kb-filter-dropdown');const btn=document.getElementById('kb-filter-toggle');if(dd){dd.classList.toggle('open');btn?.classList.toggle('active');}};
   window.applyKanbanFilters=function(){
-    const area=document.getElementById('kbf-area')?.value||'',asgn=document.getElementById('kbf-assign')?.value||'',pri=document.getElementById('kbf-pri')?.value||'';
-    const all=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
-    document.querySelectorAll('.kcard').forEach(card=>{const c=all.find(x=>x.id===card.dataset.cardId);let show=true;
-      if(c){if(area&&(c.area||'')!==area)show=false;if(asgn&&(c.assignee||c.assigned_to||'')!==asgn)show=false;if(pri&&(c.priority||'medium')!==pri)show=false;}
-      card.style.display=show?'':'none';});
     _updateFilterCount();
+    if(typeof renderBoard === 'function') renderBoard();
   };
-  window.clearKanbanFilters=function(){['kbf-area','kbf-assign','kbf-pri'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});document.querySelectorAll('.kcard').forEach(c=>c.style.display='');_updateFilterCount();};
-  function _updateFilterCount(){const area=document.getElementById('kbf-area')?.value||'';const asgn=document.getElementById('kbf-assign')?.value||'';const pri=document.getElementById('kbf-pri')?.value||'';const count=[area,asgn,pri].filter(Boolean).length;const cnt=document.getElementById('kb-filter-count');const btn=document.getElementById('kb-filter-toggle');if(cnt){cnt.style.display=count?'':'none';cnt.textContent=count;}if(btn)btn.classList.toggle('active',count>0);}
+  window.clearKanbanFilters=function(){['kf-assignee','kf-req-date','kf-due-date','kf-comp-date'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});_updateFilterCount();if(typeof renderBoard === 'function') renderBoard();};
+  function _updateFilterCount(){const asgn=document.getElementById('kf-assignee')?.value||'';const req=document.getElementById('kf-req-date')?.value||'';const due=document.getElementById('kf-due-date')?.value||'';const comp=document.getElementById('kf-comp-date')?.value||'';const count=[asgn,req,due,comp].filter(Boolean).length;const cnt=document.getElementById('kb-filter-count');const btn=document.getElementById('kb-filter-toggle');if(cnt){cnt.style.display=count?'':'none';cnt.textContent=count;}if(btn)btn.classList.toggle('active',count>0);}
   const _sw=window.switchView;
   window.switchView=function(name,btn){_sw&&_sw(name,btn);if(name==='kanban')setTimeout(build,400);};
   document.addEventListener('DOMContentLoaded',()=>setTimeout(build,1800));

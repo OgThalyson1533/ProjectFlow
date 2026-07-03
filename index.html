@@ -223,25 +223,6 @@
         </div>
       </div>
       <!-- FILTROS KANBAN -->
-      <div id="kanban-filters-bar" style="display:flex;gap:10px;padding:10px 20px;background:var(--bg-1);border-bottom:1px solid var(--bd);align-items:flex-end;flex-wrap:wrap;font-size:12px">
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="color:var(--tx-2);font-weight:600">Responsável</label>
-          <select id="kf-assignee" class="field-input" style="padding:4px 8px;font-size:12px;height:28px" onchange="renderBoard()"><option value="">Todos</option></select>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="color:var(--tx-2);font-weight:600">Solicitação</label>
-          <input type="date" id="kf-req-date" class="field-input" style="padding:4px 8px;font-size:12px;height:28px" onchange="renderBoard()">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="color:var(--tx-2);font-weight:600">Previsão</label>
-          <input type="date" id="kf-due-date" class="field-input" style="padding:4px 8px;font-size:12px;height:28px" onchange="renderBoard()">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <label style="color:var(--tx-2);font-weight:600">Concluído em</label>
-          <input type="date" id="kf-comp-date" class="field-input" style="padding:4px 8px;font-size:12px;height:28px" onchange="renderBoard()">
-        </div>
-        <button class="btn-cancel" style="padding:4px 10px;font-size:12px;height:28px" onclick="document.getElementById('kf-assignee').value='';document.getElementById('kf-req-date').value='';document.getElementById('kf-due-date').value='';document.getElementById('kf-comp-date').value='';renderBoard()">Limpar Filtros</button>
-      </div>
       <div id="col-headers-dynamic" style="overflow:hidden"></div>
       <div id="kanban-board"></div>
     </div>
