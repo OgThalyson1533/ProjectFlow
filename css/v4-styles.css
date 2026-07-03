@@ -295,8 +295,7 @@
   gap: 14px;
 }
 
-.wizard-fields label,
-.field-label {
+.wizard-fields label {
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -307,8 +306,7 @@
 
 .wizard-fields input,
 .wizard-fields textarea,
-.wizard-fields select,
-.field-input {
+.wizard-fields select {
   padding: 8px 12px;
   border: 1px solid var(--c-border);
   border-radius: 6px;
@@ -320,8 +318,7 @@
 }
 
 .wizard-fields input:focus,
-.wizard-fields textarea:focus,
-.field-input:focus {
+.wizard-fields textarea:focus {
   outline: none;
   border-color: var(--c-accent);
 }
