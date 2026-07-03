@@ -171,7 +171,16 @@ window._afterLogin=async function(name){
         PF.currentProject=projects[0].id;
         document.querySelector(`[data-pid="${projects[0].id}"]`)?.classList.add('active');
         const t=document.getElementById('board-title');if(t)t.textContent=projects[0].name;
-      }else{_loadDemoMode();}
+      }else{
+        // ✅ FIX CRÍTICO: usuário Supabase real sem projetos NÃO deve cair em demoMode.
+        // Mantém supabase conectado para que createProject/createCard persistam.
+        PF.demoMode=false;
+        window.mockProjects=[];window.mockCards=[];
+        PFBoard.columns=[];PFBoard.cards=[];PFBoard.projectId=null;
+        _emptySidebar();renderBoard();
+        const t=document.getElementById('board-title');if(t)t.textContent='Crie seu primeiro projeto →';
+        showToast('Bem-vindo! Crie seu primeiro projeto para começar.','ok');
+      }
     }catch(e){console.warn('[PF] afterLogin:',e);_loadDemoMode();}
   }else{_loadDemoMode();}
   if(typeof renderDocDatabase==='function')renderDocDatabase();

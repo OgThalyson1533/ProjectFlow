@@ -306,9 +306,16 @@ async function createCard(){
       else window.mockCards=(window.mockCards||[]).filter(c=>c.id!==tempId);
       renderBoard();return;
     }
+    const reqDate=document.getElementById('new-req-date')?.value||null;
+    const requester=document.getElementById('new-requester')?.value.trim()||null;
+    const area=document.getElementById('new-area')?.value.trim()||null;
+    const keyPeople=document.getElementById('new-key-people')?.value.trim()||null;
+
     const{data,error}=await PF.supabase.from('tasks').insert({title,description:desc||null,project_id:projectId,
       board_id:PFBoard.boardId||null,column_id:colId.startsWith('col-')?null:colId,bpmn_status:bpmn,priority,
-      estimated_hours:hours?Number(hours):null,budget:budget?Number(budget):null,due_date:date||null,created_by:PF.user?.id||null}).select('id').single();
+      estimated_hours:hours?Number(hours):null,budget:budget?Number(budget):null,due_date:date||null,
+      request_date:reqDate, requester:requester, area:area, key_people:keyPeople,
+      created_by:PF.user?.id||null}).select('id').single();
     const cards=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
     const card=cards.find(c=>c.id===tempId);
     if(error){if(PFBoard.cards.length)PFBoard.cards=PFBoard.cards.filter(c=>c.id!==tempId);else window.mockCards=(window.mockCards||[]).filter(c=>c.id!==tempId);renderBoard();showToast('Erro: '+error.message,true);return;}
@@ -411,7 +418,11 @@ async function saveCardEdit(){
     doc_artifact:document.getElementById('ce-doc-artifact')?.value.trim()||null,
     doc_risk:document.getElementById('ce-doc-risk')?.value.trim()||null,
     doc_notes:document.getElementById('ce-doc-notes')?.value.trim()||null,
-    assigned_to:document.getElementById('ce-assignee')?.value||null};
+    assigned_to:document.getElementById('ce-assignee')?.value||null,
+    request_date:document.getElementById('ce-req-date')?.value||null,
+    requester:document.getElementById('ce-requester')?.value.trim()||null,
+    area:document.getElementById('ce-area')?.value.trim()||null,
+    key_people:document.getElementById('ce-key-people')?.value.trim()||null};
   const prev={...card};
   await SyncManager.execute(cardId,
     ()=>{Object.assign(card,updates);card.bpmn=updates.bpmn_status;// preserva col legacy apenas se novo column_id não for UUID
