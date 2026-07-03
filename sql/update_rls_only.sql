@@ -33,131 +33,25 @@ ALTER TABLE public.ai_doc_snapshots         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.knowledge_blocks         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.configuracao_recorrencia ENABLE ROW LEVEL SECURITY;
 
--- profiles
-CREATE POLICY "p_profiles_sel" ON public.profiles FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_profiles_ins" ON public.profiles FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
-CREATE POLICY "p_profiles_upd" ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
-
--- clients (público para usuários autenticados)
-CREATE POLICY "p_clients_all" ON public.clients FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-
--- workspaces
-CREATE POLICY "p_ws_sel" ON public.workspaces FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_ws_ins" ON public.workspaces FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_ws_upd" ON public.workspaces FOR UPDATE TO authenticated USING (owner_id = auth.uid());
-CREATE POLICY "p_ws_del" ON public.workspaces FOR DELETE TO authenticated USING (owner_id = auth.uid());
-
--- workspace_members
-CREATE POLICY "p_wm_sel" ON public.workspace_members FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_wm_ins" ON public.workspace_members FOR INSERT TO authenticated WITH CHECK (TRUE);
-    user_id = auth.uid()
-    OR EXISTS (SELECT 1 FROM public.workspaces WHERE id = workspace_id AND owner_id = auth.uid())
-  );
-CREATE POLICY "p_wm_del" ON public.workspace_members FOR DELETE TO authenticated USING (TRUE);
-    user_id = auth.uid()
-    OR EXISTS (SELECT 1 FROM public.workspaces WHERE id = workspace_id AND owner_id = auth.uid())
-  );
-
--- projects
-CREATE POLICY "p_proj_sel" ON public.projects FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_proj_ins" ON public.projects FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_proj_upd" ON public.projects FOR UPDATE TO authenticated USING (TRUE);
-CREATE POLICY "p_proj_del" ON public.projects FOR DELETE TO authenticated USING (TRUE);
-
--- project_members
-CREATE POLICY "p_pm_sel" ON public.project_members FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_pm_ins" ON public.project_members FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_pm_del" ON public.project_members FOR DELETE TO authenticated USING (TRUE);
-
--- swimlanes
-CREATE POLICY "p_sl_all" ON public.swimlanes FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-
--- kanban boards
-CREATE POLICY "p_board_sel" ON public.kanban_boards FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_board_ins" ON public.kanban_boards FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_board_upd" ON public.kanban_boards FOR UPDATE TO authenticated USING (TRUE);
-
--- kanban columns
-CREATE POLICY "p_col_sel" ON public.kanban_columns FOR SELECT TO authenticated USING (TRUE);
-    SELECT 1 FROM public.kanban_boards b
-    WHERE b.id = board_id AND public.is_project_member(b.project_id)
-  ));
-CREATE POLICY "p_col_ins" ON public.kanban_columns FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_col_upd" ON public.kanban_columns FOR UPDATE TO authenticated USING (TRUE);
-    SELECT 1 FROM public.kanban_boards b
-    WHERE b.id = board_id AND public.can_write_project(b.project_id)
-  ));
-CREATE POLICY "p_col_del" ON public.kanban_columns FOR DELETE TO authenticated USING (TRUE);
-    SELECT 1 FROM public.kanban_boards b
-    WHERE b.id = board_id AND public.can_write_project(b.project_id)
-  ));
-
--- tasks
-CREATE POLICY "p_task_sel" ON public.tasks FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_task_ins" ON public.tasks FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_task_upd" ON public.tasks FOR UPDATE TO authenticated USING (TRUE);
-CREATE POLICY "p_task_del" ON public.tasks FOR DELETE TO authenticated USING (TRUE);
-
--- subtasks
-CREATE POLICY "p_sub_all" ON public.subtasks FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-    SELECT 1 FROM public.tasks t
-    WHERE t.id = task_id AND public.is_project_member(t.project_id)
-  ));
-
--- attachments
-CREATE POLICY "p_att_sel" ON public.task_attachments FOR SELECT TO authenticated USING (TRUE);
-    SELECT 1 FROM public.tasks t
-    WHERE t.id = task_id AND public.is_project_member(t.project_id)
-  ));
-CREATE POLICY "p_att_ins" ON public.task_attachments FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_att_del" ON public.task_attachments FOR DELETE TO authenticated USING (TRUE);
-
--- comments
-CREATE POLICY "p_cmt_sel" ON public.comments FOR SELECT TO authenticated USING (TRUE);
-    SELECT 1 FROM public.tasks t
-    WHERE t.id = task_id AND public.is_project_member(t.project_id)
-  ));
-CREATE POLICY "p_cmt_ins" ON public.comments FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_cmt_upd" ON public.comments FOR UPDATE TO authenticated USING (TRUE);
-CREATE POLICY "p_cmt_del" ON public.comments FOR DELETE TO authenticated USING (TRUE);
-
--- task_history
-CREATE POLICY "p_hist_sel" ON public.task_history FOR SELECT TO authenticated USING (TRUE);
-    SELECT 1 FROM public.tasks t
-    WHERE t.id = task_id AND public.is_project_member(t.project_id)
-  ));
-CREATE POLICY "p_hist_ins" ON public.task_history FOR INSERT TO authenticated WITH CHECK (TRUE);
-
--- pipeline
-CREATE POLICY "p_stage_all" ON public.pipeline_stages FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-
--- leads
-CREATE POLICY "p_lead_all" ON public.leads FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-    owner_id = auth.uid()
-    OR (project_id IS NOT NULL AND public.is_project_member(project_id))
-  );
-CREATE POLICY "p_lint_all" ON public.lead_interactions FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-    SELECT 1 FROM public.leads l WHERE l.id = lead_id
-    AND (l.owner_id = auth.uid()
-      OR (l.project_id IS NOT NULL AND public.is_project_member(l.project_id)))
-  ));
-
--- diagrams
-CREATE POLICY "p_diag_sel" ON public.project_diagrams FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_diag_ins" ON public.project_diagrams FOR INSERT TO authenticated WITH CHECK (TRUE);
-CREATE POLICY "p_diag_upd" ON public.project_diagrams FOR UPDATE TO authenticated USING (TRUE);
-CREATE POLICY "p_diag_del" ON public.project_diagrams FOR DELETE TO authenticated USING (TRUE);
-
--- docs & ai
-CREATE POLICY "p_edoc_sel" ON public.exec_documents FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_edoc_ins" ON public.exec_documents FOR INSERT TO authenticated WITH CHECK (TRUE);
-
-CREATE POLICY "p_snap_sel" ON public.ai_doc_snapshots FOR SELECT TO authenticated USING (TRUE);
-CREATE POLICY "p_snap_ins" ON public.ai_doc_snapshots FOR INSERT TO authenticated WITH CHECK (TRUE);
-
--- knowledge base
-CREATE POLICY "p_kb_all" ON public.knowledge_blocks FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-
--- recorrencias
-CREATE POLICY "p_rec_all" ON public.configuracao_recorrencia FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
-
+CREATE POLICY "p_profi_all" ON public.profiles FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_clien_all" ON public.clients FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_works_all" ON public.workspaces FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_works_all2" ON public.workspace_members FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_proje_all" ON public.projects FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_proje_all2" ON public.project_members FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_swiml_all" ON public.swimlanes FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_kanba_all" ON public.kanban_boards FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_kanba_all2" ON public.kanban_columns FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_tasks_all" ON public.tasks FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_subta_all" ON public.subtasks FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_task__all" ON public.task_attachments FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_comme_all" ON public.comments FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_task__all2" ON public.task_history FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_pipel_all" ON public.pipeline_stages FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_leads_all" ON public.leads FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_lead__all" ON public.lead_interactions FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_proje_all3" ON public.project_diagrams FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_exec__all" ON public.exec_documents FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_ai_do_all" ON public.ai_doc_snapshots FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_knowl_all" ON public.knowledge_blocks FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "p_confi_all" ON public.configuracao_recorrencia FOR ALL TO authenticated USING (TRUE) WITH CHECK (TRUE);
