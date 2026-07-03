@@ -43,15 +43,11 @@ window.switchKanbanView = function(view) {
   const btnTable = document.getElementById('toggle-view-table');
   if (btnKanban && btnTable) {
     if (view === 'kanban') {
-      btnKanban.style.background = 'var(--bg-1)';
-      btnKanban.style.color = 'var(--tx-1)';
-      btnTable.style.background = 'transparent';
-      btnTable.style.color = 'var(--tx-3)';
+      btnKanban.classList.add('active');
+      btnTable.classList.remove('active');
     } else {
-      btnTable.style.background = 'var(--bg-1)';
-      btnTable.style.color = 'var(--tx-1)';
-      btnKanban.style.background = 'transparent';
-      btnKanban.style.color = 'var(--tx-3)';
+      btnTable.classList.add('active');
+      btnKanban.classList.remove('active');
     }
   }
   renderBoard();
@@ -106,54 +102,70 @@ function renderBoard(){
   const hdr=document.getElementById('col-headers-dynamic');
   if(hdr){
     if (window.currentKanbanView === 'table') {
-      hdr.style.display = 'none';
-    } else {
-      hdr.style.cssText=`display:flex;gap:8px;padding:10px 20px 0;flex-shrink:0;overflow-x:hidden;background:var(--bg-1);border-bottom:1px solid var(--bd);`;
-    }
-    hdr.innerHTML='';
-    for(const col of cols) {
-      const cnt=cards.filter(c=>_cardInCol(c,col)).length;
-      const over=col.wip_limit&&cnt>col.wip_limit;
-      const color=col.color||'var(--col-todo)';
-      
-      const khLeft = h('div.kh-left', {},
-        h('span.kh-dot', { style: { background: color } }),
-        h('span.kh-name', {}, col.name)
-      );
-      
-      const khRight = h('div.kh-right', {},
-        h(`span.kh-cnt${over?'.kh-cnt--over':''}`, {}, col.wip_limit ? `${cnt}/${col.wip_limit}` : String(cnt))
-      );
-      
-      if(col.is_locked) {
-        khRight.appendChild(h('span.kh-lock', {}, '🔒'));
-      } else {
-        khRight.appendChild(h('button.kh-opts', { title: 'Opções', onclick: e => openColOptions(e, col.id) }, '⋯'));
-      }
-      
-      hdr.appendChild(h('div.kh', { style: { minWidth: COL_W+'px', maxWidth: COL_W+'px', borderBottom: `2px solid ${color}` } }, khLeft, khRight));
-    }
-  }
-
-  // Board body
-  board.style.cssText='flex:1;display:flex;overflow-x:auto;overflow-y:hidden;padding:8px 20px 16px;gap:8px;';
-  board.innerHTML=''; // Fast clear
-  
-  if (window.currentKanbanView === 'table') {
     const priorityIcon = { low:'Baixa', medium:'Média', high:'Alta', critical:'Crítica' };
+    const team = window.mockTeam || window.workspaceUsers || [];
+    
+    // Add inlineUpdateCard function if not exists
+    if (!window.inlineUpdateCard) {
+      window.inlineUpdateCard = async function(cardId, field, value) {
+        const cards = PFBoard.cards.length ? PFBoard.cards : (window.mockCards || []);
+        const card = cards.find(c => c.id === cardId);
+        if (!card) return;
+        const updates = { [field]: value };
+        const prev = { ...card };
+        await window.SyncManager.execute(cardId,
+          () => { Object.assign(card, updates); },
+          async () => {
+            if(!window.PF.supabase || window.PF.demoMode) return { error: null };
+            return window.PF.supabase.from('tasks').update({...updates, updated_at: new Date().toISOString()}).eq('id', cardId);
+          },
+          () => { Object.assign(card, prev); renderBoard(); },
+          null
+        );
+        renderBoard();
+      };
+      
+      window.inlineAddCard = async function() {
+        const titleEl = document.getElementById('inline-new-title');
+        const title = titleEl.value.trim();
+        if (!title) return;
+        const projectId = window.DocsUI?.activeProjectId || window.PF?.activeProjectId || 'uuid-1';
+        const cols = PFBoard.cols.length ? PFBoard.cols : (window.mockCols || []);
+        if(!cols.length) return;
+        const defaultCol = cols[0].id;
+        
+        const { data, error } = await window.PF.supabase.from('tasks').insert({
+          title,
+          project_id: projectId,
+          column_id: defaultCol,
+          bpmn_status: 'esbocar',
+          priority: 'medium',
+          position: 9999
+        }).select();
+        
+        if (!error && data && data[0]) {
+          const cards = PFBoard.cards.length ? PFBoard.cards : (window.mockCards || []);
+          cards.push(data[0]);
+          renderBoard();
+        } else {
+          showToast('Erro ao criar tarefa: ' + (error?.message || 'Erro desconhecido'), true);
+        }
+      };
+    }
+
     board.style.display = 'block';
     board.style.padding = '20px';
     board.style.overflowY = 'auto';
     board.innerHTML = `
-      <div style="background:var(--bg-1);border-radius:12px;border:1px solid var(--bo-1);overflow:hidden;">
-        <table style="width:100%;border-collapse:collapse;text-align:left;font-size:13px;">
+      <div style="background:var(--bg-1);border-radius:12px;border:1px solid var(--bo-1);overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+        <table class="pf-data-grid" style="width:100%;border-collapse:collapse;text-align:left;font-size:13px;">
           <thead style="background:var(--bg-2);border-bottom:1px solid var(--bo-2);color:var(--tx-3);">
             <tr>
-              <th style="padding:12px 16px;font-weight:600;width:35%;">Título</th>
-              <th style="padding:12px 16px;font-weight:600;width:15%;">Coluna</th>
-              <th style="padding:12px 16px;font-weight:600;width:15%;">Responsável</th>
-              <th style="padding:12px 16px;font-weight:600;width:15%;">Prioridade</th>
-              <th style="padding:12px 16px;font-weight:600;width:10%;">Previsão</th>
+              <th style="padding:12px 16px;font-weight:600;width:35%;border-right:1px solid var(--bo-1);">Título</th>
+              <th style="padding:12px 16px;font-weight:600;width:15%;border-right:1px solid var(--bo-1);">Coluna</th>
+              <th style="padding:12px 16px;font-weight:600;width:15%;border-right:1px solid var(--bo-1);">Responsável</th>
+              <th style="padding:12px 16px;font-weight:600;width:15%;border-right:1px solid var(--bo-1);">Prioridade</th>
+              <th style="padding:12px 16px;font-weight:600;width:10%;border-right:1px solid var(--bo-1);">Previsão</th>
               <th style="padding:12px 16px;font-weight:600;width:10%;">Tags</th>
             </tr>
           </thead>
@@ -161,34 +173,64 @@ function renderBoard(){
             ${cards.map(card => {
               const col = cols.find(c => _cardInCol(card, c));
               const assigneeId = card.assigned_to || card.assignee?.id || card.assignee;
-              const team = window.mockTeam || window.workspaceUsers || [];
-              const assigneeUser = team.find(u => u.id === assigneeId);
-              const assigneeName = assigneeUser ? (assigneeUser.name || assigneeUser.email) : 'Não atribuído';
-              const priorityText = card.priority ? priorityIcon[card.priority] : 'Média';
+              
+              // Colunas Select
+              const colOptions = cols.map(c => `<option value="${c.id}" ${c.id === card.column_id ? 'selected' : ''}>${_e(c.name)}</option>`).join('');
+              
+              // Team Select
+              const teamOptions = team.map(u => `<option value="${u.id}" ${u.id === assigneeId ? 'selected' : ''}>${_e(u.name || u.email)}</option>`).join('');
+              const assigneeSelect = `<select class="inline-select" onchange="inlineUpdateCard('${card.id}', 'assigned_to', this.value)">
+                <option value="">Não atribuído</option>
+                ${teamOptions}
+              </select>`;
+              
+              // Priority Select
+              const prioOptions = Object.entries(priorityIcon).map(([val, label]) => `<option value="${val}" ${val === card.priority ? 'selected' : ''}>${label}</option>`).join('');
+              const prioritySelect = `<select class="inline-select" onchange="inlineUpdateCard('${card.id}', 'priority', this.value)">${prioOptions}</select>`;
               
               return `
-                <tr class="table-row-clickable" onclick="openCard('${card.id}')" style="border-bottom:1px solid var(--bo-1);cursor:pointer;transition:background 0.2s;">
-                  <td style="padding:12px 16px;color:var(--tx-1);font-weight:500;">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      ${card.doc_notes ? `<div style="width:8px;height:8px;border-radius:50%;background:var(--c-exec-dot);" title="Documento Executivo"></div>` : ''}
-                      ${_e(card.title)}
+                <tr class="table-row-editable" style="border-bottom:1px solid var(--bo-1);transition:background 0.2s;">
+                  <td style="padding:8px 16px;border-right:1px solid var(--bo-1);">
+                    <div style="display:flex;align-items:center;gap:8px;width:100%;">
+                      ${card.doc_notes ? `<div style="width:8px;height:8px;border-radius:50%;background:var(--c-exec-dot);flex-shrink:0;" title="Documento Executivo"></div>` : ''}
+                      <input type="text" class="inline-input" value="${_e(card.title)}" onchange="inlineUpdateCard('${card.id}', 'title', this.value)" style="flex:1;" />
+                      <button class="pill clickable" onclick="openCard('${card.id}')" title="Abrir Detalhes" style="padding:4px;background:transparent;border:none;flex-shrink:0;"><i data-lucide="maximize-2" style="width:12px;height:12px"></i></button>
                     </div>
                   </td>
-                  <td style="padding:12px 16px;">
-                    <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:${col?.color||'var(--tx-3)'}20;color:${col?.color||'var(--tx-3)'};border:1px solid ${col?.color||'var(--tx-3)'}40;">
-                      ${col ? _e(col.name) : '—'}
-                    </span>
+                  <td style="padding:8px 16px;border-right:1px solid var(--bo-1);">
+                    <select class="inline-select ${col?.color ? 'has-color' : ''}" onchange="inlineUpdateCard('${card.id}', 'column_id', this.value)" style="border-left: 3px solid ${col?.color || 'transparent'}">
+                      ${colOptions}
+                    </select>
                   </td>
-                  <td style="padding:12px 16px;color:var(--tx-2);">${_e(assigneeName)}</td>
-                  <td style="padding:12px 16px;color:var(--tx-2);">${priorityText}</td>
-                  <td style="padding:12px 16px;color:var(--tx-3);">${card.due_date ? new Date(card.due_date).toLocaleDateString('pt-BR') : '—'}</td>
-                  <td style="padding:12px 16px;color:var(--tx-3);">
+                  <td style="padding:8px 16px;border-right:1px solid var(--bo-1);">
+                    ${assigneeSelect}
+                  </td>
+                  <td style="padding:8px 16px;border-right:1px solid var(--bo-1);">
+                    ${prioritySelect}
+                  </td>
+                  <td style="padding:8px 16px;border-right:1px solid var(--bo-1);">
+                    <input type="date" class="inline-input" value="${card.due_date ? card.due_date.split('T')[0] : ''}" onchange="inlineUpdateCard('${card.id}', 'due_date', this.value)" />
+                  </td>
+                  <td style="padding:8px 16px;color:var(--tx-3);">
                     ${(card.tags||[]).slice(0,2).map(t => `<span style="background:var(--bg-2);padding:2px 6px;border-radius:4px;font-size:11px;margin-right:4px;">${_e(t)}</span>`).join('')}
                     ${card.is_recurring ? `<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;margin-left:4px;" title="Recorrente"></i>` : ''}
                   </td>
                 </tr>
               `;
-            }).join('') || `<tr><td colspan="6" style="padding:32px;text-align:center;color:var(--tx-3);">Nenhuma tarefa encontrada.</td></tr>`}
+            }).join('')}
+            
+            <!-- Quick Add Row -->
+            <tr style="background:var(--bg-0);">
+              <td style="padding:12px 16px;border-right:1px solid var(--bo-1);">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <i data-lucide="plus" style="width:14px;height:14px;color:var(--tx-3)"></i>
+                  <input type="text" id="inline-new-title" class="inline-input" placeholder="Nova tarefa..." onkeydown="if(event.key==='Enter') window.inlineAddCard()" style="flex:1;" />
+                </div>
+              </td>
+              <td colspan="5" style="padding:12px 16px;color:var(--tx-3);font-size:12px;">
+                Pressione <kbd style="background:var(--bg-2);padding:2px 6px;border-radius:4px;border:1px solid var(--bo-2);">Enter</kbd> para criar
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -209,7 +251,7 @@ function renderBoard(){
           h('svg', { viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', 'stroke-width': '2.2', 'stroke-linecap': 'round' }, h('path', { d: 'M6 1v10M1 6h10' })),
           ' Adicionar tarefa'
         )
-      : h('div.kc-recur-hint', {}, '🔄 Tarefas recorrentes');
+      : h('div.kc-recur-hint', {}, '<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;"></i> Tarefas recorrentes');
       
     const div = h(`div.kc${over?'.kc--over':''}`, { 'data-col-id': String(col.id), style: { minWidth: COL_W+'px', maxWidth: COL_W+'px' } }, kcCards, buttonOrHint);
     
@@ -239,7 +281,7 @@ function _buildCard(c){
   const attCount=(window.AttachmentManager?.getForCard(c.id)||[]).length;
   const hasDoc=c.doc_decision||c.doc_artifact||c.doc_risk;
   const tags=(c.tags||[]).filter(t=>t&&t!=='').slice(0,2);
-  const tagLabels={a:'Cli A',b:'Cli B',c:'Cli C',meet:'Reunião',block:'🔴 Bloqueado'};
+  const tagLabels={a:'Cli A',b:'Cli B',c:'Cli C',meet:'Reunião',block:'<i data-lucide="circle" fill="currentColor" style="width:14px;height:14px;vertical-align:middle;color:var(--s-err);"></i> Bloqueado'};
 
   const children = [];
   if(bpmn==='concluido') children.push(h('div.kcard-status.kcard-status--done', {}, '✓ Concluído'));
@@ -615,7 +657,7 @@ async function _loadCardHistory(cardId){
   if(!data?.length){el.innerHTML='<p class="pf-hist-empty">Nenhum histórico registrado</p>';return;}
   const lb={title:'Título',bpmn_status:'Status BPMN',column_id:'Coluna',assigned_to:'Responsável',priority:'Prioridade'};
   el.innerHTML=data.map(h=>`<div class="pf-hist-item">
-    <div class="pf-hist-icon">${h.change_type==='status_change'?'🔄':h.change_type==='move'?'↔️':'✏️'}</div>
+    <div class="pf-hist-icon">${h.change_type==='status_change'?'<i data-lucide="repeat" style="width:14px;height:14px;vertical-align:middle;"></i>':h.change_type==='move'?'↔️':'✏️'}</div>
     <div class="pf-hist-body">
       <p class="pf-hist-text"><strong>${lb[h.field_name]||h.field_name}:</strong> <span class="pf-hist-old">${_e(h.old_value||'—')}</span> → <span class="pf-hist-new">${_e(h.new_value||'—')}</span></p>
       <p class="pf-hist-time">${new Date(h.changed_at).toLocaleString('pt-BR')}</p>
@@ -680,11 +722,11 @@ function renderDashboard(){
       <div class="dash-stats">
         ${[
           ['Total',total,'var(--tx-1)','📋'],
-          ['Concluídas',done,'var(--green)','✅'],
+          ['Concluídas',done,'var(--green)','<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i>'],
           ['Em Execução',inExec,'var(--yellow)','⚡'],
           ['Em Revisão',inRev,'var(--blue)','🔍'],
           ['Bloqueadas',blocked,'var(--red)','⛔'],
-          ['Atrasadas',overdue,'var(--red)','⚠️'],
+          ['Atrasadas',overdue,'var(--red)','<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:middle;"></i>'],
         ].map(([l,v,c,i])=>`<div class="dash-stat">
           <div class="dash-stat-icon">${i}</div>
           <div class="dash-stat-n" style="color:${c}">${v}</div>
@@ -848,3 +890,5 @@ window.switchCETab=switchCETab;window.moveCardToCol=moveCardToCol;window.loadPro
 window.addBoardColumn=addBoardColumn;window.openColOptions=openColOptions;window.openNewCardInCol=openNewCardInCol;
 window.updateColCounts=updateColCounts;window.resetNewCardForm=resetNewCardForm;window.renderDashboard=renderDashboard;
 window.SyncManager=SyncManager;window.PFBoard=PFBoard;
+
+}
