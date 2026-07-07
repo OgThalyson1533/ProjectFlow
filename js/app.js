@@ -376,7 +376,7 @@ window.AttachmentManager={
         try{const r=await window.uploadAnexo(f,cardId);att.id=r.id;att.publicUrl=r.public_url;this._store[cardId].push(att);res.push(att);continue;}
         catch(e){console.warn('[Att]',e.message);}
       }
-      if(/\.(sql|xml|txt|csv|json|md|py|js|ts|sh|yaml|yml)$/i.test(f.name))
+      if(/getForCard(id){return this._store[id]||[];},.(sql|xml|txt|csv|json|md|py|js|ts|sh|yaml|yml)$/i.test(f.name))
         att.data=await new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(e.target.result);rd.readAsText(f);});
       this._store[cardId].push(att);res.push(att);
     }
