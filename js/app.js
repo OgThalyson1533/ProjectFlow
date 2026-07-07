@@ -458,27 +458,6 @@ window.PFChecklist=(function(){
 //  10. CAMPOS EXTRAS NO CARD EDIT (v9: solicitante, área, etc.)
 // ════════════════════════════════════════════════════════════
 (function(){
-  function addNewCardFields(){
-    const overlay=document.getElementById('new-card-overlay');
-    if(!overlay||document.getElementById('v9-new-extras'))return;
-    const body=overlay.querySelector('.modal-body');if(!body)return;
-    const div=document.createElement('div');div.id='v9-new-extras';
-    div.innerHTML=`<div style="margin:10px 0;padding:10px 12px;background:var(--bg-2);border-radius:var(--r-m);border:1px solid var(--bd)">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--tx-3);letter-spacing:.4px;margin-bottom:8px">📋 Dados da Solicitação</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div><label class="field-label" style="font-size:11px">Data solicitação</label><input class="field-input" id="new-req-date" type="date" style="font-size:12px"></div>
-        <div><label class="field-label" style="font-size:11px">Solicitante</label><input class="field-input" id="new-requester" placeholder="Nome" style="font-size:12px"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div><label class="field-label" style="font-size:11px">Área</label>
-          <select class="field-input" id="new-area" style="font-size:12px"><option value="">Selecione...</option>${['TI','Marketing','Comercial','Operações','RH','Financeiro','Produto','Design'].map(a=>`<option>${a}</option>`).join('')}</select></div>
-        <div><label class="field-label" style="font-size:11px">Cliente</label><input class="field-input" id="new-client-name" placeholder="Cliente" style="font-size:12px"></div>
-      </div>
-      <div><label class="field-label" style="font-size:11px">Pessoas-chave</label><input class="field-input" id="new-key-people" placeholder="Stakeholders..." style="font-size:12px"></div>
-    </div>`;
-    const footer=body.querySelector('.modal-footer');if(footer)body.insertBefore(div,footer);else body.appendChild(div);
-  }
-
   function refreshEditFields(cardId){
     const slot=document.getElementById('ce-details-v9-slot');if(slot)slot.innerHTML='';
     document.getElementById('v9-zip-btn')?.remove();
@@ -519,7 +498,7 @@ window.PFChecklist=(function(){
   }
 
   // ✅ FIX: todos os wraps movidos para DOMContentLoaded — garante que board.js
-  // já executou e window.openCardEdit/saveCardEdit/createCard estão definidos.
+  // já executou e window.openCardEdit/saveCardEdit estão definidos.
   document.addEventListener('DOMContentLoaded',function(){
     const _origOpen=window.openCardEdit;
     window.openCardEdit=function(cardId){_origOpen&&_origOpen(cardId);setTimeout(()=>refreshEditFields(cardId),220);};
@@ -532,17 +511,6 @@ window.PFChecklist=(function(){
           c.request_date=gv('ce-req-date');c.requester=gv('ce-requester');c.area=gv('ce-area');c.client_name=gv('ce-client-name');c.key_people=gv('ce-key-people');}}
       return _origSave&&_origSave();
     };
-
-    const _origCreateCard=window.createCard;
-    window.createCard=async function(){
-      await _origCreateCard?.();
-      const cards=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
-      const c=cards[cards.length-1];
-      if(c){const gv=id=>document.getElementById(id)?.value?.trim()||null;
-        c.request_date=gv('new-req-date');c.requester=gv('new-requester');c.area=gv('new-area');c.client_name=gv('new-client-name');c.key_people=gv('new-key-people');}
-    };
-
-    setTimeout(addNewCardFields,1200);
   });
 })();
 

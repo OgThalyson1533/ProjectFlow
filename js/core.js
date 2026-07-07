@@ -116,6 +116,24 @@ window.closeModal = function(id) {
   const el = document.getElementById(id);
   if (el) {
     el.classList.remove('open');
+    if (id === 'card-edit-overlay') {
+      const cards = window.PFBoard?.cards || window.mockCards || [];
+      const c = cards.find(x => x.id === window.PF?.activeCardId);
+      if (c && c._isNewDraft) {
+        const title = document.getElementById('ce-title')?.value.trim();
+        const desc = window.tinymce?.get('ce-desc') ? window.tinymce.get('ce-desc').getContent().trim() : document.getElementById('ce-desc')?.value.trim();
+        
+        // If it's still exactly the placeholder title and no description, silent delete
+        if ((!title || title === 'Nova Tarefa') && !desc) {
+          if (typeof window.deleteCard === 'function') {
+            window.deleteCard(c.id, true);
+          }
+        } else {
+          // It was modified, so it's no longer a draft
+          c._isNewDraft = false;
+        }
+      }
+    }
   }
 };
 
@@ -163,8 +181,21 @@ window.initFlatpickr = function() {
   }
 };
 
+// ── Sidebar Toggle ─────────────────────────────────────────────
+window.toggleSidebar = function() {
+  const sb = document.querySelector('.sidebar');
+  if(sb) {
+    sb.classList.toggle('collapsed');
+    localStorage.setItem('pf_sidebar_collapsed', sb.classList.contains('collapsed') ? '1' : '0');
+  }
+};
+
 // ── Inicialização Global de UI (Flatpickr & Lucide) ──────────
 document.addEventListener('DOMContentLoaded', () => {
+  if(localStorage.getItem('pf_sidebar_collapsed') === '1') {
+    document.querySelector('.sidebar')?.classList.add('collapsed');
+  }
+
   // Inicializa Lucide Icons
   if(window.lucide) {
     window.lucide.createIcons();

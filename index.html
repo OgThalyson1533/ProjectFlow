@@ -8,7 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => {
+        console.warn('ServiceWorker registration failed: ', err);
+      });
+    });
+  }
+</script>
 <!-- Flatpickr (Modern Calendar) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -135,7 +145,7 @@
 <!-- ══ TOPBAR ══ -->
 <header class="topbar">
   <div class="tb-logo" style="display:flex;align-items:center;gap:10px;">
-    <button onclick="document.querySelector('.sidebar').classList.toggle('collapsed')" style="background:none;border:none;cursor:pointer;color:var(--tx-2);display:flex;align-items:center;padding:4px;border-radius:4px;" title="Alternar Menu">
+    <button onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;color:var(--tx-2);display:flex;align-items:center;padding:4px;border-radius:4px;" title="Alternar Menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
     </button>
     <div class="tb-logo-mark">
@@ -364,90 +374,6 @@
   </div><!-- /content-area -->
 </div><!-- /main-layout -->
 </div><!-- /app-shell -->
-
-<!-- ════ MODAL: NOVA TAREFA ════ -->
-<div class="overlay" id="new-card-overlay" onclick="handleOverlayClick(event)">
-  <div class="card-modal" onclick="event.stopPropagation()">
-    <header class="card-header">
-      <div class="card-meta">
-        <div class="modal-title">Nova Tarefa</div>
-      </div>
-      <div style="display: flex; gap: 16px;">
-        <button class="btn-icon" onclick="closeModal('new-card-overlay')" title="Fechar"><i data-lucide="x" style="width:16px;height:16px"></i></button>
-      </div>
-    </header>
-
-    <div class="card-body">
-      <nav class="card-modal-sidebar">
-        <button class="nav-item active"><i data-lucide="info" style="width:16px;height:16px"></i> Informações</button>
-      </nav>
-
-      <main class="card-modal-content">
-        <div id="nc-tab-info" class="tab-pane active">
-          <div class="form-group">
-            <label>Título da Tarefa *</label>
-            <input type="text" class="form-control" id="new-title" placeholder="Descreva a tarefa..." maxlength="200">
-          </div>
-
-          <div class="form-group">
-            <label>Descrição e Contexto</label>
-            <textarea class="form-control large tinymce-editor" id="new-desc" placeholder="Contexto adicional..."></textarea>
-          </div>
-
-          <div class="grid-row">
-            <div class="form-group">
-              <label>Coluna</label>
-              <select class="form-control" id="new-col-sel"></select>
-            </div>
-            <div class="form-group">
-              <label>Prioridade</label>
-              <select class="form-control" id="new-priority">
-                <option value="low">Baixa</option>
-                <option value="medium" selected>Média</option>
-                <option value="high">Alta</option>
-                <option value="critical">Crítica</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid-row">
-            <div class="form-group">
-              <label>Responsável</label>
-              <select class="form-control assignee-select" id="new-assignee" onchange="handleAssigneeSelect(this)"></select>
-            </div>
-            <div class="form-group">
-              <label>Solicitante</label>
-              <select class="form-control assignee-select" id="new-requester" onchange="handleAssigneeSelect(this)"></select>
-            </div>
-          </div>
-
-          <div class="grid-row">
-            <div class="form-group">
-              <label>Horas Estimadas</label>
-              <input type="number" class="form-control" id="new-hours" min="1" max="9999" placeholder="40">
-            </div>
-            <div class="form-group">
-              <label>Orçamento (R$)</label>
-              <input type="number" class="form-control" id="new-budget" min="0" placeholder="1000">
-            </div>
-          </div>
-
-          <div class="grid-row">
-            <div class="form-group">
-              <label>Previsão de conclusão (SLA)</label>
-              <input type="date" class="form-control" id="new-date">
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-
-    <footer class="card-footer">
-      <button class="btn btn-ghost" onclick="closeModal('new-card-overlay')">Cancelar</button>
-      <button class="btn btn-primary" onclick="createCard()">Criar tarefa</button>
-    </footer>
-  </div>
-</div>
 
 <!-- ════ MODAL: EDIÇÃO DE CARD ════ -->
 
