@@ -527,3 +527,12 @@ select.form-control {
 }
 
 /* Lucide icons injection for dynamic elements */
+
+.sidebar.collapsed{width:0!important;padding:0!important;border:none!important;opacity:0;pointer-events:none;}
+.sidebar{transition:width 0.3s ease, padding 0.3s ease, opacity 0.3s ease, background var(--t), border-color var(--t);}
+.ce-body { display: flex; align-items: stretch; height: 100%; min-height: 50vh; max-height: 75vh; }
+.ce-sidebar { width: 240px; background: var(--bg-2); border-right: 1px solid var(--bd); padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+.ce-content { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; }
+.ce-tab { padding: 10px 14px; background: none; border: none; cursor: pointer; font-size: 13px; color: var(--tx-2); transition: all 0.2s; white-space: nowrap; font-weight: 500; display: flex; align-items: center; gap: 10px; border-radius: 6px; text-align: left; width: 100%; }
+.ce-tab.active { color: var(--ac); background: var(--ac-bg); font-weight: 600; }
+.ce-tab:hover:not(.active) { color: var(--tx-1); background: var(--hover); }

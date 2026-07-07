@@ -30,6 +30,16 @@
 
 <!-- TinyMCE -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1f6feb">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW registration failed: ', err));
+      });
+    }
+  </script>
 </head>
 <body>
 
@@ -124,7 +134,10 @@
 
 <!-- ══ TOPBAR ══ -->
 <header class="topbar">
-  <div class="tb-logo">
+  <div class="tb-logo" style="display:flex;align-items:center;gap:10px;">
+    <button onclick="document.querySelector('.sidebar').classList.toggle('collapsed')" style="background:none;border:none;cursor:pointer;color:var(--tx-2);display:flex;align-items:center;padding:4px;border-radius:4px;" title="Alternar Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
     <div class="tb-logo-mark">
       <svg viewBox="0 0 24 24"><rect x="1" y="1" width="9" height="9" rx="2.5"/><rect x="14" y="1" width="9" height="9" rx="2.5"/><rect x="1" y="14" width="9" height="9" rx="2.5"/><rect x="14" y="14" width="9" height="9" rx="2.5"/></svg>
     </div>
@@ -450,9 +463,9 @@
         <button class="modal-control-btn close" onclick="closeModal('card-edit-overlay')" title="Fechar"><i data-lucide="x" style="width:16px;height:16px"></i></button>
       </div>
     </div>
-    <div class="modal-body" style="padding:0; display:flex;">
+    <div class="modal-body ce-body">
       <!-- SIDEBAR -->
-      <div class="ce-sidebar" style="width: 220px; background: var(--bg-1); border-right: 1px solid var(--bo-2); padding: 20px 10px; display:flex; flex-direction:column; gap:4px; overflow-y:auto;">
+      <div class="ce-sidebar">
         <button class="ce-tab active" id="ce-tab-details"     onclick="switchCETab('details')"><i data-lucide="info" style="width:16px;height:16px"></i> Informações</button>
         <button class="ce-tab"        id="ce-tab-bpmn"        onclick="switchCETab('bpmn')"><i data-lucide="git-merge" style="width:16px;height:16px"></i> Fase BPMN</button>
         <button class="ce-tab"        id="ce-tab-doc"         onclick="switchCETab('doc')"><i data-lucide="file-text" style="width:16px;height:16px"></i> Documentação</button>
@@ -462,7 +475,7 @@
         <button class="ce-tab"        id="ce-tab-history"     onclick="switchCETab('history')"><i data-lucide="clock" style="width:16px;height:16px"></i> Histórico</button>
       </div>
       <!-- CONTEÚDO PRINCIPAL -->
-      <div class="ce-content" style="flex:1; padding: 20px; max-height: 70vh; overflow-y: auto; display:flex; flex-direction:column;">
+      <div class="ce-content">
         
         <div style="flex:1;">
           <!-- DETALHES -->

@@ -365,7 +365,7 @@ window.AttachmentManager={
   ICONS:{SQL:'🗃',PBIX:'📊',XLSM:'📊',XLSX:'📊',XLS:'📊',XML:'📄',TXT:'📝',PDF:'📕',DOC:'📘',DOCX:'📘',CSV:'📋',JSON:'⚙',ZIP:'📦',PPTX:'📑',MD:'📝',PY:'🐍',JS:'📜',TS:'📜',SH:'🖥','?':'📎'},
   getExt:f=>(f.split('.').pop()||'').toUpperCase(),
   getIcon(f){return this.ICONS[this.getExt(f)]||this.ICONS['?'];},
-  getForCard:id=>window.AttachmentManager._store[id]||[],
+  getForCard(id){if(!Object.keys(this._store).length)this._init();return this._store[id]||[];},
   fmtSize:b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB',
   async upload(cardId,files){
     if(!cardId)return[];if(!this._store[cardId])this._store[cardId]=[];const res=[];
@@ -385,7 +385,7 @@ window.AttachmentManager={
   async delete(cardId,attId){
     const att=(this._store[cardId]||[]).find(a=>a.id===attId);
     if(att?.publicUrl&&window.removerAnexo&&PF.supabase&&!PF.demoMode)await window.removerAnexo(att.id,att.storage_path||'').catch(()=>{});
-    this._store[cardId]=(this._store[cardId]||[]).filter(a=>a.id!==attId);showToast('Anexo removido');
+    this._store[cardId]=(this._store[cardId]||[]).filter(a=>a.id!==attId);this._save();showToast('Anexo removido');
   },
   renderList(cardId){
     const atts=this.getForCard(cardId);
