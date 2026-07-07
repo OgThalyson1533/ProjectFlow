@@ -437,175 +437,129 @@
 </div>
 
 <!-- ════ MODAL: EDIÇÃO DE CARD ════ -->
+
 <div class="overlay" id="card-edit-overlay" onclick="handleOverlayClick(event)">
-  <div class="card-modal" onclick="event.stopPropagation()">
-    <header class="card-header">
-      <div class="card-meta">
-        <span class="meta-status" id="ce-bpmn-badge" data-bpmn="esbocar">ESBOÇAR</span>
-        <span class="meta-id" id="ce-id">#------</span>
+  <div class="modal modal--xl" onclick="event.stopPropagation()">
+    <div class="modal-hdr">
+      <div class="modal-title-block" style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;font-family:var(--mono);color:var(--tx-3)" id="ce-id">#------</span>
+        <span class="ce-bpmn-badge" id="ce-bpmn-badge" data-bpmn="esbocar">Esboçar</span>
       </div>
-      <div style="display: flex; gap: 16px;">
-        <button class="btn-icon btn-icon-danger" onclick="deleteCard()" title="Excluir"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button>
-        <button class="btn-icon" onclick="closeModal('card-edit-overlay')" title="Fechar"><i data-lucide="x" style="width:16px;height:16px"></i></button>
+      <div class="modal-window-controls">
+        <button style="background:none;border:none;cursor:pointer;padding:5px 7px;border-radius:6px;color:var(--tx-3);display:flex;align-items:center;justify-content:center" onmouseover="this.style.color='var(--red)';this.style.background='var(--red-bg)'" onmouseout="this.style.color='var(--tx-3)';this.style.background='none'" onclick="deleteCard()" title="Excluir"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button>
+        <button class="modal-control-btn close" onclick="closeModal('card-edit-overlay')" title="Fechar"><i data-lucide="x" style="width:16px;height:16px"></i></button>
       </div>
-    </header>
-
-    <div class="card-body">
-      <nav class="card-modal-sidebar">
-        <button class="nav-item active" id="ce-tab-details" onclick="switchCETab('details')"><i data-lucide="info" style="width:16px;height:16px"></i> Informações</button>
-        <button class="nav-item" id="ce-tab-bpmn" onclick="switchCETab('bpmn')"><i data-lucide="git-merge" style="width:16px;height:16px"></i> Fase BPMN</button>
-        <button class="nav-item" id="ce-tab-doc" onclick="switchCETab('doc')"><i data-lucide="file-text" style="width:16px;height:16px"></i> Documentação</button>
-        <button class="nav-item" id="ce-tab-attachments" onclick="switchCETab('attachments');refreshCardAttachments()"><i data-lucide="paperclip" style="width:16px;height:16px"></i> Anexos & Imagens</button>
-        <button class="nav-item" id="ce-tab-links" onclick="switchCETab('links')"><i data-lucide="link" style="width:16px;height:16px"></i> Links</button>
-        <button class="nav-item" id="ce-tab-diagram" onclick="switchCETab('diagram')"><i data-lucide="share-2" style="width:16px;height:16px"></i> Diagrama</button>
-        <button class="nav-item" id="ce-tab-history" onclick="switchCETab('history')"><i data-lucide="clock" style="width:16px;height:16px"></i> Histórico</button>
-      </nav>
-
-      <main class="card-modal-content">
-        <!-- DETALHES -->
-        <div id="ce-panel-details" class="tab-pane active">
-          <div class="form-group">
-            <label>Título *</label>
-            <input type="text" class="form-control" id="ce-title" maxlength="200">
-          </div>
-
-          <div class="form-group">
-            <label>Descrição e Contexto</label>
-            <textarea class="form-control large tinymce-editor" id="ce-desc"></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>Critérios de aceite</label>
-            <textarea class="form-control" id="ce-acceptance" rows="2" placeholder="Quando esta tarefa estará concluída?"></textarea>
-          </div>
-
-          <div class="grid-row">
-            <div class="form-group">
-              <label>Prioridade</label>
-              <select class="form-control" id="ce-priority">
-                <option value="low">Baixa</option>
-                <option value="medium" selected>Média</option>
-                <option value="high">Alta</option>
-                <option value="critical">Crítica</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Coluna Kanban</label>
-              <select class="form-control" id="ce-column"></select>
-            </div>
-          </div>
-
-          <div class="grid-row">
-            <div class="form-group">
-              <label>Responsável</label>
-              <select class="form-control assignee-select" id="ce-assignee" onchange="handleAssigneeSelect(this)"></select>
-            </div>
-            <div class="form-group">
-              <label>Solicitante</label>
-              <select class="form-control assignee-select" id="ce-requester" onchange="handleAssigneeSelect(this)"></select>
-            </div>
-          </div>
-          
-          <div class="grid-row">
-            <div class="form-group">
-              <label>Horas Estimadas</label>
-              <input type="number" class="form-control" id="ce-hours" min="0" step="0.5">
-            </div>
-            <div class="form-group">
-              <label>Orçamento (R$)</label>
-              <input type="number" class="form-control" id="ce-budget" min="0">
-            </div>
-          </div>
-
-          <div class="grid-row">
-            <div class="form-group">
-              <label>Previsão de conclusão (SLA)</label>
-              <input type="date" class="form-control" id="ce-due-date">
-            </div>
-            <div class="form-group">
-              <label>Data de fato concluída</label>
-              <input type="datetime-local" class="form-control" id="ce-completed-at">
-            </div>
-          </div>
-          <div id="ce-details-v9-slot"></div>
-        </div>
-
-        <!-- BPMN -->
-        <div id="ce-panel-bpmn" class="tab-pane">
-          <p style="color: var(--tx-3); font-size: 0.9rem; margin-bottom: 24px;">Controle o estágio exato da tarefa dentro do mapeamento operacional.</p>
-          <div class="pf-bpmn-flow" id="ce-bpmn-flow"></div>
-          <div style="display: flex; gap: 12px; margin-top: 40px;">
-            <button class="btn btn-ghost" onclick="setCardBpmn('esbocar');showToast('Reiniciado ao início')">↩ Reiniciar Estágio</button>
-            <button class="btn btn-primary" onclick="advanceBpmn()">Avançar Estágio →</button>
-          </div>
-        </div>
-
-        <!-- DOCUMENTAÇÃO -->
-        <div id="ce-panel-doc" class="tab-pane">
-          <p style="font-size:13px;color:var(--tx-3);margin-bottom:14px">Estes campos alimentam o Banco de Documentação e o Export PDF.</p>
-          <div class="form-group">
-            <label>Decisão Técnica</label>
-            <textarea class="form-control" id="ce-doc-decision" rows="2" placeholder="Qual decisão foi tomada?"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Artefato Gerado</label>
-            <textarea class="form-control" id="ce-doc-artifact" rows="2" placeholder="Entregáveis produzidos..."></textarea>
-          </div>
-          <div class="form-group">
-            <label>Riscos e Impedimentos</label>
-            <textarea class="form-control" id="ce-doc-risk" rows="2" placeholder="Quais os gargalos atuais?"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Próximas Ações</label>
-            <textarea class="form-control" id="ce-doc-notes" rows="2" placeholder="O que vem depois?"></textarea>
-          </div>
-        </div>
-
-        <!-- ANEXOS -->
-        <div id="ce-panel-attachments" class="tab-pane">
-          <div class="dropzone" id="att-drop-zone" ondragover="event.preventDefault();this.classList.add('att-hover')" ondragleave="this.classList.remove('att-hover')" ondrop="handleAttachmentDrop(event)">
-            <div style="font-size: 1.5rem; margin-bottom: 12px; color: var(--tx-3);"><i data-lucide="file-up" style="width:32px;height:32px"></i></div>
-            <p style="font-weight: 500; margin-bottom: 4px;">Solte os arquivos de evidência aqui</p>
-            <p style="font-size: 0.8rem; color: var(--tx-3);">Suporta PDF, XLSX, SQL, PBIX (Máx 50MB)</p>
-            <label class="btn btn-primary" style="margin-top:12px;display:inline-block;cursor:pointer;">
-              Selecionar arquivos
-              <input type="file" multiple style="display:none" onchange="handleAttachmentInput(this)">
-            </label>
-          </div>
-          <div id="ce-attachments-list" style="margin-top:20px"></div>
-        </div>
-
-        <!-- LINKS -->
-        <div id="ce-panel-links" class="tab-pane">
-          <div class="form-group">
-            <label>Repositórios e Dashboards Externos</label>
-            <textarea class="form-control" id="ce-links" rows="4" placeholder="Cole as URLs de referência..."></textarea>
-          </div>
-        </div>
-
-        <!-- DIAGRAMA -->
-        <div id="ce-panel-diagram" class="tab-pane">
-          <div style="text-align: center; padding: 60px 0;">
-             <div style="background:var(--ac-bg); width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-               <i data-lucide="network" style="width:32px;height:32px;color:var(--ac);"></i>
-             </div>
-            <h3 style="margin-bottom:8px;font-size:18px;color:var(--tx-1);">Diagrama da Tarefa</h3>
-            <p style="color: var(--tx-3); margin-bottom: 24px; max-width:350px; margin-left:auto; margin-right:auto;">Área reservada para visualização do diagrama de arquitetura técnica da tarefa.</p>
-            <button class="btn btn-primary" onclick="openTaskDiagram()">Abrir Visualizador de Diagrama</button>
-          </div>
-        </div>
-
-        <!-- HISTÓRICO -->
-        <div id="ce-panel-history" class="tab-pane">
-          <div id="ce-history"><div style="font-size:13px;color:var(--tx-3);padding:8px 0">Carregando histórico...</div></div>
-        </div>
-      </main>
     </div>
+    <div class="modal-body" style="padding:0; display:flex;">
+      <!-- SIDEBAR -->
+      <div class="ce-sidebar" style="width: 220px; background: var(--bg-1); border-right: 1px solid var(--bo-2); padding: 20px 10px; display:flex; flex-direction:column; gap:4px; overflow-y:auto;">
+        <button class="ce-tab active" id="ce-tab-details"     onclick="switchCETab('details')"><i data-lucide="info" style="width:16px;height:16px"></i> Informações</button>
+        <button class="ce-tab"        id="ce-tab-bpmn"        onclick="switchCETab('bpmn')"><i data-lucide="git-merge" style="width:16px;height:16px"></i> Fase BPMN</button>
+        <button class="ce-tab"        id="ce-tab-doc"         onclick="switchCETab('doc')"><i data-lucide="file-text" style="width:16px;height:16px"></i> Documentação</button>
+        <button class="ce-tab"        id="ce-tab-attachments" onclick="switchCETab('attachments');refreshCardAttachments()"><i data-lucide="paperclip" style="width:16px;height:16px"></i> Anexos & Imagens</button>
+        <button class="ce-tab"        id="ce-tab-links"       onclick="switchCETab('links')"><i data-lucide="link" style="width:16px;height:16px"></i> Links Relacionados</button>
+        <button class="ce-tab"        id="ce-tab-diagram"     onclick="switchCETab('diagram')"><i data-lucide="share-2" style="width:16px;height:16px"></i> Diagrama (Arq.)</button>
+        <button class="ce-tab"        id="ce-tab-history"     onclick="switchCETab('history')"><i data-lucide="clock" style="width:16px;height:16px"></i> Histórico</button>
+      </div>
+      <!-- CONTEÚDO PRINCIPAL -->
+      <div class="ce-content" style="flex:1; padding: 20px; max-height: 70vh; overflow-y: auto; display:flex; flex-direction:column;">
+        
+        <div style="flex:1;">
+          <!-- DETALHES -->
+          <div class="ce-panel active" id="ce-panel-details">
+            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Título *</label><input class="field-input" id="ce-title" type="text" maxlength="200"></div>
+            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Descrição</label><textarea class="field-input" id="ce-desc" rows="3" placeholder="Descreva a tarefa..."></textarea></div>
+            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Critérios de aceite</label><textarea class="field-input" id="ce-acceptance" rows="2" placeholder="Quando esta tarefa estará concluída?"></textarea></div>
+            <div class="ce-grid2" style="margin-bottom:12px">
+              <div class="field-row"><label class="field-label">Prioridade</label><select class="field-input" id="ce-priority"><option value="low">Baixa</option><option value="medium" selected>Média</option><option value="high">Alta</option><option value="critical">Crítica</option></select></div>
+              <div class="field-row"><label class="field-label">Coluna Kanban</label><select class="field-input" id="ce-column"></select></div>
+            </div>
+            <div class="ce-grid2" style="margin-bottom:12px">
+              <div class="field-row"><label class="field-label">Horas estimadas</label><input class="field-input" id="ce-hours" type="number" min="0" step="0.5"></div>
+              <div class="field-row"><label class="field-label">Orçamento (R$)</label><input class="field-input" id="ce-budget" type="number" min="0"></div>
+            </div>
+            <div class="ce-grid2" style="margin-bottom:12px">
+              <div class="field-row"><label class="field-label">Previsão de conclusão <span style="color:var(--tx-3);font-weight:normal">(SLA)</span></label><input class="field-input" id="ce-due-date" type="date"></div>
+            </div>
+            <div class="ce-grid2" style="margin-bottom:12px">
+              <div class="field-row"><label class="field-label">Responsável</label><select class="field-input assignee-select" id="ce-assignee" onchange="handleAssigneeSelect(this)"></select></div>
+              <div class="field-row"><label class="field-label">Solicitante</label><select class="field-input assignee-select" id="ce-requester" onchange="handleAssigneeSelect(this)"></select></div>
+            </div>
+            <div class="ce-grid2" style="margin-bottom:12px">
+              <div class="field-row"><label class="field-label">Data de fato concluída</label><input class="field-input" id="ce-completed-at" type="datetime-local"></div>
+              <div class="field-row"></div>
+            </div>
+            <div id="ce-details-v9-slot"></div>
+          </div>
+          <!-- BPMN -->
+          <div class="ce-panel" id="ce-panel-bpmn">
+            <p style="font-size:12px;color:var(--tx-3);margin-bottom:14px">Clique em um passo para mover a tarefa no fluxo</p>
+            <div class="pf-bpmn-flow" id="ce-bpmn-flow"></div>
+            <div style="margin-top:20px;display:flex;gap:8px">
+              <button class="btn-primary" onclick="advanceBpmn()">→ Avançar etapa</button>
+              <button class="btn-cancel" onclick="setCardBpmn('esbocar');showToast('Reiniciado ao início')">↩ Reiniciar</button>
+            </div>
+          </div>
+          <!-- DOCUMENTAÇÃO -->
+          <div class="ce-panel" id="ce-panel-doc">
+            <p style="font-size:12px;color:var(--tx-3);margin-bottom:14px">Estes campos alimentam o Banco de Documentação e o Export PDF.</p>
+            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Decisão tomada</label><textarea class="field-input" id="ce-doc-decision" rows="2" placeholder="Qual decisão foi tomada?"></textarea></div>
+            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Artefato gerado</label><textarea class="field-input" id="ce-doc-artifact" rows="2" placeholder="Entregáveis produzidos..."></textarea></div>
+            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Riscos / Impedimentos</label><textarea class="field-input" id="ce-doc-risk" rows="2" placeholder="Riscos ou bloqueios..."></textarea></div>
+            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Próximas ações</label><textarea class="field-input" id="ce-doc-notes" rows="2" placeholder="O que vem depois?"></textarea></div>
+          </div>
+          <!-- LINKS -->
+          <div class="ce-panel" id="ce-panel-links">
+            <p style="font-size:12px;color:var(--tx-3);margin-bottom:14px">Adicione links externos, repositórios ou referências da tarefa.</p>
+            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Links Relacionados</label><textarea class="field-input" id="ce-links" rows="4" placeholder="Ex: https://github.com/empresa/repo"></textarea></div>
+          </div>
+          <!-- ANEXOS -->
+          <div class="ce-panel" id="ce-panel-attachments">
+            <div class="att-drop-zone" id="att-drop-zone"
+              ondragover="event.preventDefault();this.classList.add('att-hover')"
+              ondragleave="this.classList.remove('att-hover')"
+              ondrop="handleAttachmentDrop(event)">
+              <div class="att-drop-inner">
+                <svg viewBox="0 0 48 48" width="34" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--tx-3)"><path d="M8 32v6a2 2 0 002 2h28a2 2 0 002-2v-6"/><path d="M24 8v20M17 15l7-7 7 7"/></svg>
+                <p style="font-size:13px;font-weight:600;color:var(--tx-2);margin:8px 0 3px">Arraste arquivos aqui</p>
+                <p style="font-size:11px;color:var(--tx-3)">PDF · XLSX · SQL · JSON · ZIP · Imagens e outros — máx 50 MB</p>
+                <label class="btn-primary" style="margin-top:12px;cursor:pointer;font-size:12px;height:auto;padding:7px 14px">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M7 1v8M4 4l3-3 3 3"/><path d="M2 11h10"/></svg>Selecionar arquivos
+                  <input type="file" multiple style="display:none" onchange="handleAttachmentInput(this)">
+                </label>
+              </div>
+            </div>
+            <div id="ce-attachments-list" style="margin-top:12px"></div>
+          </div>
+          <!-- DIAGRAMA -->
+          <div class="ce-panel" id="ce-panel-diagram">
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; min-height:300px; text-align:center; padding: 40px 20px;">
+               <div style="background:var(--ac-20); width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+                 <i data-lucide="network" style="width:32px;height:32px;color:var(--ac);"></i>
+               </div>
+               <h3 style="margin-bottom:8px;font-size:18px;color:var(--tx-1);">Diagrama da Tarefa</h3>
+               <p style="font-size:14px;color:var(--tx-3);margin-bottom:24px;max-width:350px;">Abra a ferramenta focada exclusivamente para projetar e documentar a arquitetura técnica desta tarefa.</p>
+               <button class="btn-primary" onclick="openTaskDiagram()" style="padding:10px 20px;font-size:14px; border-radius:6px; box-shadow:0 4px 12px var(--ac-40);">
+                 Acessar Diagrama da Tarefa
+               </button>
+            </div>
+          </div>
+          <!-- HISTÓRICO -->
+          <div class="ce-panel" id="ce-panel-history">
+            <div id="ce-history"><div style="font-size:12px;color:var(--tx-3);padding:8px 0">Carregando histórico...</div></div>
+          </div>
+        </div>
 
-    <footer class="card-footer">
-      <button class="btn btn-ghost" onclick="closeModal('card-edit-overlay')">Descartar Alterações</button>
-      <button class="btn btn-primary" onclick="saveCardEdit()">Salvar Card</button>
-    </footer>
+        <!-- FOOTER (fixo no fundo do conteudo direito) -->
+        <div class="modal-footer" style="padding-top:20px; margin-top:20px; border-top:1px solid var(--bo-1); background:var(--bg-0);">
+          <button class="btn-cancel" onclick="closeModal('card-edit-overlay')">Cancelar</button>
+          <button class="btn-primary" onclick="saveCardEdit()" style="flex:2;display:flex;align-items:center;justify-content:center;gap:6px">
+            <i data-lucide="check" style="width:16px;height:16px"></i> Salvar Alterações
+          </button>
+        </div>
+
+      </div>
+    </div>
   </div>
 </div>
 

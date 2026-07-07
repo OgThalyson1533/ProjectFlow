@@ -49,28 +49,63 @@
 //  2. VIEWS
 // ════════════════════════════════════════════════════════════
 window.switchView=function(name,btn){
+  if (name === 'diagram' && (!btn || btn.id === 'nav-diagram')) {
+    // se o clique vier da barra de navegação principal (ou sem btn associado explicitamente pela tarefa)
+    // reseta o target
+    // Wait, openTaskDiagram doesn't pass btn. So btn is undefined. 
+    // If it's a global nav tab click, btn is passed (this).
+    if (btn && btn.id === 'nav-diagram') {
+      PF.currentDiagramTargetId = null;
+    }
+  }
   if (name === 'diagram' && btn && btn.id === 'nav-diagram') {
     PF.currentDiagramTargetId = null;
   }
-  document.querySelectorAll('div[id^="view-"]').forEach(v=>{v.classList.remove('active');v.style.display='none';});
-  document.querySelectorAll('.tb-tab').forEach(t=>t.classList.remove('active'));
-  const el=document.getElementById('view-'+name);
-  if(el){
-    el.classList.add('active');
-    el.style.display='flex';
-    // ✅ FIX scroll: reseta qualquer scroll interno ao trocar de aba
-    // evita que o diagrama "desça" para o fim da página ao voltar para a aba
-    el.scrollTop=0;
-    // Força o body/html a não rolar
-    document.documentElement.scrollTop=0;
-    document.body.scrollTop=0;
+  
+  let overlay = document.getElementById('global-transition-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'global-transition-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'var(--bg-0, #0a0a0a)';
+    overlay.style.zIndex = '99999';
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.transition = 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+    document.body.appendChild(overlay);
   }
-  if(btn)btn.classList.add('active');
-  // ✅ FIX diagrama: duplo-rAF garante reflow completo antes de ler dimensões.
-  // Só resize — nunca recria o engine aqui. A recriação é feita em initDiagramView.
-  if(name==='diagram'&&window.DiagramEngineV9?._initialized){
-    if(typeof _forceDiagramResize==='function')_forceDiagramResize();
+
+  if (overlay.style.opacity === '0' || overlay.style.opacity === '') {
+    overlay.style.opacity = '0.3';
   }
+  
+  setTimeout(() => {
+    document.querySelectorAll('div[id^="view-"]').forEach(v=>{v.classList.remove('active');v.style.display='none';});
+    document.querySelectorAll('.tb-tab').forEach(t=>t.classList.remove('active'));
+    const el=document.getElementById('view-'+name);
+    if(el){
+      el.classList.add('active');
+      el.style.display='flex';
+      // ✅ FIX scroll: reseta qualquer scroll interno ao trocar de aba
+      // evita que o diagrama "desça" para o fim da página ao voltar para a aba
+      el.scrollTop=0;
+      // Força o body/html a não rolar
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+    }
+    if(btn)btn.classList.add('active');
+    // ✅ FIX diagrama: duplo-rAF garante reflow completo antes de ler dimensões.
+    // Só resize — nunca recria o engine aqui. A recriação é feita em initDiagramView.
+    if(name==='diagram'&&window.DiagramEngineV9?._initialized){
+      if(typeof _forceDiagramResize==='function')_forceDiagramResize();
+    }
+    
+    overlay.style.opacity = '0';
+  }, 100);
 };
 
 // ════════════════════════════════════════════════════════════
@@ -133,6 +168,26 @@ window._addProjectToSidebar=_addToSidebar;
 //  5. SELECT PROJECT
 // ════════════════════════════════════════════════════════════
 window.selectProject=async function(el,id){
+  let overlay = document.getElementById('global-transition-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'global-transition-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'var(--bg-0, #0a0a0a)';
+    overlay.style.zIndex = '99999';
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.transition = 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.opacity = '0.3';
+  
+  await new Promise(r => setTimeout(r, 100));
+
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
   if(el)el.classList.add('active');
   PF.currentProject=id;PFBoard.projectId=id;
@@ -827,7 +882,18 @@ window.initDiagramView=async function(taskId = null){
   attachResizeObserver();
 };
 
-window._forceDiagramResize=function(){ /* Depreciado via MYTHOS - ResizeObserver Ativo */ };
+window._forceDiagramResize=function(){
+  const wrap = document.getElementById('dg-wrap');
+  if(!wrap || !window.DiagramEngineV9?.canvas) return;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  if(w > 50 && h > 50) {
+    window.DiagramEngineV9.canvas.setWidth(w);
+    window.DiagramEngineV9.canvas.setHeight(h);
+    window.DiagramEngineV9.canvas.calcOffset();
+    window.DiagramEngineV9.canvas.requestRenderAll();
+  }
+};
 
 window.regenDiagram=async function(){
   const pid=PF.currentProject||(window.mockProjects?.[0]?.id)||null;

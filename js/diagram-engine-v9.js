@@ -96,6 +96,7 @@ window.DiagramEngineV9 = (function () {
     data_str: {cat:'Data',             label:'Data store',                bpmn:'DataStore',                    w:54,h:44},
     annot:    {cat:'Artifacts',        label:'Text annotation',           bpmn:'TextAnnotation',               w:120,h:60},
     grp:      {cat:'Artifacts',        label:'Group',                     bpmn:'Group',                        w:200,h:140},
+    text:     {cat:'Artifacts',        label:'Text box',                  bpmn:'TextBox',                      w:120,h:40},
   };
 
   // ── Helpers ──────────────────────────────────────────────
@@ -380,12 +381,28 @@ window.DiagramEngineV9 = (function () {
     _edges.forEach(e => {
       const src=_nodes.find(n=>n.id===e.src), tgt=_nodes.find(n=>n.id===e.tgt);
       if (!src||!tgt) return;
-      const [x1,y1]=_port(src,'right'), [x2,y2]=_port(tgt,'left');
-      const mx=(x1+x2)/2;
-      const d = Math.abs(y1-y2)<8 ? `M${x1} ${y1} L${x2} ${y2}` : `M${x1} ${y1} L${mx} ${y1} L${mx} ${y2} L${x2} ${y2}`;
+      const scx = src.x + src.w/2, scy = src.y + src.h/2;
+      const tcx = tgt.x + tgt.w/2, tcy = tgt.y + tgt.h/2;
+      const dx = tcx - scx, dy = tcy - scy;
+      
+      let p1, p2, x1, y1, x2, y2, d;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        p1 = dx > 0 ? 'right' : 'left';
+        p2 = dx > 0 ? 'left' : 'right';
+        [x1,y1]=_port(src, p1); [x2,y2]=_port(tgt, p2);
+        const mx=(x1+x2)/2;
+        d = Math.abs(y1-y2)<8 ? `M${x1} ${y1} L${x2} ${y2}` : `M${x1} ${y1} L${mx} ${y1} L${mx} ${y2} L${x2} ${y2}`;
+      } else {
+        p1 = dy > 0 ? 'bottom' : 'top';
+        p2 = dy > 0 ? 'top' : 'bottom';
+        [x1,y1]=_port(src, p1); [x2,y2]=_port(tgt, p2);
+        const my=(y1+y2)/2;
+        d = Math.abs(x1-x2)<8 ? `M${x1} ${y1} L${x2} ${y2}` : `M${x1} ${y1} L${x1} ${my} L${x2} ${my} L${x2} ${y2}`;
+      }
+      
       const isSel = e.id===_selEdge;
       edgesHtml += `<path data-eid="${e.id}" d="${d}" fill="none" stroke="${isSel?'#1971c2':bc}" stroke-width="${isSel?2.2:1.6}" marker-end="url(#bvarr)" style="cursor:pointer;pointer-events:stroke" stroke-linecap="round"/>`;
-      if (e.label) edgesHtml += `<text x="${mx}" y="${(y1+y2)/2-8}" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="${dark?'#bbb':'#555'}" pointer-events="none">${_esc(e.label)}</text>`;
+      if (e.label) edgesHtml += `<text x="${(x1+x2)/2}" y="${(y1+y2)/2-8}" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="${dark?'#bbb':'#555'}" pointer-events="none">${_esc(e.label)}</text>`;
     });
 
     // Connection preview
@@ -928,6 +945,7 @@ Espalhe as coordenadas (x e y) inteligentemente para formar um layout organizado
       {t:'pool',    s:`<svg width="18" height="18" viewBox="0 0 20 20"><rect x="1" y="2" width="4" height="16" fill="#e4e4e7" stroke="#555" stroke-width="1.4"/><rect x="5" y="2" width="14" height="16" fill="none" stroke="#555" stroke-width="1.4"/></svg>`, tt:'Pool'},
       {t:'annot',   s:`<svg width="18" height="18" viewBox="0 0 20 20"><path d="M8 3H4v14h4" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round"/></svg>`, tt:'Text annotation'},
       {t:'grp',     s:`<svg width="18" height="18" viewBox="0 0 20 20"><rect x="1" y="1" width="18" height="18" rx="3" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="4 2"/></svg>`, tt:'Group'},
+      {t:'text',    s:`<svg width="18" height="18" viewBox="0 0 20 20"><text x="10" y="14" text-anchor="middle" font-family="sans-serif" font-size="14" fill="currentColor" font-weight="bold">T</text></svg>`, tt:'Text box'},
       {sep:true},
       {t:'_more',   s:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>`, tt:'Mais elementos (todos)'},
     ];

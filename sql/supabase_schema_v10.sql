@@ -222,6 +222,7 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   doc_risk            TEXT,
   doc_next_action     TEXT,
   doc_notes           TEXT,
+  doc_links           TEXT,
   acceptance_criteria TEXT,
   -- ✅ campos v9: solicitação (usados em refreshEditFields)
   request_date        DATE,
