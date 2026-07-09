@@ -301,6 +301,7 @@ function renderBoard(){
   _attachDrag(board);
   updateColCounts();
   if(typeof window.PFDiagramAutoUpdate==='function')window.PFDiagramAutoUpdate();
+  if(window.NotificationManager) window.NotificationManager.checkSLA();
 }
 
 function _buildCard(c){
@@ -471,19 +472,49 @@ async function openColOptions(e,colId){
 
 function openNewCardInCol(colId){PF._pendingCol=colId;openNewCard();}
 function openNewCard(){
-  const cols=PFBoard.columns.length?PFBoard.columns:initDefaultColumns();
-  const sel=document.getElementById('new-col-sel');
-  if(sel)sel.innerHTML=cols.filter(c=>!c.is_locked).map(c=>`<option value="${c.id}"${c.id===PF._pendingCol?' selected':''}>${_e(c.name)}</option>`).join('');
+  const colId = PF._pendingCol || (PFBoard.columns.length ? PFBoard.columns[0].id : 'col-1');
+  const bpmn = PFBoard.columns.find(c=>c.id===colId)?.bpmn_mapping?.[0] || 'esbocar';
+  const projectId = PFBoard.projectId || PF.currentProject;
   
-  const team=window.mockTeam||window.workspaceUsers||[];
-  const opts='<option value="">— Não atribuído</option>'+team.map(m=>`<option value="${m.id}">${_e(m.name||m.email)}</option>`).join('')+'<option value="add_new" style="font-style:italic;color:var(--ac)">+ Adicionar Novo</option>';
-  const aSel=document.getElementById('new-assignee');
-  if(aSel)aSel.innerHTML=opts;
-  const rSel=document.getElementById('new-requester');
-  if(rSel)rSel.innerHTML=opts;
+  if (PF.supabase && !PF.demoMode) {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!projectId || !isUUID.test(projectId)) {
+      showToast('Selecione um projeto válido antes de criar tarefas.', true);
+      return;
+    }
+  }
 
-  openModal('new-card-overlay');
-  setTimeout(()=>document.getElementById('new-title')?.focus(),80);
+  const tempId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : uid();
+  const nc = {
+    id: tempId, _temp: true, column_id: colId, col: colId, bpmn, bpmn_status: bpmn,
+    title: 'Nova Tarefa', description: '', priority: 'medium',
+    project_id: projectId, board_id: PFBoard.boardId, _isNewDraft: true
+  };
+  
+  if (PFBoard.cards.length) PFBoard.cards.push(nc);
+  else { window.mockCards = window.mockCards || []; window.mockCards.push(nc); }
+  
+  renderBoard();
+  PF._pendingCol = null;
+  
+  if (PF.supabase && !PF.demoMode) {
+     PF.supabase.from('tasks').insert({
+       id: tempId,
+       title: 'Nova Tarefa', project_id: projectId, board_id: PFBoard.boardId||null,
+       column_id: colId.startsWith('col-')?null:colId, bpmn_status: bpmn, priority: 'medium',
+       created_by: PF.user?.id||null
+     }).select('id').single().then(({data, error}) => {
+       if(!error && data?.id) {
+         nc._temp = false;
+         renderBoard();
+       } else {
+         console.warn('[PF] Erro ao criar rascunho:', error);
+       }
+     });
+  }
+  
+  openCardEdit(tempId);
+  setTimeout(()=>document.getElementById('ce-title')?.focus(), 100);
 }
 
 async function checkDateConflict(dateStr, ignoreId=null) {
@@ -502,60 +533,7 @@ async function checkDateConflict(dateStr, ignoreId=null) {
   return true;
 }
 
-async function createCard(){
-  const title=document.getElementById('new-title')?.value.trim();
-  const colId=document.getElementById('new-col-sel')?.value||'col-todo';
-  if(!title||title.length<3){showToast('Título deve ter ≥3 caracteres',true);return;}
-  const date=document.getElementById('new-date')?.value||null;
-  if(date) {
-    const ok = await checkDateConflict(date);
-    if(!ok) return;
-  }
-  const hours=document.getElementById('new-hours')?.value.trim();
-  const budget=document.getElementById('new-budget')?.value.trim();
-  const desc=window.tinymce?.get('new-desc') ? window.tinymce.get('new-desc').getContent().trim() : document.getElementById('new-desc')?.value.trim();
-  const priority=document.getElementById('new-priority')?.value||'medium';
-  const errors=validateCard({title,budget,estimated_hours:hours});
-  if(errors.length){showToast(errors[0],true);return;}
-  const col=(PFBoard.columns.length?PFBoard.columns:initDefaultColumns()).find(c=>c.id===colId)||{bpmn_mapping:['esbocar']};
-  const bpmn=col.bpmn_mapping?.[0]||'esbocar';
-  const tempId=uid();
-  const projectId=PFBoard.projectId||PF.currentProject;
-  const nc={id:tempId,_temp:true,column_id:colId,col:colId,bpmn,bpmn_status:bpmn,title,description:desc,priority,
-    estimated_hours:hours?Number(hours):null,budget_str:budget?'R$ '+Number(budget).toLocaleString('pt-BR'):null,
-    due_date:date||null,date:date||null,tags:[],position:999,
-    project_id:projectId,board_id:PFBoard.boardId};
-  if(PFBoard.cards.length)PFBoard.cards.push(nc);
-  else{window.mockCards=window.mockCards||[];window.mockCards.push(nc);}
-  renderBoard();closeModal('new-card-overlay');resetNewCardForm();
-  showToast('Tarefa criada!','ok');PF._pendingCol=null;
-  if(PF.supabase&&!PF.demoMode){
-    // Valida UUID antes de enviar — IDs mock como 'product','website' causam RLS violation
-    const isUUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if(!projectId||!isUUID.test(projectId)){
-      showToast('Selecione um projeto válido antes de criar tarefas.',true);
-      if(PFBoard.cards.length)PFBoard.cards=PFBoard.cards.filter(c=>c.id!==tempId);
-      else window.mockCards=(window.mockCards||[]).filter(c=>c.id!==tempId);
-      renderBoard();return;
-    }
-    const reqDate=document.getElementById('new-req-date')?.value||null;
-    const requester=document.getElementById('new-requester')?.value.trim()||null;
-    const area=document.getElementById('new-area')?.value.trim()||null;
-    const keyPeople=document.getElementById('new-key-people')?.value.trim()||null;
 
-    const{data,error}=await PF.supabase.from('tasks').insert({title,description:desc||null,project_id:projectId,
-      board_id:PFBoard.boardId||null,column_id:colId.startsWith('col-')?null:colId,bpmn_status:bpmn,priority,
-      estimated_hours:hours?Number(hours):null,budget:budget?Number(budget):null,due_date:date||null,
-      request_date:reqDate, requester:requester, area:area, key_people:keyPeople,
-      created_by:PF.user?.id||null}).select('id').single();
-    const cards=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
-    const card=cards.find(c=>c.id===tempId);
-    if(error){if(PFBoard.cards.length)PFBoard.cards=PFBoard.cards.filter(c=>c.id!==tempId);else window.mockCards=(window.mockCards||[]).filter(c=>c.id!==tempId);renderBoard();showToast('Erro: '+error.message,true);return;}
-    if(card&&data?.id){card.id=data.id;card._temp=false;renderBoard();}
-  }
-}
-
-function resetNewCardForm(){['new-title','new-hours','new-budget','new-date','new-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const p=document.getElementById('new-priority');if(p)p.value='medium';if(window.tinymce?.get('new-desc'))window.tinymce.get('new-desc').setContent('');}
 
 // ── CARD EDIT ─────────────────────────────────────────────────
 function openCardEdit(cardId){
@@ -675,18 +653,31 @@ async function saveCardEdit(){
 const _u=/^[0-9a-f]{8}-[0-9a-f]{4}/i;if(!_u.test(updates.column_id||''))card.col=updates.column_id;card.date=updates.due_date;},
     async()=>{if(!PF.supabase||PF.demoMode)return{error:null};return PF.supabase.from('tasks').update({...updates,updated_at:new Date().toISOString()}).eq('id',cardId);},
     ()=>{Object.assign(card,prev);},'Alteração salva com êxito');
+  card._isNewDraft = false;
   closeModal('card-edit-overlay');
 }
 
-async function deleteCard(){
-  const cardId=PF.activeCardId;if(!cardId)return;
+async function deleteCard(cardIdOverride, silent = false){
+  const cardId=cardIdOverride || PF.activeCardId;if(!cardId)return;
   const cards=PFBoard.cards.length?PFBoard.cards:(window.mockCards||[]);
   const card=cards.find(c=>c.id===cardId);if(!card)return;
-  const ok=await PFModal.deleteCard(card.title);if(!ok)return;
+  if(!silent) {
+    const ok=await PFModal.deleteCard(card.title);if(!ok)return;
+  }
   const idx=cards.findIndex(c=>c.id===cardId);if(idx===-1)return;
   const[removed]=cards.splice(idx,1);
-  closeModal('card-edit-overlay');renderBoard();showToast('Tarefa excluída');
-  if(PF.supabase&&!PF.demoMode){const{error}=await PF.supabase.from('tasks').delete().eq('id',cardId);if(error){cards.splice(idx,0,removed);renderBoard();showToast('Erro: '+error.message,true);}}
+  if(!silent) { closeModal('card-edit-overlay');renderBoard();showToast('Tarefa excluída'); }
+  else { renderBoard(); }
+  if(PF.supabase&&!PF.demoMode){
+    if (window.listarAnexos && window.removerAnexo) {
+       try {
+         const atts = await window.listarAnexos(cardId);
+         for (const a of atts) { await window.removerAnexo(a.id, a.storage_path); }
+       } catch(e) { console.warn('Erro ao limpar anexos:', e); }
+    }
+    const{error}=await PF.supabase.from('tasks').delete().eq('id',cardId);
+    if(error && !silent){cards.splice(idx,0,removed);renderBoard();showToast('Erro: '+error.message,true);}
+  }
 }
 
 async function _loadCardHistory(cardId){
@@ -925,7 +916,7 @@ function renderDashboard(){
 
 // ── EXPORTS ────────────────────────────────────────────────────
 function openCardModal(id){openCardEdit(id);}
-window.renderBoard=renderBoard;window.openNewCard=openNewCard;window.createCard=createCard;
+window.renderBoard=renderBoard;window.openNewCard=openNewCard;
 window.openCardModal=openCardModal;window.openCardEdit=openCardEdit;window.saveCardEdit=saveCardEdit;
 window.openTaskDiagram=function(){
   const cardId = PF.activeCardId;
