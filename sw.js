@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pf-v10-cache-v2';
+const CACHE_NAME = 'pf-v10-cache-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const urlsToCache = [
   './js/app.js',
   './js/board.js',
   './js/diagram-engine-v9.js',
+  './js/notifications.js',
   './icon.svg'
 ];
 

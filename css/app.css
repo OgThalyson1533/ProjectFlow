@@ -629,12 +629,39 @@ select.form-control {
   padding: 12px;
   border-radius: 12px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, opacity 0.3s ease, transform 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 .notif-item:hover {
   background: rgba(255,255,255,0.05);
+}
+.notif-item.dismissing {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.notif-item-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: var(--tx-2);
+}
+.notif-item:hover .notif-item-close {
+  opacity: 1;
+}
+.notif-item-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
 .notif-icon {
