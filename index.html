@@ -384,7 +384,10 @@
   <div class="notif-hub" id="notif-hub" onclick="event.stopPropagation()">
     <div class="notif-hub-header">
       <div class="notif-hub-title">Notificações</div>
-      <button class="btn-icon" onclick="window.NotificationManager && window.NotificationManager.closeHub()"><i data-lucide="x" style="width:16px;height:16px"></i></button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="btn-icon" style="font-size:11px;width:auto;padding:0 8px;border-radius:6px;background:rgba(255,255,255,0.05);height:24px;" onclick="window.NotificationManager && window.NotificationManager.clearAllNotifications()">Limpar tudo</button>
+        <button class="btn-icon" onclick="window.NotificationManager && window.NotificationManager.closeHub()"><i data-lucide="x" style="width:16px;height:16px"></i></button>
+      </div>
     </div>
     <div class="notif-hub-body" id="notif-hub-list">
       <div class="notif-empty">Tudo em dia! Nenhuma notificação pendente.</div>
