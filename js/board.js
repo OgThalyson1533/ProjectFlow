@@ -301,6 +301,7 @@ function renderBoard(){
   _attachDrag(board);
   updateColCounts();
   if(typeof window.PFDiagramAutoUpdate==='function')window.PFDiagramAutoUpdate();
+  if(window.NotificationManager) window.NotificationManager.checkSLA();
 }
 
 function _buildCard(c){
