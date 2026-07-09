@@ -197,12 +197,53 @@ window.NotificationManager = {
 
       const item = document.createElement('div');
       item.className = 'notif-item';
-      item.onclick = () => {
-        this.closeHub();
-        if (typeof window.openCardEdit === 'function') {
-          window.openCardEdit(n.cardId);
+      
+      let startX = 0;
+      let currentX = 0;
+      let isDragging = false;
+      let isSwiping = false;
+
+      item.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.notif-item-close')) return;
+        startX = e.clientX;
+        isDragging = true;
+        isSwiping = false;
+        item.style.transition = 'none';
+        item.setPointerCapture(e.pointerId);
+      });
+
+      item.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        currentX = e.clientX - startX;
+        if (Math.abs(currentX) > 10) isSwiping = true;
+        if (currentX < 0) currentX = 0; // Swipe right to dismiss
+        item.style.transform = `translateX(${currentX}px)`;
+        item.style.opacity = 1 - (currentX / 200);
+      });
+
+      item.addEventListener('pointerup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+        item.releasePointerCapture(e.pointerId);
+
+        if (currentX > 80) {
+          item.style.transform = `translateX(100%)`;
+          item.style.opacity = 0;
+          setTimeout(() => {
+            this.dismissNotification({stopPropagation:()=>{}, currentTarget: item}, n.cardId, n.type);
+          }, 300);
+        } else {
+          item.style.transform = '';
+          item.style.opacity = '';
+          if (!isSwiping) {
+            this.closeHub();
+            if (typeof window.openCardEdit === 'function') {
+              window.openCardEdit(n.cardId);
+            }
+          }
         }
-      };
+      });
 
       item.innerHTML = `
         <div class="notif-icon ${iconClass}">${icon}</div>
