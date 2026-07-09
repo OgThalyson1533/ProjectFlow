@@ -115,4 +115,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  const fileInput = document.getElementById('ce-desc-file');
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleFileUpload(e.target.files[0]);
+        // Reset input so the same file can be uploaded again if needed
+        e.target.value = '';
+      }
+    });
+  }
+
 });

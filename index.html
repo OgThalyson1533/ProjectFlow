@@ -430,21 +430,39 @@
             <div class="field-row" style="margin-bottom:12px">
               <label class="field-label">Descrição</label>
               <tab-container class="md-editor-container">
-                <div role="tablist" class="md-tablist">
-                  <button role="tab" aria-selected="true">Write</button>
-                  <button role="tab">Preview</button>
+                <div class="md-editor-header">
+                  <div role="tablist" class="md-tablist">
+                    <button role="tab" aria-selected="true">Write</button>
+                    <button role="tab">Preview</button>
+                  </div>
+                  <markdown-toolbar for="ce-desc">
+                    <md-header><button type="button" class="md-toolbar-btn" tabindex="-1" title="Add header text"><svg viewBox="0 0 16 16"><path d="M3.75 2a.75.75 0 01.75.75V7h7V2.75a.75.75 0 011.5 0v10.5a.75.75 0 01-1.5 0V8.5h-7v4.75a.75.75 0 01-1.5 0V2.75A.75.75 0 013.75 2z"></path></svg></button></md-header>
+                    <md-bold><button type="button" class="md-toolbar-btn" tabindex="-1" title="Add bold text"><svg viewBox="0 0 16 16"><path d="M4 2a1 1 0 00-1 1v10a1 1 0 001 1h5.5a3.5 3.5 0 001.853-6.47 3 3 0 00-1.684-5.343H4zm1 1.5h4.5a1.5 1.5 0 010 3H5v-3zm0 4.5h5a2 2 0 010 4H5v-4z"></path></svg></button></md-bold>
+                    <md-italic><button type="button" class="md-toolbar-btn" tabindex="-1" title="Add italic text"><svg viewBox="0 0 16 16"><path d="M6 2.75A.75.75 0 016.75 2h6.5a.75.75 0 010 1.5h-2.505l-3.858 9H9.25a.75.75 0 010 1.5h-6.5a.75.75 0 010-1.5h2.505l3.858-9H6.75A.75.75 0 016 2.75z"></path></svg></button></md-italic>
+                    <md-quote><button type="button" class="md-toolbar-btn" tabindex="-1" title="Insert a quote"><svg viewBox="0 0 16 16"><path d="M3.404 1.72a.749.749 0 0 1 .596.684v11.192a.75.75 0 0 1-1.5 0V2.404a.75.75 0 0 1 .904-.684Zm5.5 0a.749.749 0 0 1 .596.684v11.192a.75.75 0 0 1-1.5 0V2.404a.75.75 0 0 1 .904-.684Z"></path></svg></button></md-quote>
+                    <md-code><button type="button" class="md-toolbar-btn" tabindex="-1" title="Insert code"><svg viewBox="0 0 16 16"><path d="M4.72 3.22a.75.75 0 011.06 1.06L2.06 8l3.72 3.72a.75.75 0 11-1.06 1.06L.47 8.53a.75.75 0 010-1.06l4.25-4.25zm6.56 0a.75.75 0 10-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 101.06 1.06l4.25-4.25a.75.75 0 000-1.06l-4.25-4.25z"></path></svg></button></md-code>
+                    <md-link><button type="button" class="md-toolbar-btn" tabindex="-1" title="Add a link"><svg viewBox="0 0 16 16"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.827 0 .75.75 0 00-1.061 1.06 3.5 3.5 0 004.949 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.827 0 .75.75 0 001.061-1.06 3.5 3.5 0 00-4.949 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></button></md-link>
+                    <div class="md-toolbar-divider"></div>
+                    <md-ordered-list><button type="button" class="md-toolbar-btn" tabindex="-1" title="Add ordered list"><svg viewBox="0 0 16 16"><path d="M2.003 2.5a.5.5 0 00-.723-.447l-1.003.5a.5.5 0 00.446.894l.277-.138V4.5a.5.5 0 001 0V2.5zM5.75 2a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zM.924 10.32l.003-.004a.851.851 0 01.144-.153A.66.66 0 011.5 10c.343 0 .545.17.65.296.105.127.15.299.15.454 0 .15-.045.32-.15.446-.105.122-.303.284-.614.45L.892 11.966A.25.25 0 001 12.41h1.5a.5.5 0 010 1h-2a.5.5 0 01-.4-.8l1.109-1.48a.63.63 0 00.063-.095.421.421 0 00.05-.185c0-.053-.021-.137-.05-.172a.222.222 0 00-.164-.078c-.085 0-.156.035-.2.082a.5.5 0 00-.136.216.5.5 0 01-.948-.316c.036-.107.106-.237.23-.374zM1.493 5.49a.5.5 0 01-.264.44l-1.01.533a.5.5 0 01-.468-.887l.29-.153a.356.356 0 01-.01-.06.732.732 0 01-.004-.083v-1.5a.5.5 0 011 0v.681a.5.5 0 01.467.458v.571z"></path></svg></button></md-ordered-list>
+                    <md-unordered-list><button type="button" class="md-toolbar-btn" tabindex="-1" title="Add unordered list"><svg viewBox="0 0 16 16"><path d="M2 4a1 1 0 100-2 1 1 0 000 2zm3.75-1.5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zM3 8a1 1 0 11-2 0 1 1 0 012 0zm-1 6a1 1 0 100-2 1 1 0 000 2z"></path></svg></button></md-unordered-list>
+                    <md-task-list><button type="button" class="md-toolbar-btn" tabindex="-1" title="Add task list"><svg viewBox="0 0 16 16"><path d="M2.5 1.75a.25.25 0 0 1 .25-.25h8.5a.25.25 0 0 1 .25.25v12.5a.25.25 0 0 1-.25.25h-8.5a.25.25 0 0 1-.25-.25Zm.25 1.25v10h8V3ZM11.192 6.425l-3.328 3.5a.75.75 0 0 1-1.043.02L4.793 7.915a.75.75 0 1 1 1.06-1.06l1.455 1.455 2.802-2.946a.75.75 0 0 1 1.082 1.061Z"></path></svg></button></md-task-list>
+                    <div class="md-toolbar-divider"></div>
+                    <md-mention><button type="button" class="md-toolbar-btn" tabindex="-1" title="Mention a user"><svg viewBox="0 0 16 16"><path d="M8.25 1.5a6.5 6.5 0 1 0 0 13 6.47 6.47 0 0 0 3.864-1.258.75.75 0 0 0-.928-1.184 4.97 4.97 0 0 1-2.936.942 5 5 0 1 1 0-10 5 5 0 0 1 5 5v.231c0 .484-.239.73-.55.73-.255 0-.469-.174-.537-.47L12 8.25a3.5 3.5 0 1 0-5.834 2.617A1.956 1.956 0 0 0 8 11.25a1.996 1.996 0 0 0 1.75-1.042A2 2 0 0 0 13.5 8.232V8.25a6.5 6.5 0 0 0-5.25-6.75ZM8 9.5A1.5 1.5 0 1 1 8 6.5a1.5 1.5 0 0 1 0 3Z"></path></svg></button></md-mention>
+                  </markdown-toolbar>
                 </div>
                 <div role="tabpanel" class="md-tabpanel-write">
-                  <markdown-toolbar for="ce-desc">
-                    <md-bold><button type="button" class="md-toolbar-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M4 2a1 1 0 00-1 1v10a1 1 0 001 1h5.5a3.5 3.5 0 001.853-6.47 3 3 0 00-1.684-5.343H4zm1 1.5h4.5a1.5 1.5 0 010 3H5v-3zm0 4.5h5a2 2 0 010 4H5v-4z"></path></svg></button></md-bold>
-                    <md-italic><button type="button" class="md-toolbar-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M6 2.75A.75.75 0 016.75 2h6.5a.75.75 0 010 1.5h-2.505l-3.858 9H9.25a.75.75 0 010 1.5h-6.5a.75.75 0 010-1.5h2.505l3.858-9H6.75A.75.75 0 016 2.75z"></path></svg></button></md-italic>
-                    <md-header><button type="button" class="md-toolbar-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M3.75 2a.75.75 0 01.75.75V7h7V2.75a.75.75 0 011.5 0v10.5a.75.75 0 01-1.5 0V8.5h-7v4.75a.75.75 0 01-1.5 0V2.75A.75.75 0 013.75 2z"></path></svg></button></md-header>
-                    <md-link><button type="button" class="md-toolbar-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.827 0 .75.75 0 00-1.061 1.06 3.5 3.5 0 004.949 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.827 0 .75.75 0 001.061-1.06 3.5 3.5 0 00-4.949 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></button></md-link>
-                    <md-code><button type="button" class="md-toolbar-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M4.72 3.22a.75.75 0 011.06 1.06L2.06 8l3.72 3.72a.75.75 0 11-1.06 1.06L.47 8.53a.75.75 0 010-1.06l4.25-4.25zm6.56 0a.75.75 0 10-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 101.06 1.06l4.25-4.25a.75.75 0 000-1.06l-4.25-4.25z"></path></svg></button></md-code>
-                    <md-unordered-list><button type="button" class="md-toolbar-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M2 4a1 1 0 100-2 1 1 0 000 2zm3.75-1.5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zM3 8a1 1 0 11-2 0 1 1 0 012 0zm-1 6a1 1 0 100-2 1 1 0 000 2z"></path></svg></button></md-unordered-list>
-                    <md-ordered-list><button type="button" class="md-toolbar-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M2.003 2.5a.5.5 0 00-.723-.447l-1.003.5a.5.5 0 00.446.894l.277-.138V4.5a.5.5 0 001 0V2.5zM5.75 2a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zM.924 10.32l.003-.004a.851.851 0 01.144-.153A.66.66 0 011.5 10c.343 0 .545.17.65.296.105.127.15.299.15.454 0 .15-.045.32-.15.446-.105.122-.303.284-.614.45L.892 11.966A.25.25 0 001 12.41h1.5a.5.5 0 010 1h-2a.5.5 0 01-.4-.8l1.109-1.48a.63.63 0 00.063-.095.421.421 0 00.05-.185c0-.053-.021-.137-.05-.172a.222.222 0 00-.164-.078c-.085 0-.156.035-.2.082a.5.5 0 00-.136.216.5.5 0 01-.948-.316c.036-.107.106-.237.23-.374zM1.493 5.49a.5.5 0 01-.264.44l-1.01.533a.5.5 0 01-.468-.887l.29-.153a.356.356 0 01-.01-.06.732.732 0 01-.004-.083v-1.5a.5.5 0 011 0v.681a.5.5 0 01.467.458v.571z"></path></svg></button></md-ordered-list>
-                  </markdown-toolbar>
-                  <textarea class="field-input" id="ce-desc" rows="6" placeholder="Descreva a tarefa em Markdown..."></textarea>
+                  <textarea class="field-input" id="ce-desc" rows="6" placeholder="Add your comment here..."></textarea>
+                  <div class="md-editor-footer">
+                    <div class="md-supported">
+                      <svg viewBox="0 0 16 16"><path d="M14.85 3H1.15C.52 3 0 3.52 0 4.15v7.69C0 12.48.52 13 1.15 13h13.69c.64 0 1.15-.52 1.15-1.15v-7.7C16 3.52 15.48 3 14.85 3zM9 11H7V8L5.5 9.92 4 8v3H2V5h2l1.5 2L7 5h2v6zm2.99.5L9.5 8H11V5h2v3h1.5l-2.51 3.5z"></path></svg>
+                      Markdown is supported
+                    </div>
+                    <label class="md-file-upload">
+                      <svg viewBox="0 0 16 16"><path d="M4 1.75C4 .784 4.784 0 5.75 0h5.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v8.586A1.75 1.75 0 0114.25 15H1.75A1.75 1.75 0 010 13.25V5.75C0 4.784.784 4 1.75 4H4V1.75zM1.75 5.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h12.5a.25.25 0 00.25-.25V4.664a.25.25 0 00-.073-.177l-2.914-2.914a.25.25 0 00-.177-.073H5.75a.25.25 0 00-.25.25V5.5h-3z"></path></svg>
+                      Paste, drop, or click to add files
+                      <input type="file" id="ce-desc-file" style="display:none" />
+                    </label>
+                  </div>
                 </div>
                 <div role="tabpanel" hidden class="md-tabpanel-preview markdown-body"></div>
               </tab-container>

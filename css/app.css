@@ -543,20 +543,21 @@ select.form-control {
   flex-direction: column;
   border: 1px solid var(--bd);
   border-radius: 8px;
-  background: var(--bg-1);
+  background: var(--bg-0);
   overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.md-editor-container:focus-within {
-  border-color: var(--ac);
-  box-shadow: 0 0 0 2px rgba(var(--ac-rgb), 0.2);
+
+.md-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--bd);
+  padding: 0 8px;
 }
 
 .md-tablist {
   display: flex;
-  background: var(--bg-0);
-  border-bottom: 1px solid var(--bd);
-  padding: 0 8px;
 }
 .md-tablist button {
   background: transparent;
@@ -582,16 +583,23 @@ select.form-control {
 .md-tabpanel-write {
   display: flex;
   flex-direction: column;
+  background: var(--bg-0);
 }
 markdown-toolbar {
   display: flex;
   gap: 4px;
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--bd);
-  background: var(--bg-0);
+  padding: 6px 0;
+  background: transparent;
+  align-items: center;
 }
 markdown-toolbar > * {
   display: flex;
+}
+.md-toolbar-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--bd);
+  margin: 0 2px;
 }
 markdown-toolbar button {
   background: transparent;
@@ -615,7 +623,7 @@ markdown-toolbar button:hover {
 }
 
 .md-tabpanel-write textarea {
-  border: none;
+  border: 1px solid transparent; /* reserve space for focus border */
   background: transparent;
   padding: 12px;
   font-size: 14px;
@@ -626,6 +634,41 @@ markdown-toolbar button:hover {
   width: 100%;
   outline: none;
   font-family: inherit;
+  border-radius: 0;
+}
+.md-tabpanel-write textarea:focus {
+  border-color: var(--ac);
+  box-shadow: 0 0 0 1px var(--ac) inset;
+  border-radius: 4px;
+}
+
+.md-editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--tx-2);
+  border-top: 1px dashed var(--bd);
+}
+
+.md-supported, .md-file-upload {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.md-supported svg, .md-file-upload svg {
+  fill: currentColor;
+  width: 14px;
+  height: 14px;
+}
+
+.md-file-upload {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.md-file-upload:hover {
+  color: var(--ac);
 }
 
 .md-tabpanel-preview {
