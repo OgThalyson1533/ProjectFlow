@@ -427,7 +427,28 @@
           <!-- DETALHES -->
           <div class="ce-panel active" id="ce-panel-details">
             <div class="field-row" style="margin-bottom:12px"><label class="field-label">Título *</label><input class="field-input" id="ce-title" type="text" maxlength="200"></div>
-            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Descrição</label><textarea class="field-input" id="ce-desc" rows="3" placeholder="Descreva a tarefa..."></textarea></div>
+            <div class="field-row" style="margin-bottom:12px">
+              <label class="field-label">Descrição</label>
+              <tab-container class="md-editor-container">
+                <div role="tablist" class="md-tablist">
+                  <button role="tab" aria-selected="true">Write</button>
+                  <button role="tab">Preview</button>
+                </div>
+                <div role="tabpanel" class="md-tabpanel-write">
+                  <markdown-toolbar for="ce-desc">
+                    <md-bold><svg viewBox="0 0 16 16"><path d="M4 2a1 1 0 00-1 1v10a1 1 0 001 1h5.5a3.5 3.5 0 001.853-6.47 3 3 0 00-1.684-5.343H4zm1 1.5h4.5a1.5 1.5 0 010 3H5v-3zm0 4.5h5a2 2 0 010 4H5v-4z"></path></svg></md-bold>
+                    <md-italic><svg viewBox="0 0 16 16"><path d="M6 2.75A.75.75 0 016.75 2h6.5a.75.75 0 010 1.5h-2.505l-3.858 9H9.25a.75.75 0 010 1.5h-6.5a.75.75 0 010-1.5h2.505l3.858-9H6.75A.75.75 0 016 2.75z"></path></svg></md-italic>
+                    <md-header><svg viewBox="0 0 16 16"><path d="M3.75 2a.75.75 0 01.75.75V7h7V2.75a.75.75 0 011.5 0v10.5a.75.75 0 01-1.5 0V8.5h-7v4.75a.75.75 0 01-1.5 0V2.75A.75.75 0 013.75 2z"></path></svg></md-header>
+                    <md-link><svg viewBox="0 0 16 16"><path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.827 0 .75.75 0 00-1.061 1.06 3.5 3.5 0 004.949 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.827 0 .75.75 0 001.061-1.06 3.5 3.5 0 00-4.949 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></md-link>
+                    <md-code><svg viewBox="0 0 16 16"><path d="M4.72 3.22a.75.75 0 011.06 1.06L2.06 8l3.72 3.72a.75.75 0 11-1.06 1.06L.47 8.53a.75.75 0 010-1.06l4.25-4.25zm6.56 0a.75.75 0 10-1.06 1.06L13.94 8l-3.72 3.72a.75.75 0 101.06 1.06l4.25-4.25a.75.75 0 000-1.06l-4.25-4.25z"></path></svg></md-code>
+                    <md-unordered-list><svg viewBox="0 0 16 16"><path d="M2 4a1 1 0 100-2 1 1 0 000 2zm3.75-1.5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zM3 8a1 1 0 11-2 0 1 1 0 012 0zm-1 6a1 1 0 100-2 1 1 0 000 2z"></path></svg></md-unordered-list>
+                    <md-ordered-list><svg viewBox="0 0 16 16"><path d="M2.003 2.5a.5.5 0 00-.723-.447l-1.003.5a.5.5 0 00.446.894l.277-.138V4.5a.5.5 0 001 0V2.5zM5.75 2a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zm0 5a.75.75 0 000 1.5h8.5a.75.75 0 000-1.5h-8.5zM.924 10.32l.003-.004a.851.851 0 01.144-.153A.66.66 0 011.5 10c.343 0 .545.17.65.296.105.127.15.299.15.454 0 .15-.045.32-.15.446-.105.122-.303.284-.614.45L.892 11.966A.25.25 0 001 12.41h1.5a.5.5 0 010 1h-2a.5.5 0 01-.4-.8l1.109-1.48a.63.63 0 00.063-.095.421.421 0 00.05-.185c0-.053-.021-.137-.05-.172a.222.222 0 00-.164-.078c-.085 0-.156.035-.2.082a.5.5 0 00-.136.216.5.5 0 01-.948-.316c.036-.107.106-.237.23-.374zM1.493 5.49a.5.5 0 01-.264.44l-1.01.533a.5.5 0 01-.468-.887l.29-.153a.356.356 0 01-.01-.06.732.732 0 01-.004-.083v-1.5a.5.5 0 011 0v.681a.5.5 0 01.467.458v.571z"></path></svg></md-ordered-list>
+                  </markdown-toolbar>
+                  <textarea class="field-input" id="ce-desc" rows="6" placeholder="Descreva a tarefa em Markdown..."></textarea>
+                </div>
+                <div role="tabpanel" hidden class="md-tabpanel-preview markdown-body"></div>
+              </tab-container>
+            </div>
             <div class="field-row" style="margin-bottom:12px"><label class="field-label">Critérios de aceite</label><textarea class="field-input" id="ce-acceptance" rows="2" placeholder="Quando esta tarefa estará concluída?"></textarea></div>
             <div class="ce-grid2" style="margin-bottom:12px">
               <div class="field-row"><label class="field-label">Prioridade</label><select class="field-input" id="ce-priority"><option value="low">Baixa</option><option value="medium" selected>Média</option><option value="high">Alta</option><option value="critical">Crítica</option></select></div>
@@ -616,6 +637,9 @@
 <!-- 10. Módulos legados (v4) -->
 <script src="js/v4-modules.js"></script>
 <script src="js/notifications.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+<script type="module" src="js/markdown-editor.js"></script>
+
 
 </body>
 </html>

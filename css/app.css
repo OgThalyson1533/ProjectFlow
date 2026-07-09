@@ -537,6 +537,112 @@ select.form-control {
 .ce-tab.active { color: var(--ac); background: var(--ac-bg); font-weight: 600; }
 .ce-tab:hover:not(.active) { color: var(--tx-1); background: var(--hover); }
 
+/* ═════════════════ MARKDOWN EDITOR (GITHUB STYLE) ═════════════════ */
+.md-editor-container {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--bg-1);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.md-editor-container:focus-within {
+  border-color: var(--ac);
+  box-shadow: 0 0 0 2px rgba(var(--ac-rgb), 0.2);
+}
+
+.md-tablist {
+  display: flex;
+  background: var(--bg-0);
+  border-bottom: 1px solid var(--bd);
+  padding: 0 8px;
+}
+.md-tablist button {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tx-2);
+  cursor: pointer;
+  outline: none;
+  transition: color 0.2s, border-bottom-color 0.2s;
+  margin-bottom: -1px; /* overlap border */
+}
+.md-tablist button:hover {
+  color: var(--tx-1);
+}
+.md-tablist button[aria-selected="true"] {
+  color: var(--tx-1);
+  border-bottom-color: var(--ac);
+}
+
+.md-tabpanel-write {
+  display: flex;
+  flex-direction: column;
+}
+markdown-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--bd);
+  background: var(--bg-0);
+}
+markdown-toolbar > * {
+  display: flex;
+}
+markdown-toolbar button {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--tx-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+markdown-toolbar button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+markdown-toolbar button:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--tx-1);
+}
+
+.md-tabpanel-write textarea {
+  border: none;
+  background: transparent;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--tx-1);
+  resize: vertical;
+  min-height: 100px;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+}
+
+.md-tabpanel-preview {
+  padding: 12px;
+  min-height: 100px;
+  color: var(--tx-1);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-y: auto;
+}
+.md-tabpanel-preview p { margin-bottom: 1em; }
+.md-tabpanel-preview h1, .md-tabpanel-preview h2, .md-tabpanel-preview h3 { margin-bottom: 0.5em; font-weight: 600; }
+.md-tabpanel-preview ul, .md-tabpanel-preview ol { padding-left: 20px; margin-bottom: 1em; }
+.md-tabpanel-preview code { background: rgba(127,127,127,0.2); padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+.md-tabpanel-preview pre code { display: block; padding: 12px; overflow-x: auto; }
+.md-tabpanel-preview img { max-width: 100%; border-radius: 6px; }
+
 /* ═════════════════ NOTIFICATION HUB (iOS Style) ═════════════════ */
 .notif-btn {
   position: relative;
