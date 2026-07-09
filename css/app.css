@@ -623,18 +623,41 @@ select.form-control {
 }
 
 .notif-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.notif-item-bg {
+  position: absolute;
+  inset: 0;
+  background: #ef4444; /* red */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 0;
+}
+.notif-item-bg svg {
+  width: 18px; height: 18px;
+}
+.notif-item-inner {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.15s ease, opacity 0.3s ease, transform 0.3s ease;
+  background: var(--bg-1, #242424); /* fallback to dark if var missing */
   position: relative;
-  overflow: hidden;
+  z-index: 1;
+  transition: background 0.15s ease;
 }
-.notif-item:hover {
-  background: rgba(255,255,255,0.05);
+.notif-item:hover .notif-item-inner {
+  background: rgba(255,255,255,0.05); /* or var(--hover) */
 }
 .notif-item.dismissing {
   opacity: 0;

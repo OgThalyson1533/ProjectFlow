@@ -198,54 +198,16 @@ window.NotificationManager = {
       const item = document.createElement('div');
       item.className = 'notif-item';
       
-      let startX = 0;
-      let currentX = 0;
-      let isDragging = false;
-      let isSwiping = false;
-
-      item.addEventListener('pointerdown', (e) => {
-        if (e.target.closest('.notif-item-close')) return;
-        startX = e.clientX;
-        isDragging = true;
-        isSwiping = false;
-        item.style.transition = 'none';
-        item.setPointerCapture(e.pointerId);
-      });
-
-      item.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
-        currentX = e.clientX - startX;
-        if (Math.abs(currentX) > 10) isSwiping = true;
-        if (currentX < 0) currentX = 0; // Swipe right to dismiss
-        item.style.transform = `translateX(${currentX}px)`;
-        item.style.opacity = 1 - (currentX / 200);
-      });
-
-      item.addEventListener('pointerup', (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-        item.releasePointerCapture(e.pointerId);
-
-        if (currentX > 80) {
-          item.style.transform = `translateX(100%)`;
-          item.style.opacity = 0;
-          setTimeout(() => {
-            this.dismissNotification({stopPropagation:()=>{}, currentTarget: item}, n.cardId, n.type);
-          }, 300);
-        } else {
-          item.style.transform = '';
-          item.style.opacity = '';
-          if (!isSwiping) {
-            this.closeHub();
-            if (typeof window.openCardEdit === 'function') {
-              window.openCardEdit(n.cardId);
-            }
-          }
-        }
-      });
-
       item.innerHTML = `
+        <div class="notif-item-bg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </div>
+      `;
+
+      const inner = document.createElement('div');
+      inner.className = 'notif-item-inner';
+      inner.innerHTML = `
         <div class="notif-icon ${iconClass}">${icon}</div>
         <div class="notif-content">
           <div class="notif-title">${this.escapeHTML(n.title)}</div>
@@ -256,6 +218,59 @@ window.NotificationManager = {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </div>
       `;
+
+      item.appendChild(inner);
+      
+      let startX = 0;
+      let currentX = 0;
+      let isDragging = false;
+      let isSwiping = false;
+
+      const bg = item.querySelector('.notif-item-bg');
+
+      inner.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.notif-item-close')) return;
+        startX = e.clientX;
+        isDragging = true;
+        isSwiping = false;
+        inner.style.transition = 'none';
+        inner.setPointerCapture(e.pointerId);
+      });
+
+      inner.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        currentX = e.clientX - startX;
+        if (Math.abs(currentX) > 10) {
+          isSwiping = true;
+          bg.style.opacity = '1';
+        }
+        
+        inner.style.transform = `translateX(${currentX}px)`;
+      });
+
+      inner.addEventListener('pointerup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        inner.style.transition = 'transform 0.3s ease';
+        inner.releasePointerCapture(e.pointerId);
+
+        if (Math.abs(currentX) > 60) {
+          inner.style.transform = `translateX(${currentX > 0 ? 100 : -100}%)`;
+          setTimeout(() => {
+            this.dismissNotification({stopPropagation:()=>{}, currentTarget: item}, n.cardId, n.type);
+          }, 300);
+        } else {
+          inner.style.transform = '';
+          bg.style.opacity = '0';
+          if (!isSwiping) {
+            this.closeHub();
+            if (typeof window.openCardEdit === 'function') {
+              window.openCardEdit(n.cardId);
+            }
+          }
+        }
+      });
+
       list.appendChild(item);
     });
   },
