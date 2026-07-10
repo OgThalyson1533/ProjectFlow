@@ -580,7 +580,7 @@ select.form-control {
   border-bottom-color: var(--ac);
 }
 
-.md-tabpanel-write {
+.md-tabpanel-write:not([hidden]) {
   display: flex;
   flex-direction: column;
   background: var(--bg-0);
