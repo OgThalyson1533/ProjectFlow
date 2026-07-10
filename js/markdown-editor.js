@@ -11,7 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle Tab changes for preview
   container.addEventListener('tab-container-changed', (event) => {
     const selectedTab = event.detail.relatedTarget;
-    if (selectedTab.textContent.trim() === 'Preview') {
+    const isPreview = selectedTab.textContent.trim() === 'Preview';
+    const footer = container.querySelector('.md-editor-footer');
+    
+    if (footer) {
+      footer.style.display = isPreview ? 'none' : 'flex';
+    }
+
+    if (isPreview) {
       const mdContent = textarea.value;
       if (mdContent.trim() === '') {
         previewPanel.innerHTML = '<div style="color:var(--tx-3);font-style:italic;">Nada para visualizar.</div>';
@@ -72,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         textarea.value = textarea.value.replace(placeholder, markdownLink + '\n');
         textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        if (window.refreshCardAttachments) {
+          window.refreshCardAttachments(cardId);
+        }
       }
     } catch (err) {
       console.error('Erro no upload via Markdown:', err);
