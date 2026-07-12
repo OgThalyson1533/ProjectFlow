@@ -3,24 +3,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   tinymce.init({
     selector: '#ce-desc',
-    skin: 'oxide-dark',
-    content_css: 'dark',
+    skin: 'oxide',
+    content_css: 'default',
     menubar: false,
+    paste_data_images: true,
     plugins: [
       'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
       'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
       'insertdatetime', 'media', 'table', 'help', 'wordcount'
     ],
-    toolbar: 'undo redo | blocks | ' +
-    'bold italic | alignleft aligncenter ' +
-    'alignright alignjustify | bullist numlist outdent indent | ' +
-    'image link code | removeformat',
+    toolbar: 'removeformat | forecolor backcolor | bold italic underline | ' +
+             'alignleft aligncenter alignright alignjustify | ' +
+             'numlist bullist | link image table',
     content_style: `
       body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         font-size: 14px;
-        background-color: #1a1a1a;
-        color: #e0e0e0;
+        background-color: #ffffff;
+        color: #24292f;
       }
       p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
     `,
@@ -29,6 +29,60 @@ document.addEventListener('DOMContentLoaded', () => {
     setup: function (editor) {
       editor.on('change', function () {
         editor.save();
+      });
+      editor.on('drop', function (e) {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          const file = e.dataTransfer.files[0];
+          const ext = file.name.split('.').pop().toLowerCase();
+          
+          if (ext === 'txt' || ext === 'xml') {
+            e.preventDefault();
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              const text = evt.target.result;
+              if (ext === 'xml') {
+                const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                editor.insertContent('<pre style="background:#f6f8fa; padding:10px; border-radius:4px;"><code>' + escaped + '</code></pre><p><br></p>');
+              } else {
+                const paragraphs = text.split('\\n').map(p => '<p>' + p + '</p>').join('');
+                editor.insertContent(paragraphs);
+              }
+            };
+            reader.readAsText(file);
+          } else if (ext === 'msg') {
+            e.preventDefault();
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              try {
+                if (typeof MsgReader === 'undefined') {
+                  throw new Error("MsgReader não está definido. Verifique a importação no index.html");
+                }
+                const msgReader = new MsgReader(evt.target.result);
+                const msgData = msgReader.getFileData();
+                const from = msgData.senderName ? msgData.senderName : (msgData.senderEmail || 'Desconhecido');
+                const to = msgData.displayTo ? msgData.displayTo : '';
+                const subject = msgData.subject ? msgData.subject : 'Sem Assunto';
+                const body = msgData.body ? msgData.body.replace(/\\n/g, '<br>') : '';
+                
+                const html = `
+                  <div style="border-left: 4px solid #1f6feb; padding-left: 10px; margin-bottom: 10px; background: #f6f8fa; color: #24292f; padding: 10px; border-radius: 4px;">
+                    <strong>De:</strong> ${from}<br>
+                    <strong>Para:</strong> ${to}<br>
+                    <strong>Assunto:</strong> ${subject}
+                  </div>
+                  <div style="padding: 10px; background: #ffffff; color: #24292f; border: 1px solid #d0d7de; border-radius: 4px;">
+                    ${body}
+                  </div><p><br></p>
+                `;
+                editor.insertContent(html);
+              } catch (err) {
+                console.error("Erro ao ler arquivo .msg:", err);
+                editor.insertContent('<p><em>Erro ao extrair conteúdo do e-mail.</em></p>');
+              }
+            };
+            reader.readAsArrayBuffer(file);
+          }
+        }
       });
     },
     // Handler de upload de imagens integrado com o Supabase da Faze
