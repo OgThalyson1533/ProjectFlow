@@ -537,154 +537,40 @@ select.form-control {
 .ce-tab.active { color: var(--ac); background: var(--ac-bg); font-weight: 600; }
 .ce-tab:hover:not(.active) { color: var(--tx-1); background: var(--hover); }
 
-/* ═════════════════ MARKDOWN EDITOR (GITHUB STYLE) ═════════════════ */
-.md-editor-container {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  background: var(--bg-0);
+/* ═════════════════ TINYMCE EDITOR OVERRIDES ═════════════════ */
+.tox-tinymce {
+  border: 1px solid var(--bd) !important;
+  border-radius: 8px !important;
   overflow: hidden;
 }
-
-.md-editor-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--bg-1);
-  border-bottom: 1px solid var(--bd);
-  padding: 0 8px;
+.tox .tox-mbtn, .tox .tox-tbtn {
+  color: var(--tx-2) !important;
 }
-
-.md-tablist {
-  display: flex;
+.tox .tox-tbtn:hover, .tox .tox-mbtn:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--tx-1) !important;
 }
-.md-tablist button {
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--tx-2);
-  cursor: pointer;
-  outline: none;
-  transition: color 0.2s, border-bottom-color 0.2s;
-  margin-bottom: -1px; /* overlap border */
+.tox .tox-toolbar, .tox .tox-toolbar__overflow, .tox .tox-toolbar__primary {
+  background: var(--bg-1) !important;
+  border-bottom: 1px solid var(--bd) !important;
 }
-.md-tablist button:hover {
-  color: var(--tx-1);
+.tox .tox-edit-area__iframe {
+  background: transparent !important;
 }
-.md-tablist button[aria-selected="true"] {
-  color: var(--tx-1);
-  border-bottom-color: var(--ac);
+.tox:not(.tox-tinymce-inline) .tox-editor-header {
+  border-bottom: 1px solid var(--bd) !important;
+  box-shadow: none !important;
+  padding: 4px !important;
+  background-color: var(--bg-1) !important;
 }
-
-.md-tabpanel-write:not([hidden]) {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-0);
+.tox .tox-statusbar {
+  background: var(--bg-1) !important;
+  border-top: 1px solid var(--bd) !important;
+  color: var(--tx-3) !important;
 }
-markdown-toolbar {
-  display: flex;
-  gap: 4px;
-  padding: 6px 0;
-  background: transparent;
-  align-items: center;
+.tox .tox-statusbar a, .tox .tox-statusbar__path-item {
+  color: var(--tx-3) !important;
 }
-markdown-toolbar > * {
-  display: flex;
-}
-.md-toolbar-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--bd);
-  margin: 0 2px;
-}
-markdown-toolbar button {
-  background: transparent;
-  border: none;
-  padding: 4px;
-  border-radius: 4px;
-  color: var(--tx-2);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-markdown-toolbar button svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
-}
-markdown-toolbar button:hover {
-  background: rgba(255,255,255,0.1);
-  color: var(--tx-1);
-}
-
-.md-tabpanel-write textarea {
-  border: 1px solid transparent; /* reserve space for focus border */
-  background: transparent;
-  padding: 12px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--tx-1);
-  resize: vertical;
-  min-height: 100px;
-  width: 100%;
-  outline: none;
-  font-family: inherit;
-  border-radius: 0;
-}
-.md-tabpanel-write textarea:focus {
-  border-color: var(--ac);
-  box-shadow: 0 0 0 1px var(--ac) inset;
-  border-radius: 4px;
-}
-
-.md-editor-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--tx-2);
-  border-top: 1px dashed var(--bd);
-}
-
-.md-supported, .md-file-upload {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.md-supported svg, .md-file-upload svg {
-  fill: currentColor;
-  width: 14px;
-  height: 14px;
-}
-
-.md-file-upload {
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.md-file-upload:hover {
-  color: var(--ac);
-}
-
-.md-tabpanel-preview {
-  padding: 12px;
-  min-height: 100px;
-  color: var(--tx-1);
-  font-size: 14px;
-  line-height: 1.5;
-  overflow-y: auto;
-}
-.md-tabpanel-preview p { margin-bottom: 1em; }
-.md-tabpanel-preview h1, .md-tabpanel-preview h2, .md-tabpanel-preview h3 { margin-bottom: 0.5em; font-weight: 600; }
-.md-tabpanel-preview ul, .md-tabpanel-preview ol { padding-left: 20px; margin-bottom: 1em; }
-.md-tabpanel-preview code { background: rgba(127,127,127,0.2); padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
-.md-tabpanel-preview pre code { display: block; padding: 12px; overflow-x: auto; }
-.md-tabpanel-preview img { max-width: 100%; border-radius: 6px; }
 
 /* ═════════════════ NOTIFICATION HUB (iOS Style) ═════════════════ */
 .notif-btn {
