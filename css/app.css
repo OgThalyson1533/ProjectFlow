@@ -120,6 +120,7 @@
 .modal{background:var(--bg-1);border:1px solid var(--bd);border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.1);width:min(540px,100%);max-height:90vh;overflow-y:auto;transition:background var(--t),border-color var(--t), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);animation:modalIn 300ms cubic-bezier(0.16, 1, 0.3, 1);}
 @keyframes modalIn{from{opacity:0;transform:translateY(15px) scale(.98)}to{opacity:1;transform:none}}
 .modal--xl{width:min(780px,96vw);}
+.modal--xxl{width:min(1200px,96vw);}
 .modal--wide{width:min(700px,95vw);}
 
 .modal-hdr{display:flex;align-items:center;gap:10px;padding:24px 24px 0;}
@@ -781,3 +782,6 @@ select.form-control {
 [data-theme="dark"] {
   --bg-0-rgb: 20, 20, 20;
 }
+/* Readonly Mode Styling */
+.readonly-mode { background-color: transparent !important; border-color: transparent !important; resize: none; cursor: default; }
+.readonly-mode:focus { box-shadow: none !important; }

@@ -399,13 +399,16 @@
 <!-- ════ MODAL: EDIÇÃO DE CARD ════ -->
 
 <div class="overlay" id="card-edit-overlay" onclick="handleOverlayClick(event)">
-  <div class="modal modal--xl" onclick="event.stopPropagation()">
+  <div class="modal modal--xxl" onclick="event.stopPropagation()">
     <div class="modal-hdr">
       <div class="modal-title-block" style="display:flex;align-items:center;gap:10px">
         <span style="font-size:11px;font-family:var(--mono);color:var(--tx-3)" id="ce-id">#------</span>
         <span class="ce-bpmn-badge" id="ce-bpmn-badge" data-bpmn="esbocar">Esboçar</span>
       </div>
       <div class="modal-window-controls">
+        <button id="ce-btn-edit" class="btn-primary" style="margin-right:8px; padding: 4px 10px; font-size: 12px; display:flex; align-items:center; gap:4px; height: 28px; line-height: 28px;" onclick="toggleCardEditMode(true)" title="Editar Tarefa">
+          <i data-lucide="edit-2" style="width:14px;height:14px"></i> Editar
+        </button>
         <button style="background:none;border:none;cursor:pointer;padding:5px 7px;border-radius:6px;color:var(--tx-3);display:flex;align-items:center;justify-content:center" onmouseover="this.style.color='var(--red)';this.style.background='var(--red-bg)'" onmouseout="this.style.color='var(--tx-3)';this.style.background='none'" onclick="deleteCard()" title="Excluir"><i data-lucide="trash-2" style="width:16px;height:16px"></i></button>
         <button class="modal-control-btn close" onclick="closeModal('card-edit-overlay')" title="Fechar"><i data-lucide="x" style="width:16px;height:16px"></i></button>
       </div>
@@ -514,8 +517,8 @@
         </div>
 
         <!-- FOOTER (fixo no fundo do conteudo direito) -->
-        <div class="modal-footer" style="padding-top:20px; margin-top:20px; border-top:1px solid var(--bo-1); background:var(--bg-0);">
-          <button class="btn-cancel" onclick="closeModal('card-edit-overlay')">Cancelar</button>
+        <div class="modal-footer" id="ce-modal-footer" style="padding-top:20px; margin-top:20px; border-top:1px solid var(--bo-1); background:var(--bg-0);">
+          <button class="btn-cancel" onclick="toggleCardEditMode(false)">Cancelar</button>
           <button class="btn-primary" onclick="saveCardEdit()" style="flex:2;display:flex;align-items:center;justify-content:center;gap:6px">
             <i data-lucide="check" style="width:16px;height:16px"></i> Salvar Alterações
           </button>

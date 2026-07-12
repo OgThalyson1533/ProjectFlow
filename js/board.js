@@ -582,8 +582,10 @@ function openCardEdit(cardId){
   document.getElementById('ce-panel-details')?.classList.add('active');
   _loadCardHistory(cardId);
   if(typeof refreshCardAttachments==='function')refreshCardAttachments(cardId);
+  if (typeof toggleCardEditMode === 'function') {
+    toggleCardEditMode(false); // start in read mode
+  }
   openModal('card-edit-overlay');
-  setTimeout(()=>document.getElementById('ce-title')?.focus(),80);
 }
 
 function switchCETab(t){
@@ -918,6 +920,43 @@ function renderDashboard(){
 function openCardModal(id){openCardEdit(id);}
 window.renderBoard=renderBoard;window.openNewCard=openNewCard;
 window.openCardModal=openCardModal;window.openCardEdit=openCardEdit;window.saveCardEdit=saveCardEdit;
+
+window.toggleCardEditMode = function(isEdit) {
+  PF.cardEditMode = isEdit;
+  
+  const inputs = document.querySelectorAll('#card-edit-overlay .field-input');
+  inputs.forEach(el => {
+    if (isEdit) {
+      el.removeAttribute('disabled');
+      el.classList.remove('readonly-mode');
+    } else {
+      el.setAttribute('disabled', 'true');
+      el.classList.add('readonly-mode');
+    }
+  });
+
+  if (typeof tinymce !== 'undefined') {
+    const editor = tinymce.get('ce-desc');
+    if (editor) {
+      if (isEdit) {
+        editor.mode.set('design');
+      } else {
+        editor.mode.set('readonly');
+      }
+    }
+  }
+
+  const editBtn = document.getElementById('ce-btn-edit');
+  const footer = document.getElementById('ce-modal-footer');
+
+  if (editBtn) editBtn.style.display = isEdit ? 'none' : 'flex';
+  if (footer) footer.style.display = isEdit ? 'flex' : 'none';
+
+  if (isEdit) {
+    setTimeout(()=>document.getElementById('ce-title')?.focus(), 80);
+  }
+};
+
 window.openTaskDiagram=function(){
   const cardId = PF.activeCardId;
   if(!cardId) return;
