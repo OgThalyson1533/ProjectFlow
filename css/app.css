@@ -785,7 +785,7 @@ select.form-control {
 /* Readonly Mode Styling */
 .readonly-mode { background-color: transparent !important; border-color: transparent !important; resize: none; cursor: default; }
 .readonly-mode:focus { box-shadow: none !important; }
-/* Override TinyMCE default blue */
+/* Override TinyMCE to match Faze Design System */
 .tox .tox-button { background-color: var(--ac) !important; border-color: var(--ac) !important; }
 .tox .tox-button:hover { background-color: var(--ac-hover) !important; border-color: var(--ac-hover) !important; }
 .tox .tox-button--secondary { background-color: transparent !important; color: var(--tx-2) !important; border-color: var(--bo-2) !important; }
@@ -793,3 +793,16 @@ select.form-control {
 .tox .tox-collection__item--active { background-color: var(--ac) !important; }
 .tox .tox-tbtn--enabled, .tox .tox-tbtn--enabled:hover { background-color: var(--bg-1) !important; }
 .tox .tox-tbtn:hover { background-color: var(--bg-0) !important; }
+
+/* Dark mode specific overrides for TinyMCE modals and toolbars */
+[data-theme="dark"] .tox-tinymce { border-color: var(--bd-2) !important; }
+[data-theme="dark"] .tox .tox-toolbar, [data-theme="dark"] .tox .tox-toolbar__overflow, [data-theme="dark"] .tox .tox-toolbar__primary { background-color: var(--bg-1) !important; background: var(--bg-1) !important; }
+[data-theme="dark"] .tox .tox-tbtn svg { fill: var(--tx-1) !important; }
+[data-theme="dark"] .tox .tox-dialog { background-color: var(--bg-1) !important; border-color: var(--bd-2) !important; }
+[data-theme="dark"] .tox .tox-dialog__header, [data-theme="dark"] .tox .tox-dialog__footer { background-color: var(--bg-2) !important; color: var(--tx-1) !important; border-color: var(--bd-2) !important;}
+[data-theme="dark"] .tox .tox-dialog__title, [data-theme="dark"] .tox .tox-dialog__body-content { color: var(--tx-1) !important; }
+[data-theme="dark"] .tox .tox-label, [data-theme="dark"] .tox .tox-textfield, [data-theme="dark"] .tox .tox-textarea, [data-theme="dark"] .tox .tox-selectfield select { color: var(--tx-1) !important; background-color: var(--bg-0) !important; border-color: var(--bd-2) !important; }
+[data-theme="dark"] .tox .tox-button--secondary { background-color: var(--bg-2) !important; color: var(--tx-1) !important; border-color: var(--bd-2) !important; }
+[data-theme="dark"] .tox .tox-mbtn, [data-theme="dark"] .tox .tox-mbtn__select-label { color: var(--tx-1) !important; }
+[data-theme="dark"] .tox .tox-tbtn--enabled, [data-theme="dark"] .tox .tox-tbtn--enabled:hover { background-color: var(--ac-bg-2) !important; }
+[data-theme="dark"] .tox .tox-tbtn:hover { background-color: var(--bg-2) !important; }

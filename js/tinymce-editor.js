@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
       body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         font-size: 14px;
+        background-color: ${isDark ? '#161615' : '#ffffff'};
+        color: ${isDark ? '#f0f0ee' : '#24292f'};
       }
       p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
     `,
@@ -40,8 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const newTheme = document.documentElement.getAttribute('data-theme');
             const newIsDark = newTheme === 'dark';
             // We can't change skin dynamically without reinit, but we can update editor background manually
-            editor.getBody().style.backgroundColor = newIsDark ? '#222f3e' : '#ffffff';
-            editor.getBody().style.color = newIsDark ? '#ffffff' : '#24292f';
+            editor.getBody().style.backgroundColor = newIsDark ? '#161615' : '#ffffff';
+            editor.getBody().style.color = newIsDark ? '#f0f0ee' : '#24292f';
           }
         });
       });
