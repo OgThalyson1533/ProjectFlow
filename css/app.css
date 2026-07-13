@@ -529,7 +529,19 @@ select.form-control {
 
 /* Lucide icons injection for dynamic elements */
 
-.sidebar.collapsed{width:0!important;padding:0!important;border:none!important;opacity:0;pointer-events:none;}
+.sidebar.collapsed { width: 56px !important; }
+.sidebar.collapsed .sb-section-label,
+.sidebar.collapsed .sb-item-label,
+.sidebar.collapsed .sb-badge,
+.sidebar.collapsed .sb-ws-name,
+.sidebar.collapsed .sb-ws-arrow,
+.sidebar.collapsed .sb-proj-actions,
+.sidebar.collapsed [data-placeholder],
+.sidebar.collapsed #sb-conn-text { display: none !important; }
+.sidebar.collapsed .sb-item, .sidebar.collapsed .sb-ws-badge { justify-content: center; padding: 8px 0; }
+.sidebar.collapsed .sb-item svg { width: 18px; height: 18px; }
+.sidebar.collapsed .sb-conn-badge { justify-content: center; padding: 7px 0; }
+.sidebar.collapsed .sb-conn-dot { margin: 0; }
 .sidebar{transition:width 0.3s ease, padding 0.3s ease, opacity 0.3s ease, background var(--t), border-color var(--t);}
 .ce-body { display: flex; align-items: stretch; height: 100%; min-height: 50vh; max-height: 75vh; }
 .ce-sidebar { width: 240px; background: var(--bg-2); border-right: 1px solid var(--bd); padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
