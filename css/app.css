@@ -830,3 +830,8 @@ select.form-control {
 [data-theme="light"] .tox .tox-mbtn, [data-theme="light"] .tox .tox-mbtn__select-label { color: var(--tx-1) !important; }
 [data-theme="light"] .tox .tox-tbtn--enabled, [data-theme="light"] .tox .tox-tbtn--enabled:hover { background-color: var(--ac-bg-2) !important; }
 [data-theme="light"] .tox .tox-tbtn:hover { background-color: var(--bg-2) !important; }
+/* TinyMCE dialog backdrop glass effect */
+.tox .tox-dialog-wrap__backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px) !important;
+}
