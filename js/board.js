@@ -131,7 +131,7 @@ function renderBoard(){
         khRight.appendChild(h('button.kh-opts', { title: 'Opções', onclick: e => openColOptions(e, col.id) }, '⋯'));
       }
       
-      hdr.appendChild(h('div.kh', { style: { minWidth: COL_W+'px', maxWidth: COL_W+'px', borderBottom: `2px solid ${color}` } }, khLeft, khRight));
+      hdr.appendChild(h('div.kh', { style: { flex: 1, minWidth: COL_W+'px', maxWidth: '450px', borderBottom: `2px solid ${color}` } }, khLeft, khRight));
     }
   }
 
@@ -292,7 +292,7 @@ function renderBoard(){
         )
       : h('div.kc-recur-hint', {}, '🔄 Tarefas recorrentes');
       
-    const div = h(`div.kc${over?'.kc--over':''}`, { 'data-col-id': String(col.id), style: { minWidth: COL_W+'px', maxWidth: COL_W+'px' } }, kcCards, buttonOrHint);
+    const div = h(`div.kc${over?'.kc--over':''}`, { 'data-col-id': String(col.id), style: { flex: 1, minWidth: COL_W+'px', maxWidth: '450px' } }, kcCards, buttonOrHint);
     
     board.appendChild(div);
   }
