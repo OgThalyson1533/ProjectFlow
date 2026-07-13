@@ -785,3 +785,11 @@ select.form-control {
 /* Readonly Mode Styling */
 .readonly-mode { background-color: transparent !important; border-color: transparent !important; resize: none; cursor: default; }
 .readonly-mode:focus { box-shadow: none !important; }
+/* Override TinyMCE default blue */
+.tox .tox-button { background-color: var(--ac) !important; border-color: var(--ac) !important; }
+.tox .tox-button:hover { background-color: var(--ac-hover) !important; border-color: var(--ac-hover) !important; }
+.tox .tox-button--secondary { background-color: transparent !important; color: var(--tx-2) !important; border-color: var(--bo-2) !important; }
+.tox .tox-button--secondary:hover { background-color: var(--bg-1) !important; }
+.tox .tox-collection__item--active { background-color: var(--ac) !important; }
+.tox .tox-tbtn--enabled, .tox .tox-tbtn--enabled:hover { background-color: var(--bg-1) !important; }
+.tox .tox-tbtn:hover { background-color: var(--bg-0) !important; }

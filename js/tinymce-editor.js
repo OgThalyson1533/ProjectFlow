@@ -25,7 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
       p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
     `,
     branding: false,
-    height: 300,
+    height: 500,
+    resize: 'both',
+    language: 'pt_BR',
+    language_url: 'js/tinymce-pt_BR.js',
     setup: function (editor) {
       editor.on('change', function () {
         editor.save();
