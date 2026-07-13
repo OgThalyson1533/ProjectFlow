@@ -1,10 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof tinymce === 'undefined') return;
 
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
   tinymce.init({
     selector: '#ce-desc',
-    skin: 'oxide',
-    content_css: 'default',
+    skin: isDark ? 'oxide-dark' : 'oxide',
+    content_css: isDark ? 'dark' : 'default',
     menubar: false,
     paste_data_images: true,
     plugins: [
@@ -19,8 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
       body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         font-size: 14px;
-        background-color: #ffffff;
-        color: #24292f;
       }
       p { margin-block-start: 0.5em; margin-block-end: 0.5em; }
     `,
@@ -33,6 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
       editor.on('change', function () {
         editor.save();
       });
+      // Monitor theme change
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'data-theme') {
+            const newTheme = document.documentElement.getAttribute('data-theme');
+            const newIsDark = newTheme === 'dark';
+            // We can't change skin dynamically without reinit, but we can update editor background manually
+            editor.getBody().style.backgroundColor = newIsDark ? '#222f3e' : '#ffffff';
+            editor.getBody().style.color = newIsDark ? '#ffffff' : '#24292f';
+          }
+        });
+      });
+      observer.observe(document.documentElement, { attributes: true });
       editor.on('drop', function (e) {
         if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
           const file = e.dataTransfer.files[0];
