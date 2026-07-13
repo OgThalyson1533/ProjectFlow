@@ -806,3 +806,15 @@ select.form-control {
 [data-theme="dark"] .tox .tox-mbtn, [data-theme="dark"] .tox .tox-mbtn__select-label { color: var(--tx-1) !important; }
 [data-theme="dark"] .tox .tox-tbtn--enabled, [data-theme="dark"] .tox .tox-tbtn--enabled:hover { background-color: var(--ac-bg-2) !important; }
 [data-theme="dark"] .tox .tox-tbtn:hover { background-color: var(--bg-2) !important; }
+/* Light mode TinyMCE overrides */
+[data-theme="light"] .tox-tinymce { border-color: var(--bd-2) !important; }
+[data-theme="light"] .tox .tox-toolbar, [data-theme="light"] .tox .tox-toolbar__overflow, [data-theme="light"] .tox .tox-toolbar__primary { background-color: var(--bg-1) !important; background: var(--bg-1) !important; }
+[data-theme="light"] .tox .tox-tbtn svg { fill: var(--tx-2) !important; }
+[data-theme="light"] .tox .tox-dialog { background-color: var(--bg-1) !important; border-color: var(--bd-2) !important; }
+[data-theme="light"] .tox .tox-dialog__header, [data-theme="light"] .tox .tox-dialog__footer { background-color: var(--bg-2) !important; color: var(--tx-1) !important; border-color: var(--bd-2) !important;}
+[data-theme="light"] .tox .tox-dialog__title, [data-theme="light"] .tox .tox-dialog__body-content { color: var(--tx-1) !important; }
+[data-theme="light"] .tox .tox-label, [data-theme="light"] .tox .tox-textfield, [data-theme="light"] .tox .tox-textarea, [data-theme="light"] .tox .tox-selectfield select { color: var(--tx-1) !important; background-color: var(--bg-0) !important; border-color: var(--bd-2) !important; }
+[data-theme="light"] .tox .tox-button--secondary { background-color: var(--bg-2) !important; color: var(--tx-1) !important; border-color: var(--bd-2) !important; }
+[data-theme="light"] .tox .tox-mbtn, [data-theme="light"] .tox .tox-mbtn__select-label { color: var(--tx-1) !important; }
+[data-theme="light"] .tox .tox-tbtn--enabled, [data-theme="light"] .tox .tox-tbtn--enabled:hover { background-color: var(--ac-bg-2) !important; }
+[data-theme="light"] .tox .tox-tbtn:hover { background-color: var(--bg-2) !important; }
