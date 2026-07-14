@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     toolbar: 'removeformat | forecolor backcolor | bold italic underline | ' +
              'alignleft aligncenter alignright alignjustify | ' +
              'numlist bullist | link image table | importexcel importmarkdown voicetotext recordaudio',
+    toolbar_mode: 'wrap',
+    browser_spellcheck: true,
     content_style: `
       body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -124,6 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
       let recognition = null;
       let isRecordingVoice = false;
       
+      let dictationOverlay = null;
+      
       editor.ui.registry.addButton('voicetotext', {
         icon: 'mic',
         tooltip: 'Ditado por Voz',
@@ -148,17 +152,39 @@ document.addEventListener('DOMContentLoaded', () => {
             isRecordingVoice = true;
             api.setIcon('stop-record');
             window.showToast?.('Gravação iniciada. Pode falar...', false);
+            
+            const container = editor.getContainer();
+            dictationOverlay = document.createElement('div');
+            dictationOverlay.style.cssText = 'position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--bg-1, #1e1e1e); color: var(--tx-1, #f0f0ee); padding: 10px 20px; border-radius: 20px; z-index: 10; display: flex; align-items: center; gap: 10px; font-family: sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.3); pointer-events: none; max-width: 80%; border: 1px solid var(--bo-1, #333);';
+            dictationOverlay.innerHTML = '<div style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; animation: pulse 1.5s infinite;"></div><span id="dictation-text" style="font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Ouvindo...</span>';
+            
+            if (!document.getElementById('dictation-style')) {
+               const style = document.createElement('style');
+               style.id = 'dictation-style';
+               style.innerHTML = '@keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }';
+               document.head.appendChild(style);
+            }
+            
+            container.style.position = 'relative';
+            container.appendChild(dictationOverlay);
           };
           
           recognition.onresult = function(event) {
             let finalTranscript = '';
+            let interimTranscript = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
               if (event.results[i].isFinal) {
                 finalTranscript += event.results[i][0].transcript + ' ';
+              } else {
+                interimTranscript += event.results[i][0].transcript;
               }
             }
             if (finalTranscript) {
                editor.insertContent(finalTranscript);
+            }
+            if (dictationOverlay) {
+               const textSpan = dictationOverlay.querySelector('#dictation-text');
+               if (textSpan) textSpan.textContent = interimTranscript || 'Ouvindo...';
             }
           };
           
@@ -166,6 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
             isRecordingVoice = false;
             api.setIcon('mic');
             window.showToast?.('Gravação finalizada.', false);
+            if (dictationOverlay && dictationOverlay.parentNode) {
+              dictationOverlay.parentNode.removeChild(dictationOverlay);
+              dictationOverlay = null;
+            }
           };
           
           recognition.start();
@@ -201,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isRecordingAudio = false;
                 api.setIcon('record');
                 window.showToast?.('Áudio finalizado e inserido.', false);
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
                 audioChunks = [];
                 stream.getTracks().forEach(track => track.stop());
                 
