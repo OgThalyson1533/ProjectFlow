@@ -835,3 +835,19 @@ select.form-control {
   background-color: rgba(0, 0, 0, 0.5) !important;
   backdrop-filter: blur(4px) !important;
 }
+
+/* TinyMCE Menu / Dropdown overrides */
+[data-theme="dark"] .tox .tox-menu { background-color: var(--bg-1) !important; border-color: var(--bd-2) !important; }
+[data-theme="dark"] .tox .tox-collection__item { color: var(--tx-1) !important; }
+[data-theme="dark"] .tox .tox-collection__item-icon svg { fill: var(--tx-1) !important; stroke: var(--tx-1) !important; }
+[data-theme="dark"] .tox .tox-collection__item--active { background-color: var(--bg-2) !important; }
+
+[data-theme="light"] .tox .tox-menu { background-color: var(--bg-1) !important; border-color: var(--bd-2) !important; }
+[data-theme="light"] .tox .tox-collection__item { color: var(--tx-1) !important; }
+[data-theme="light"] .tox .tox-collection__item-icon svg { fill: var(--tx-2) !important; stroke: var(--tx-2) !important; }
+[data-theme="light"] .tox .tox-collection__item--active { background-color: var(--bg-2) !important; }
+
+/* Custom icon stroke fix */
+.tox .tox-tbtn svg { stroke: currentColor; }
+[data-theme="dark"] .tox .tox-tbtn svg { stroke: var(--tx-1) !important; fill: var(--tx-1) !important; }
+[data-theme="light"] .tox .tox-tbtn svg { stroke: var(--tx-2) !important; fill: var(--tx-2) !important; }
