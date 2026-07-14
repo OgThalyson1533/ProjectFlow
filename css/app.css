@@ -807,22 +807,24 @@ select.form-control {
 .tox .tox-tbtn:hover { background-color: var(--bg-0) !important; }
 
 /* Dark mode specific overrides for TinyMCE modals and toolbars */
-[data-theme="dark"] .tox-tinymce { border-color: var(--bd-2) !important; }
-[data-theme="dark"] .tox .tox-toolbar, [data-theme="dark"] .tox .tox-toolbar__overflow, [data-theme="dark"] .tox .tox-toolbar__primary { background-color: var(--bg-1) !important; background: var(--bg-1) !important; }
-[data-theme="dark"] .tox .tox-tbtn svg { fill: var(--tx-1) !important; }
-[data-theme="dark"] .tox .tox-dialog { background-color: var(--bg-1) !important; border-color: var(--bd-2) !important; }
-[data-theme="dark"] .tox .tox-dialog__header, [data-theme="dark"] .tox .tox-dialog__footer { background-color: var(--bg-2) !important; color: var(--tx-1) !important; border-color: var(--bd-2) !important;}
-[data-theme="dark"] .tox .tox-dialog__title, [data-theme="dark"] .tox .tox-dialog__body-content { color: var(--tx-1) !important; }
-[data-theme="dark"] .tox .tox-label, [data-theme="dark"] .tox .tox-textfield, [data-theme="dark"] .tox .tox-textarea, [data-theme="dark"] .tox .tox-selectfield select { color: var(--tx-1) !important; background-color: var(--bg-0) !important; border-color: var(--bd-2) !important; }
-[data-theme="dark"] .tox .tox-button--secondary { background-color: var(--bg-2) !important; color: var(--tx-1) !important; border-color: var(--bd-2) !important; }
-[data-theme="dark"] .tox .tox-mbtn, [data-theme="dark"] .tox .tox-mbtn__select-label { color: var(--tx-1) !important; }
+[data-theme="dark"] .tox-tinymce { border-color: var(--bd-2) !important; background-color: #161615 !important; }
+[data-theme="dark"] .tox .tox-editor-header { background-color: #161615 !important; }
+[data-theme="dark"] .tox .tox-toolbar, [data-theme="dark"] .tox .tox-toolbar__overflow, [data-theme="dark"] .tox .tox-toolbar__primary { background-color: #161615 !important; background: #161615 !important; }
+[data-theme="dark"] .tox .tox-tbtn svg { fill: #ffffff !important; stroke: #ffffff !important; }
+[data-theme="dark"] .tox .tox-dialog { background-color: #161615 !important; border-color: var(--bd-2) !important; }
+[data-theme="dark"] .tox .tox-dialog__header, [data-theme="dark"] .tox .tox-dialog__footer { background-color: var(--bg-2) !important; color: #ffffff !important; border-color: var(--bd-2) !important;}
+[data-theme="dark"] .tox .tox-dialog__title, [data-theme="dark"] .tox .tox-dialog__body-content { color: #ffffff !important; }
+[data-theme="dark"] .tox .tox-label, [data-theme="dark"] .tox .tox-textfield, [data-theme="dark"] .tox .tox-textarea, [data-theme="dark"] .tox .tox-selectfield select { color: #ffffff !important; background-color: var(--bg-0) !important; border-color: var(--bd-2) !important; }
+[data-theme="dark"] .tox .tox-button--secondary { background-color: var(--bg-2) !important; color: #ffffff !important; border-color: var(--bd-2) !important; }
+[data-theme="dark"] .tox .tox-mbtn, [data-theme="dark"] .tox .tox-mbtn__select-label { color: #ffffff !important; }
 [data-theme="dark"] .tox .tox-tbtn--enabled, [data-theme="dark"] .tox .tox-tbtn--enabled:hover { background-color: var(--ac-bg-2) !important; }
 [data-theme="dark"] .tox .tox-tbtn:hover { background-color: var(--bg-2) !important; }
 /* Light mode TinyMCE overrides */
-[data-theme="light"] .tox-tinymce { border-color: var(--bd-2) !important; }
-[data-theme="light"] .tox .tox-toolbar, [data-theme="light"] .tox .tox-toolbar__overflow, [data-theme="light"] .tox .tox-toolbar__primary { background-color: var(--bg-1) !important; background: var(--bg-1) !important; }
+[data-theme="light"] .tox-tinymce { border-color: var(--bd-2) !important; background-color: #ffffff !important; }
+[data-theme="light"] .tox .tox-editor-header { background-color: #ffffff !important; }
+[data-theme="light"] .tox .tox-toolbar, [data-theme="light"] .tox .tox-toolbar__overflow, [data-theme="light"] .tox .tox-toolbar__primary { background-color: #ffffff !important; background: #ffffff !important; }
 [data-theme="light"] .tox .tox-tbtn svg { fill: var(--tx-2) !important; }
-[data-theme="light"] .tox .tox-dialog { background-color: var(--bg-1) !important; border-color: var(--bd-2) !important; }
+[data-theme="light"] .tox .tox-dialog { background-color: #ffffff !important; border-color: var(--bd-2) !important; }
 [data-theme="light"] .tox .tox-dialog__header, [data-theme="light"] .tox .tox-dialog__footer { background-color: var(--bg-2) !important; color: var(--tx-1) !important; border-color: var(--bd-2) !important;}
 [data-theme="light"] .tox .tox-dialog__title, [data-theme="light"] .tox .tox-dialog__body-content { color: var(--tx-1) !important; }
 [data-theme="light"] .tox .tox-label, [data-theme="light"] .tox .tox-textfield, [data-theme="light"] .tox .tox-textarea, [data-theme="light"] .tox .tox-selectfield select { color: var(--tx-1) !important; background-color: var(--bg-0) !important; border-color: var(--bd-2) !important; }
@@ -849,5 +851,5 @@ select.form-control {
 
 /* Custom icon stroke fix */
 .tox .tox-tbtn svg { stroke: currentColor; }
-[data-theme="dark"] .tox .tox-tbtn svg { stroke: var(--tx-1) !important; fill: var(--tx-1) !important; }
+[data-theme="dark"] .tox .tox-tbtn svg { stroke: #ffffff !important; fill: #ffffff !important; }
 [data-theme="light"] .tox .tox-tbtn svg { stroke: var(--tx-2) !important; fill: var(--tx-2) !important; }
