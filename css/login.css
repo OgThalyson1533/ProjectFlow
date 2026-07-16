@@ -78,12 +78,17 @@
 }
 .login-logo-mark {
   width: 42px; height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--ac), var(--blue));
+  border-radius: 9px;
+  background-image: url('../icon2.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px var(--ac-glow);
 }
-.login-logo-mark svg { width: 24px; height: 24px; fill: white; }
+[data-theme="dark"] .login-logo-mark {
+  background-image: url('../icon.svg');
+}
+.login-logo-mark svg { display: none; }
 .login-logo-name {
   font-size: 20px; font-weight: 800; letter-spacing: -.5px;
   color: var(--tx-1);
