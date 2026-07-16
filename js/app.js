@@ -1172,8 +1172,8 @@ document.addEventListener('DOMContentLoaded',function(){
     const bLabel = window.BPMN_LABEL || {};
     const n = window.ProjDocs ? window.ProjDocs.getCardNote(card.sl, card.id) : {};
 
-    const html = \`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
-<title>\${card.title} - Relatório de Tarefa</title>
+    const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+<title>${card.title} - Relatório de Tarefa</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;color:#1a1a18;background:#fff;font-size:13px;line-height:1.6}
@@ -1181,32 +1181,32 @@ document.addEventListener('DOMContentLoaded',function(){
   @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style></head>
 <body><div class="page">
-  <div style="border-bottom:4px solid \${proj.color||'#1a9e5f'};padding-bottom:16px;margin-bottom:24px">
-    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:\${proj.color||'#1a9e5f'}">Tarefa — \${proj.name}</div>
-    <div style="font-size:24px;font-weight:800;margin:8px 0">\${card.title}</div>
+  <div style="border-bottom:4px solid ${proj.color||'#1a9e5f'};padding-bottom:16px;margin-bottom:24px">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:${proj.color||'#1a9e5f'}">Tarefa — ${proj.name}</div>
+    <div style="font-size:24px;font-weight:800;margin:8px 0">${card.title}</div>
     <div style="display:flex;gap:16px;font-size:12px;color:#666">
-      <span>Fase: <strong>\${bLabel[card.bpmn]||card.bpmn||'Backlog'}</strong></span>
-      \${member? \`<span>Responsável: <strong>\${member.name}</strong></span>\`:''}
-      \${card.date? \`<span>Prazo: <strong>\${card.date}</strong></span>\`:''}
-      \${card.budget? \`<span>Budget: <strong>\${card.budget}</strong></span>\`:''}
-      \${card.hours? \`<span>Horas: <strong>\${card.hours}</strong></span>\`:''}
+      <span>Fase: <strong>${bLabel[card.bpmn]||card.bpmn||'Backlog'}</strong></span>
+      ${member? `<span>Responsável: <strong>${member.name}</strong></span>`:''}
+      ${card.date? `<span>Prazo: <strong>${card.date}</strong></span>`:''}
+      ${card.budget? `<span>Budget: <strong>${card.budget}</strong></span>`:''}
+      ${card.hours? `<span>Horas: <strong>${card.hours}</strong></span>`:''}
     </div>
   </div>
   
-  \${card.desc ? \`<h3 style="font-size:14px;margin-bottom:8px">Descrição</h3><div style="font-size:13px;color:#444;margin-bottom:24px;white-space:pre-wrap">\${card.desc}</div>\` : ''}
+  ${card.desc ? `<h3 style="font-size:14px;margin-bottom:8px">Descrição</h3><div style="font-size:13px;color:#444;margin-bottom:24px;white-space:pre-wrap">${card.desc}</div>` : ''}
   
-  \${(n.decision || n.artifact || n.risk || n.next_action || n.notes) ? \`
+  ${(n.decision || n.artifact || n.risk || n.next_action || n.notes) ? `
   <h3 style="font-size:14px;margin-bottom:12px;padding-bottom:4px;border-bottom:1px solid #eee">Anotações e Detalhes</h3>
-  \` : ''}
-  \${n.decision ? \`<div style="margin-bottom:12px"><strong>Decisão:</strong> \${n.decision}</div>\` : ''}
-  \${n.artifact ? \`<div style="margin-bottom:12px"><strong>Artefato:</strong> \${n.artifact}</div>\` : ''}
-  \${n.risk     ? \`<div style="margin-bottom:12px"><strong>Risco:</strong> \${n.risk}</div>\` : ''}
-  \${n.next_action ? \`<div style="margin-bottom:12px"><strong>Próxima ação:</strong> \${n.next_action}</div>\` : ''}
-  \${n.notes       ? \`<div style="margin-bottom:12px;font-style:italic"><strong>Notas:</strong> \${n.notes}</div>\` : ''}
+  ` : ''}
+  ${n.decision ? `<div style="margin-bottom:12px"><strong>Decisão:</strong> ${n.decision}</div>` : ''}
+  ${n.artifact ? `<div style="margin-bottom:12px"><strong>Artefato:</strong> ${n.artifact}</div>` : ''}
+  ${n.risk     ? `<div style="margin-bottom:12px"><strong>Risco:</strong> ${n.risk}</div>` : ''}
+  ${n.next_action ? `<div style="margin-bottom:12px"><strong>Próxima ação:</strong> ${n.next_action}</div>` : ''}
+  ${n.notes       ? `<div style="margin-bottom:12px;font-style:italic"><strong>Notas:</strong> ${n.notes}</div>` : ''}
 
 </div>
 <script>window.onload=()=>setTimeout(()=>window.print(), 300);</script>
-</body></html>\`;
+</body></html>`;
 
     const win = window.open('','_blank');
     if(win){
