@@ -1100,7 +1100,7 @@ document.addEventListener('DOMContentLoaded',function(){
     let currentCardId = null;
 
     document.addEventListener('contextmenu', e => {
-      const card = e.target.closest('.board-card, .table-row-clickable, .dash-task-row, .kb-db-row, .doc-card');
+      const card = e.target.closest('.kcard, .board-card, .table-row-clickable, .dash-task-row, .kb-db-row, .doc-card');
       if (!card) {
         menu.classList.remove('show');
         return;
