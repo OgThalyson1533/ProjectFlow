@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pf-v10-cache-v5';
+const CACHE_NAME = 'pf-v10-cache-v6';
 const urlsToCache = [
   './',
   './index.html',
