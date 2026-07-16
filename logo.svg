@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="132" viewBox="0 0 440 132">
+  <g transform="translate(36,36) scale(1)">
+    <path d="M10 48 C22 48 22 16 32 16 C42 16 42 48 54 48" stroke="#f97316" stroke-width="7" stroke-linecap="round" fill="none"></path>
+    <circle cx="10" cy="48" r="6.5" fill="#f97316"></circle>
+    <circle cx="32" cy="16" r="6.5" fill="#fb923c"></circle>
+    <circle cx="54" cy="48" r="6.5" fill="#fdba74"></circle>
+  </g>
+  <text x="112" y="78" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="34" font-weight="600" fill="#f4f4f5">Project <tspan fill="#f97316" font-weight="700">Flow</tspan></text>
+</svg>

@@ -77,16 +77,16 @@
   gap: 10px; margin-bottom: 28px;
 }
 .login-logo-mark {
-  width: 42px; height: 42px;
+  width: 140px; height: 42px;
   border-radius: 9px;
-  background-image: url('../icon2.svg');
+  background-image: url('../logo1.svg');
   background-size: contain;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: left center;
   display: flex; align-items: center; justify-content: center;
 }
 [data-theme="dark"] .login-logo-mark {
-  background-image: url('../icon.svg');
+  background-image: url('../logo.svg');
 }
 .login-logo-mark svg { display: none; }
 .login-logo-name {
