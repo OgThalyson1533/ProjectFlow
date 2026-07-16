@@ -1083,7 +1083,7 @@ document.addEventListener('DOMContentLoaded',function(){
 //  23. Context Menu for Cards
 // ════════════════════════════════════════════════════════════
 ;(function(){
-  document.addEventListener('DOMContentLoaded', () => {
+  const initContextMenu = () => {
     const menu = document.createElement('div');
     menu.id = 'pf-card-ctx-menu';
     menu.className = 'card-ctx-menu';
@@ -1156,7 +1156,13 @@ document.addEventListener('DOMContentLoaded',function(){
       if(currentCardId) exportCardPDF(currentCardId);
       menu.classList.remove('show');
     };
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initContextMenu);
+  } else {
+    initContextMenu();
+  }
 
   // Export single card to PDF
   window.exportCardPDF = function(cardId) {
