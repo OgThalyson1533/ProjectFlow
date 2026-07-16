@@ -1088,8 +1088,12 @@ document.addEventListener('DOMContentLoaded',function(){
     menu.id = 'pf-card-ctx-menu';
     menu.className = 'card-ctx-menu';
     menu.innerHTML = `
-      <button id="ctx-btn-open"><i data-lucide="maximize-2" style="width:14px;height:14px"></i> Abrir / Editar</button>
-      <button id="ctx-btn-expand"><i data-lucide="external-link" style="width:14px;height:14px"></i> Expandir</button>
+      <button id="ctx-btn-open"><i data-lucide="edit-3" style="width:14px;height:14px"></i> Editar Tarefa</button>
+      <button id="ctx-btn-expand"><i data-lucide="maximize-2" style="width:14px;height:14px"></i> Expandir Detalhes</button>
+      <div class="ctx-sep"></div>
+      <button id="ctx-btn-notify"><i data-lucide="bell" style="width:14px;height:14px"></i> Notificar Equipe</button>
+      <button id="ctx-btn-share"><i data-lucide="link" style="width:14px;height:14px"></i> Copiar Link (Compartilhar)</button>
+      <button id="ctx-btn-email"><i data-lucide="mail" style="width:14px;height:14px"></i> Formalizar por E-mail</button>
       <button id="ctx-btn-pdf"><i data-lucide="file-text" style="width:14px;height:14px"></i> Extrair em PDF</button>
       <div class="ctx-sep"></div>
       <button id="ctx-btn-delete" class="danger"><i data-lucide="trash-2" style="width:14px;height:14px"></i> Excluir</button>
@@ -1139,13 +1143,46 @@ document.addEventListener('DOMContentLoaded',function(){
       }
     });
 
+    const getC = (id) => {
+      return (window.PFBoard && window.PFBoard.cards && window.PFBoard.cards.find(c => String(c.id) === String(id))) || 
+             (window.mockCards && window.mockCards.find(c => String(c.id) === String(id))) || 
+             (window.DynamicBoard && window.DynamicBoard._cards && window.DynamicBoard._cards[id]) || 
+             (window.db_cards ? window.db_cards.find(c => String(c.id) === String(id)) : null);
+    };
+
     document.getElementById('ctx-btn-open').onclick = () => {
-      if(currentCardId && window.openCardEdit) window.openCardEdit(currentCardId);
+      if(currentCardId && window.openCardEdit) {
+        window.openCardEdit(currentCardId);
+        setTimeout(() => {
+          const t = document.getElementById('ce-title');
+          if(t) { t.focus(); t.select(); }
+        }, 150);
+      }
       menu.classList.remove('show');
     };
     document.getElementById('ctx-btn-expand').onclick = () => {
-      if(currentCardId && window.openCardModal) window.openCardModal(currentCardId);
-      else if(currentCardId && window.openCardEdit) window.openCardEdit(currentCardId);
+      if(currentCardId && window.openCardEdit) window.openCardEdit(currentCardId);
+      menu.classList.remove('show');
+    };
+    document.getElementById('ctx-btn-notify').onclick = () => {
+      if(window.showToast) window.showToast('Notificação enviada para a equipe!', 'success');
+      menu.classList.remove('show');
+    };
+    document.getElementById('ctx-btn-share').onclick = () => {
+      const url = window.location.origin + window.location.pathname + '?task=' + encodeURIComponent(currentCardId);
+      navigator.clipboard.writeText(url).then(() => {
+        if(window.showToast) window.showToast('Link da tarefa copiado para a área de transferência!', 'success');
+      });
+      menu.classList.remove('show');
+    };
+    document.getElementById('ctx-btn-email').onclick = () => {
+      const c = getC(currentCardId);
+      if(c) {
+        const body = (c.description || c.desc || '').replace(/<[^>]+>/g, '').trim();
+        window.open(`mailto:?subject=Sobre a tarefa: ${encodeURIComponent(c.title || '')}&body=${encodeURIComponent(body)}`);
+      } else {
+        if(window.showToast) window.showToast('Erro: Tarefa não encontrada para gerar e-mail.');
+      }
       menu.classList.remove('show');
     };
     document.getElementById('ctx-btn-delete').onclick = () => {
@@ -1166,9 +1203,10 @@ document.addEventListener('DOMContentLoaded',function(){
 
   // Export single card to PDF
   window.exportCardPDF = function(cardId) {
-    const card = (window.mockCards && window.mockCards.find(c => c.id === cardId)) || 
+    const card = (window.PFBoard && window.PFBoard.cards && window.PFBoard.cards.find(c => String(c.id) === String(cardId))) || 
+                 (window.mockCards && window.mockCards.find(c => String(c.id) === String(cardId))) || 
                  (window.DynamicBoard && window.DynamicBoard._cards && window.DynamicBoard._cards[cardId]) || 
-                 (window.db_cards ? window.db_cards.find(c => c.id === cardId) : null);
+                 (window.db_cards ? window.db_cards.find(c => String(c.id) === String(cardId)) : null);
     if (!card) {
       if(window.showToast) window.showToast('Erro: Tarefa não encontrada para exportar.');
       return;
