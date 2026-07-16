@@ -1078,3 +1078,142 @@ document.addEventListener('DOMContentLoaded',function(){
   // Alias _supabase para diagrama.js e outros que usam window._supabase
   Object.defineProperty(window,'_supabase',{get:()=>PF.supabase,configurable:true});
 });
+
+// ════════════════════════════════════════════════════════════
+//  23. Context Menu for Cards
+// ════════════════════════════════════════════════════════════
+(function(){
+  document.addEventListener('DOMContentLoaded', () => {
+    const menu = document.createElement('div');
+    menu.id = 'pf-card-ctx-menu';
+    menu.className = 'card-ctx-menu';
+    menu.innerHTML = `
+      <button id="ctx-btn-open"><i data-lucide="maximize-2" style="width:14px;height:14px"></i> Abrir / Editar</button>
+      <button id="ctx-btn-expand"><i data-lucide="external-link" style="width:14px;height:14px"></i> Expandir</button>
+      <button id="ctx-btn-pdf"><i data-lucide="file-text" style="width:14px;height:14px"></i> Extrair em PDF</button>
+      <div class="ctx-sep"></div>
+      <button id="ctx-btn-delete" class="danger"><i data-lucide="trash-2" style="width:14px;height:14px"></i> Excluir</button>
+    `;
+    document.body.appendChild(menu);
+    if(window.lucide) window.lucide.createIcons({root: menu});
+
+    let currentCardId = null;
+
+    document.addEventListener('contextmenu', e => {
+      const card = e.target.closest('.board-card, .table-row-clickable, .dash-task-row, .kb-db-row, .doc-card');
+      if (!card) {
+        menu.classList.remove('show');
+        return;
+      }
+
+      let cardId = card.getAttribute('data-card-id') || (card.dataset && (card.dataset.id || card.dataset.cardId));
+      if (!cardId) {
+        const oc = card.getAttribute('onclick');
+        if(oc) {
+          const m = oc.match(/['"]([^'"]+)['"]/);
+          if(m) cardId = m[1];
+        }
+      }
+      if (!cardId) return;
+
+      e.preventDefault();
+      currentCardId = cardId;
+      
+      const x = e.pageX;
+      const y = e.pageY;
+      menu.style.left = x + 'px';
+      menu.style.top = y + 'px';
+      menu.classList.add('show');
+      
+      // Keep menu inside viewport
+      requestAnimationFrame(() => {
+        const rect = menu.getBoundingClientRect();
+        if (rect.right > window.innerWidth) menu.style.left = (window.innerWidth - rect.width - 5) + 'px';
+        if (rect.bottom > window.innerHeight) menu.style.top = (window.innerHeight - rect.height - 5) + 'px';
+      });
+    });
+
+    document.addEventListener('click', e => {
+      if(!e.target.closest('#pf-card-ctx-menu')) {
+        menu.classList.remove('show');
+      }
+    });
+
+    document.getElementById('ctx-btn-open').onclick = () => {
+      if(currentCardId && window.openCardEdit) window.openCardEdit(currentCardId);
+      menu.classList.remove('show');
+    };
+    document.getElementById('ctx-btn-expand').onclick = () => {
+      if(currentCardId && window.openCardModal) window.openCardModal(currentCardId);
+      else if(currentCardId && window.openCardEdit) window.openCardEdit(currentCardId);
+      menu.classList.remove('show');
+    };
+    document.getElementById('ctx-btn-delete').onclick = () => {
+      if(currentCardId && window.deleteCard) window.deleteCard(currentCardId, false);
+      menu.classList.remove('show');
+    };
+    document.getElementById('ctx-btn-pdf').onclick = () => {
+      if(currentCardId) exportCardPDF(currentCardId);
+      menu.classList.remove('show');
+    };
+  });
+
+  // Export single card to PDF
+  window.exportCardPDF = function(cardId) {
+    const card = (window.mockCards && window.mockCards.find(c => c.id === cardId)) || 
+                 (window.DynamicBoard && window.DynamicBoard._cards && window.DynamicBoard._cards[cardId]) || 
+                 (window.db_cards ? window.db_cards.find(c => c.id === cardId) : null);
+    if (!card) {
+      if(window.showToast) window.showToast('Erro: Tarefa não encontrada para exportar.');
+      return;
+    }
+    const proj = (window.mockProjects || []).find(p => p.id === card.sl) || { name: 'Projeto', color: '#1a9e5f' };
+    const member = (window.mockTeam || []).find(m => m.id === card.assignee);
+    const bLabel = window.BPMN_LABEL || {};
+    const n = window.ProjDocs ? window.ProjDocs.getCardNote(card.sl, card.id) : {};
+
+    const html = \`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+<title>\${card.title} - Relatório de Tarefa</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;color:#1a1a18;background:#fff;font-size:13px;line-height:1.6}
+  .page{max-width:800px;margin:0 auto;padding:40px 36px}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head>
+<body><div class="page">
+  <div style="border-bottom:4px solid \${proj.color||'#1a9e5f'};padding-bottom:16px;margin-bottom:24px">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:\${proj.color||'#1a9e5f'}">Tarefa — \${proj.name}</div>
+    <div style="font-size:24px;font-weight:800;margin:8px 0">\${card.title}</div>
+    <div style="display:flex;gap:16px;font-size:12px;color:#666">
+      <span>Fase: <strong>\${bLabel[card.bpmn]||card.bpmn||'Backlog'}</strong></span>
+      \${member? \`<span>Responsável: <strong>\${member.name}</strong></span>\`:''}
+      \${card.date? \`<span>Prazo: <strong>\${card.date}</strong></span>\`:''}
+      \${card.budget? \`<span>Budget: <strong>\${card.budget}</strong></span>\`:''}
+      \${card.hours? \`<span>Horas: <strong>\${card.hours}</strong></span>\`:''}
+    </div>
+  </div>
+  
+  \${card.desc ? \`<h3 style="font-size:14px;margin-bottom:8px">Descrição</h3><div style="font-size:13px;color:#444;margin-bottom:24px;white-space:pre-wrap">\${card.desc}</div>\` : ''}
+  
+  \${(n.decision || n.artifact || n.risk || n.next_action || n.notes) ? \`
+  <h3 style="font-size:14px;margin-bottom:12px;padding-bottom:4px;border-bottom:1px solid #eee">Anotações e Detalhes</h3>
+  \` : ''}
+  \${n.decision ? \`<div style="margin-bottom:12px"><strong>Decisão:</strong> \${n.decision}</div>\` : ''}
+  \${n.artifact ? \`<div style="margin-bottom:12px"><strong>Artefato:</strong> \${n.artifact}</div>\` : ''}
+  \${n.risk     ? \`<div style="margin-bottom:12px"><strong>Risco:</strong> \${n.risk}</div>\` : ''}
+  \${n.next_action ? \`<div style="margin-bottom:12px"><strong>Próxima ação:</strong> \${n.next_action}</div>\` : ''}
+  \${n.notes       ? \`<div style="margin-bottom:12px;font-style:italic"><strong>Notas:</strong> \${n.notes}</div>\` : ''}
+
+</div>
+<script>window.onload=()=>setTimeout(()=>window.print(), 300);</script>
+</body></html>\`;
+
+    const win = window.open('','_blank');
+    if(win){
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      if(window.showToast) window.showToast('PDF da tarefa pronto! Use Ctrl+P 📄');
+    }
+  };
+})();
