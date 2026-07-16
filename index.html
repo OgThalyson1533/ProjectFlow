@@ -420,6 +420,7 @@
       <!-- SIDEBAR -->
       <div class="ce-sidebar">
         <button class="ce-tab active" id="ce-tab-details"     onclick="switchCETab('details')"><i data-lucide="info" style="width:16px;height:16px"></i> Informações</button>
+        <button class="ce-tab"        id="ce-tab-props"       onclick="switchCETab('props')"><i data-lucide="sliders" style="width:16px;height:16px"></i> Atributos / Prazos</button>
         <button class="ce-tab"        id="ce-tab-bpmn"        onclick="switchCETab('bpmn')"><i data-lucide="git-merge" style="width:16px;height:16px"></i> Fase BPMN</button>
         <button class="ce-tab"        id="ce-tab-doc"         onclick="switchCETab('doc')"><i data-lucide="file-text" style="width:16px;height:16px"></i> Documentação</button>
         <button class="ce-tab"        id="ce-tab-attachments" onclick="switchCETab('attachments');refreshCardAttachments()"><i data-lucide="paperclip" style="width:16px;height:16px"></i> Anexos & Imagens</button>
@@ -433,12 +434,17 @@
         <div style="flex:1;">
           <!-- DETALHES -->
           <div class="ce-panel active" id="ce-panel-details">
+            <p style="font-size:12px;color:var(--tx-3);margin-bottom:14px">O contexto principal da tarefa, focado no conteúdo e escopo.</p>
             <div class="field-row" style="margin-bottom:12px"><label class="field-label">Título *</label><input class="field-input" id="ce-title" type="text" maxlength="200"></div>
-            <div class="field-row" style="margin-bottom:12px">
+            <div class="field-row" style="margin-bottom:12px;flex:1;display:flex;flex-direction:column">
               <label class="field-label">Descrição</label>
-              <textarea class="field-input tinymce-editor" id="ce-desc" rows="6" placeholder="Add your comment here..."></textarea>
+              <textarea class="field-input tinymce-editor" id="ce-desc" style="flex:1;min-height:300px;" placeholder="Add your comment here..."></textarea>
             </div>
-            <div class="field-row" style="margin-bottom:12px"><label class="field-label">Critérios de aceite</label><textarea class="field-input" id="ce-acceptance" rows="2" placeholder="Quando esta tarefa estará concluída?"></textarea></div>
+            <div class="field-row" style="margin-top:12px"><label class="field-label">Critérios de aceite</label><textarea class="field-input" id="ce-acceptance" rows="3" placeholder="Quando esta tarefa estará concluída?"></textarea></div>
+          </div>
+          <!-- ATRIBUTOS / PRAZOS -->
+          <div class="ce-panel" id="ce-panel-props">
+            <p style="font-size:12px;color:var(--tx-3);margin-bottom:14px">Classificação, métricas e responsáveis pela tarefa.</p>
             <div class="ce-grid2" style="margin-bottom:12px">
               <div class="field-row"><label class="field-label">Prioridade</label><select class="field-input" id="ce-priority"><option value="low">Baixa</option><option value="medium" selected>Média</option><option value="high">Alta</option><option value="critical">Crítica</option></select></div>
               <div class="field-row"><label class="field-label">Coluna Kanban</label><select class="field-input" id="ce-column"></select></div>
