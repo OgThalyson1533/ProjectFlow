@@ -8,7 +8,7 @@
 /* ── TOPBAR ─────────────────────────────────────────────────── */
 .topbar{height:var(--topbar-h);background:var(--bg-1);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 16px;gap:8px;position:relative;z-index:200;box-shadow:var(--sh-xs);flex-shrink:0;transition:background var(--t),border-color var(--t);}
 .tb-logo{display:flex;align-items:center;gap:9px;user-select:none;flex-shrink:0;}
-.tb-logo-mark{width:107px;height:32px;background-image:url('../logo1.svg');background-size:contain;background-repeat:no-repeat;background-position:left center;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tb-logo-mark{width:155px;height:32px;background-image:url('../logo1.svg');background-size:contain;background-repeat:no-repeat;background-position:left center;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 [data-theme="dark"] .tb-logo-mark{background-image:url('../logo.svg');}
 .tb-logo-mark svg{display:none;}
 .tb-logo-name{font-size:15px;font-weight:800;letter-spacing:-.5px;color:var(--tx-1);display:flex;align-items:center;gap:7px;}

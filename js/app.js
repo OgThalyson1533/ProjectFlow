@@ -1082,7 +1082,7 @@ document.addEventListener('DOMContentLoaded',function(){
 // ════════════════════════════════════════════════════════════
 //  23. Context Menu for Cards
 // ════════════════════════════════════════════════════════════
-(function(){
+;(function(){
   document.addEventListener('DOMContentLoaded', () => {
     const menu = document.createElement('div');
     menu.id = 'pf-card-ctx-menu';
